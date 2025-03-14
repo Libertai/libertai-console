@@ -32,10 +32,17 @@ jobs:
           cache-dependency-path: 'package-lock.json'
       - name: Install dependencies
         run: npm ci
+      - name: Create .env file
+        run: |
+          echo "NEXT_PUBLIC_THIRDWEB_CLIENT_ID=${{ secrets.THIRDWEB_CLIENT_ID }}" >> .env
+          echo "NEXT_PUBLIC_LTAI_SUBSCRIPTIONS_API_URL=${{ secrets.LTAI_SUBSCRIPTIONS_API_URL }}" >> .env
+          echo "NEXT_PUBLIC_LTAI_AGENTS_API_URL=${{ secrets.LTAI_AGENTS_API_URL }}" >> .env
+          echo "NEXT_PUBLIC_LTAI_AUTH_API_URL=${{ secrets.LTAI_AUTH_API_URL }}" >> .env
+          echo "NEXT_PUBLIC_SOLANA_RPC=${{ secrets.SOLANA_RPC }}" >> .env
       - name: Build project
         run: npm run build
 
       - name: Deploy on Aleph
-        uses: aleph-im/web3-hosting-action@v0.0.2
+        uses: aleph-im/web3-hosting-action@a56ecb611a4b23f27d45fe4cf07885af7a50c443
         with:
           path: 'out'

@@ -29,7 +29,7 @@ export default function AccountButton() {
 
 	useEffect(() => {
 		onAccountChange(account).then();
-	}, [account]);
+	}, [account, onAccountChange]);
 
 	// Format address to shorten it (e.g., 0x1234...5678)
 	const formatAddress = (address: string | undefined) => {
