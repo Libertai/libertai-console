@@ -34,3 +34,8 @@ jobs:
         run: npm ci
       - name: Build project
         run: npm run build
+
+      - name: Deploy on Aleph
+        uses: aleph-im/web3-hosting-action@v0.0.2
+        with:
+          path: 'out'
