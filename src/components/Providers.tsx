@@ -1,5 +1,3 @@
-"use client";
-
 import { ReactNode } from "react";
 import { ThirdwebProvider } from "thirdweb/react";
 
