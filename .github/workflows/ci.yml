@@ -54,7 +54,8 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Deploy on Aleph
+      - name: Deploy preview on Aleph
+        if: ${{ github.event_name == 'pull_request' }}
         uses: aleph-im/web3-hosting-action@v0.1.1
         with:
           path: 'out'
