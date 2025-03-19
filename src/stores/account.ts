@@ -1,9 +1,9 @@
-import env from "@/config/env";
 import { create } from "zustand";
 import { Account } from "thirdweb/wallets";
 import { getBalance } from "thirdweb/extensions/erc20";
 import { base } from "thirdweb/chains";
-import { thirdwebClient } from "@/config/thirdweb";
+import env from "@/config/env.ts";
+import { thirdwebClient } from "@/config/thirdweb.ts";
 
 const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
 
