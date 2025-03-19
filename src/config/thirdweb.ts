@@ -1,4 +1,3 @@
-// src/client.ts
 import { createThirdwebClient } from "thirdweb";
 import env from "@/config/env";
 

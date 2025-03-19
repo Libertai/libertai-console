@@ -1,9 +1,8 @@
 import { create } from "zustand";
 import { Account } from "thirdweb/wallets";
-import { getBalance } from "thirdweb/extensions/erc20";
-import { base } from "thirdweb/chains";
 import env from "@/config/env.ts";
-import { thirdwebClient } from "@/config/thirdweb.ts";
+import { getBalance } from "wagmi/actions";
+import { wagmiConfig } from "@/config/wagmi.ts";
 
 const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
 
@@ -58,17 +57,13 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		if (state.account === null) {
 			return 0;
 		}
-
-		const balance = await getBalance({
+		const balance = await getBalance(wagmiConfig, {
 			address: state.account.address as `0x${string}`,
-			contract: {
-				address: LTAI_BASE_ADDRESS,
-				chain: base,
-				client: thirdwebClient,
-			},
+			token: LTAI_BASE_ADDRESS,
+			chainId: env.BASE_CHAIN_ID,
 		});
 
-		return Number(balance.value);
+		return Number(balance.formatted);
 	},
 	onDisconnect: () => set({ account: null, alephStorage: null, ltaiBalance: 0 }),
 }));
