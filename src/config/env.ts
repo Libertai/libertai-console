@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { base, baseSepolia } from "wagmi/chains";
 
 const envSchema = z.object({
 	ALEPH_API_URL: z.string().url().optional(),
@@ -11,7 +10,6 @@ const envSchema = z.object({
 	LTAI_SOLANA_ADDRESS: z.string().optional().default("mntpN8z1d29f3MWhMD7VqZFpeYmbD88MgwS3Bkz8y7u"),
 	LTAI_PUBLISHER_ADDRESS: z.string().startsWith("0x").optional().default("0xCBFc3EeC41CBBfCAcc50337d712890C47a14ba99"),
 	THIRDWEB_CLIENT_ID: z.string(),
-	BASE_CHAIN_ID: z.union([z.literal(base.id), z.literal(baseSepolia.id)]).default(base.id),
 });
 
 const env = envSchema.parse({
@@ -24,7 +22,6 @@ const env = envSchema.parse({
 	LTAI_SOLANA_ADDRESS: import.meta.env.VITE_LTAI_SOLANA_ADDRESS,
 	LTAI_PUBLISHER_ADDRESS: import.meta.env.VITE_LTAI_PUBLISHER_ADDRESS,
 	THIRDWEB_CLIENT_ID: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
-	BASE_CHAIN_ID: import.meta.env.VITE_BASE_CHAIN_ID,
 });
 
 export default env;

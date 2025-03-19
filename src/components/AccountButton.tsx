@@ -6,7 +6,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Copy, ExternalLink, LogIn, LogOut, Settings } from "lucide-react";
+import { Copy, ExternalLink, LogOut, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { thirdwebClient } from "@/config/thirdweb";
 import { ConnectButton, useActiveAccount, useActiveWallet, useDisconnect } from "thirdweb/react";
@@ -17,14 +17,8 @@ export default function AccountButton() {
 	const account = useActiveAccount();
 	const wallet = useActiveWallet();
 	const { disconnect } = useDisconnect();
-	const [mounted, setMounted] = useState(false);
 	const [copySuccess, setCopySuccess] = useState(false);
 	const onAccountChange = useAccountStore((state) => state.onAccountChange);
-
-	// Prevent hydration errors by only rendering after mount
-	useEffect(() => {
-		setMounted(true);
-	}, []);
 
 	useEffect(() => {
 		onAccountChange(account).then();
@@ -51,16 +45,6 @@ export default function AccountButton() {
 			window.open(`https://etherscan.io/address/${account.address}`, "_blank");
 		}
 	};
-
-	// Show a placeholder until client-side code takes over
-	if (!mounted) {
-		return (
-			<Button variant="outline" disabled>
-				<LogIn className="h-4 w-4 mr-2" />
-				Account
-			</Button>
-		);
-	}
 
 	if (account !== undefined && wallet !== undefined) {
 		return (
