@@ -10,6 +10,8 @@ const envSchema = z.object({
 	LTAI_SOLANA_ADDRESS: z.string().optional().default("mntpN8z1d29f3MWhMD7VqZFpeYmbD88MgwS3Bkz8y7u"),
 	LTAI_PUBLISHER_ADDRESS: z.string().startsWith("0x").optional().default("0xCBFc3EeC41CBBfCAcc50337d712890C47a14ba99"),
 	THIRDWEB_CLIENT_ID: z.string(),
+	USDC_BASE_ADDRESS: z.string().startsWith("0x").optional().default("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"),
+	PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS: z.string().startsWith("0x"),
 });
 
 const env = envSchema.parse({
@@ -22,6 +24,7 @@ const env = envSchema.parse({
 	LTAI_SOLANA_ADDRESS: import.meta.env.VITE_LTAI_SOLANA_ADDRESS,
 	LTAI_PUBLISHER_ADDRESS: import.meta.env.VITE_LTAI_PUBLISHER_ADDRESS,
 	THIRDWEB_CLIENT_ID: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
+	USDC_BASE_ADDRESS: import.meta.env.VITE_USDC_BASE_ADDRESS,
+	PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS: import.meta.env.VITE_PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS,
 });
-
 export default env;
