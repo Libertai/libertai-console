@@ -1,8 +1,12 @@
 import { ReactNode } from "react";
 import { ThirdwebProvider } from "thirdweb/react";
 
-const WalletProviders = ({ children }: { children: ReactNode }) => {
+type ProvidersProps = {
+	children: ReactNode;
+};
+
+const Providers = ({ children }: ProvidersProps) => {
 	return <ThirdwebProvider>{children}</ThirdwebProvider>;
 };
 
-export default WalletProviders;
+export default Providers;

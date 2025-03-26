@@ -10,66 +10,142 @@
 
 // Import Routes
 
-import { Route as rootRoute } from "./routes/__root";
-import { Route as IndexImport } from "./routes/index";
+import { Route as rootRoute } from './routes/__root'
+import { Route as UsageImport } from './routes/usage'
+import { Route as TopupImport } from './routes/topup'
+import { Route as DashboardImport } from './routes/dashboard'
+import { Route as ApiKeysImport } from './routes/api-keys'
+import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
 
+const UsageRoute = UsageImport.update({
+  id: '/usage',
+  path: '/usage',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TopupRoute = TopupImport.update({
+  id: '/topup',
+  path: '/topup',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DashboardRoute = DashboardImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ApiKeysRoute = ApiKeysImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
-	id: "/",
-	path: "/",
-	getParentRoute: () => rootRoute
-} as any);
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
 
 // Populate the FileRoutesByPath interface
 
-declare module "@tanstack/react-router" {
-	interface FileRoutesByPath {
-		"/": {
-			id: "/"
-			path: "/"
-			fullPath: "/"
-			preLoaderRoute: typeof IndexImport
-			parentRoute: typeof rootRoute
-		};
-	}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/api-keys': {
+      id: '/api-keys'
+      path: '/api-keys'
+      fullPath: '/api-keys'
+      preLoaderRoute: typeof ApiKeysImport
+      parentRoute: typeof rootRoute
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardImport
+      parentRoute: typeof rootRoute
+    }
+    '/topup': {
+      id: '/topup'
+      path: '/topup'
+      fullPath: '/topup'
+      preLoaderRoute: typeof TopupImport
+      parentRoute: typeof rootRoute
+    }
+    '/usage': {
+      id: '/usage'
+      path: '/usage'
+      fullPath: '/usage'
+      preLoaderRoute: typeof UsageImport
+      parentRoute: typeof rootRoute
+    }
+  }
 }
 
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-	"/": typeof IndexRoute;
+  '/': typeof IndexRoute
+  '/api-keys': typeof ApiKeysRoute
+  '/dashboard': typeof DashboardRoute
+  '/topup': typeof TopupRoute
+  '/usage': typeof UsageRoute
 }
 
 export interface FileRoutesByTo {
-	"/": typeof IndexRoute;
+  '/': typeof IndexRoute
+  '/api-keys': typeof ApiKeysRoute
+  '/dashboard': typeof DashboardRoute
+  '/topup': typeof TopupRoute
+  '/usage': typeof UsageRoute
 }
 
 export interface FileRoutesById {
-	__root__: typeof rootRoute;
-	"/": typeof IndexRoute;
+  __root__: typeof rootRoute
+  '/': typeof IndexRoute
+  '/api-keys': typeof ApiKeysRoute
+  '/dashboard': typeof DashboardRoute
+  '/topup': typeof TopupRoute
+  '/usage': typeof UsageRoute
 }
 
 export interface FileRouteTypes {
-	fileRoutesByFullPath: FileRoutesByFullPath;
-	fullPaths: "/";
-	fileRoutesByTo: FileRoutesByTo;
-	to: "/";
-	id: "__root__" | "/";
-	fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/api-keys' | '/dashboard' | '/topup' | '/usage'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/api-keys' | '/dashboard' | '/topup' | '/usage'
+  id: '__root__' | '/' | '/api-keys' | '/dashboard' | '/topup' | '/usage'
+  fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-	IndexRoute: typeof IndexRoute;
+  IndexRoute: typeof IndexRoute
+  ApiKeysRoute: typeof ApiKeysRoute
+  DashboardRoute: typeof DashboardRoute
+  TopupRoute: typeof TopupRoute
+  UsageRoute: typeof UsageRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-	IndexRoute: IndexRoute
-};
+  IndexRoute: IndexRoute,
+  ApiKeysRoute: ApiKeysRoute,
+  DashboardRoute: DashboardRoute,
+  TopupRoute: TopupRoute,
+  UsageRoute: UsageRoute,
+}
 
 export const routeTree = rootRoute
-	._addFileChildren(rootRouteChildren)
-	._addFileTypes<FileRouteTypes>();
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
 /* ROUTE_MANIFEST_START
 {
@@ -77,11 +153,27 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/api-keys",
+        "/dashboard",
+        "/topup",
+        "/usage"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/api-keys": {
+      "filePath": "api-keys.tsx"
+    },
+    "/dashboard": {
+      "filePath": "dashboard.tsx"
+    },
+    "/topup": {
+      "filePath": "topup.tsx"
+    },
+    "/usage": {
+      "filePath": "usage.tsx"
     }
   }
 }
