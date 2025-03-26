@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Link, useRouter } from "@tanstack/react-router";
 import AccountButton from "./AccountButton";
@@ -21,7 +21,23 @@ interface LayoutProps {
 
 export function Layout({ children }: Readonly<LayoutProps>) {
 	const router = useRouter();
-	const currentPath = router.state.location.pathname;
+	const [currentPath, setCurrentPath] = useState(router.state.location.pathname);
+
+	// Update the current path whenever the route changes
+	useEffect(() => {
+		// Initial state
+		setCurrentPath(router.state.location.pathname);
+
+		// Subscribe to route changes
+		const unsubscribe = router.subscribe("onResolved", () => {
+			setCurrentPath(router.state.location.pathname);
+		});
+
+		// Cleanup subscription on unmount
+		return () => {
+			unsubscribe();
+		};
+	}, [router]);
 
 	return (
 		<SidebarProvider defaultOpen={true}>
