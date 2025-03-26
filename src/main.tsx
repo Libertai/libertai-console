@@ -5,6 +5,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 import "./styles.css";
+import { NotFoundPage } from "@/components/404.tsx";
 
 // Add theme detection
 function setInitialTheme() {
@@ -26,7 +27,10 @@ function setInitialTheme() {
 setInitialTheme();
 
 // Create a new router instance
-const router = createRouter({ routeTree });
+const router = createRouter({
+	routeTree,
+	defaultNotFoundComponent: NotFoundPage,
+});
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {

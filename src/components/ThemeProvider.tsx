@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 type ThemeProviderProps = {
 	children: ReactNode;
@@ -23,7 +23,7 @@ export function ThemeProvider({
 	defaultTheme = "system",
 	storageKey = "libertai-ui-theme",
 	...props
-}: ThemeProviderProps) {
+}: Readonly<ThemeProviderProps>) {
 	const [theme, setTheme] = useState<"light" | "dark">(
 		() =>
 			(localStorage.getItem(storageKey) as "light" | "dark") ||

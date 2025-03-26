@@ -10,6 +10,7 @@ const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
 type AccountStoreState = {
 	alephStorage: null;
 	ltaiBalance: number;
+	formattedLTAIBalance: () => string;
 	account: Account | null;
 
 	onAccountChange: (newAccount: Account | undefined) => Promise<void>;
@@ -21,6 +22,7 @@ type AccountStoreState = {
 export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	alephStorage: null,
 	ltaiBalance: 0,
+	formattedLTAIBalance: () => get().ltaiBalance.toFixed(0),
 	account: null,
 
 	onAccountChange: async (newAccount: Account | undefined) => {

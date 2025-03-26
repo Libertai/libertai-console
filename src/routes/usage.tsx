@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useAccountStore } from "@/stores/account";
+import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { BarChart3, BarChart4, Calendar, Download, HelpCircle, LineChart } from "lucide-react";
+import { useRequireAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 
 export const Route = createFileRoute("/usage")({
@@ -31,13 +31,13 @@ const mockApiKeyUsage = [
 ];
 
 function Usage() {
-	const account = useAccountStore((state) => state.account);
-	const navigate = useNavigate();
 	const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("7d");
 
-	// Redirect to home if not logged in
-	if (!account) {
-		navigate({ to: "/" });
+	// Use auth hook to require authentication
+	const { isAuthenticated } = useRequireAuth();
+
+	// Return null if not authenticated (redirect is handled by the hook)
+	if (!isAuthenticated) {
 		return null;
 	}
 
@@ -54,28 +54,13 @@ function Usage() {
 						<p className="text-muted-foreground mt-1">Monitor your API usage and costs</p>
 					</div>
 					<div className="flex items-center gap-2">
-						<Button
-							variant={timeRange === "7d" ? "default" : "outline"}
-							size="sm"
-							onClick={() => setTimeRange("7d")}
-							className={timeRange === "7d" ? "" : ""}
-						>
+						<Button variant={timeRange === "7d" ? "default" : "outline"} size="sm" onClick={() => setTimeRange("7d")}>
 							7 Days
 						</Button>
-						<Button
-							variant={timeRange === "30d" ? "default" : "outline"}
-							size="sm"
-							onClick={() => setTimeRange("30d")}
-							className={timeRange === "30d" ? "" : ""}
-						>
+						<Button variant={timeRange === "30d" ? "default" : "outline"} size="sm" onClick={() => setTimeRange("30d")}>
 							30 Days
 						</Button>
-						<Button
-							variant={timeRange === "90d" ? "default" : "outline"}
-							size="sm"
-							onClick={() => setTimeRange("90d")}
-							className={timeRange === "90d" ? "" : ""}
-						>
+						<Button variant={timeRange === "90d" ? "default" : "outline"} size="sm" onClick={() => setTimeRange("90d")}>
 							90 Days
 						</Button>
 					</div>

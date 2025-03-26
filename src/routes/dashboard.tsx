@@ -2,14 +2,15 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAccountStore } from "@/stores/account";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, BarChart4, Coins, History, Key, LineChart, Zap } from "lucide-react";
+import { useRequireAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/dashboard")({
 	component: Dashboard,
 });
 
 function Dashboard() {
-	const account = useAccountStore((state) => state.account);
-	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
+	const { isAuthenticated } = useRequireAuth();
+	const ltaiBalance = useAccountStore((state) => state.formattedLTAIBalance());
 	const navigate = useNavigate();
 
 	// In a real app, these would be fetched from an API
@@ -20,9 +21,8 @@ function Dashboard() {
 		monthlyUsage: [258, 342, 430, 389, 675, 759],
 	};
 
-	// Redirect to home if not logged in
-	if (!account) {
-		navigate({ to: "/" });
+	// Return null if not authenticated (redirect is handled by the hook)
+	if (!isAuthenticated) {
 		return null;
 	}
 

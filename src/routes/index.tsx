@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
 	const account = useAccountStore((state) => state.account);
-	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
+	const ltaiBalance = useAccountStore((state) => state.formattedLTAIBalance());
 	const navigate = useNavigate();
 
 	return (

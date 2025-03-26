@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAccountStore } from "@/stores/account";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ChevronRight, Coins, CreditCard, HelpCircle } from "lucide-react";
+import { useRequireAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { thirdwebClient } from "@/config/thirdweb.ts";
 import { PayEmbed, useIsAutoConnecting } from "thirdweb/react";
@@ -23,8 +24,7 @@ interface PricingTier {
 
 function TopUp() {
 	const isAutoConnecting = useIsAutoConnecting();
-	const account = useAccountStore((state) => state.account);
-	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
+	const ltaiBalance = useAccountStore((state) => state.formattedLTAIBalance());
 	const navigate = useNavigate();
 	const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
 	const [paymentStage, setPaymentStage] = useState<"select" | "payment" | "success">("select");
@@ -62,9 +62,11 @@ function TopUp() {
 		},
 	];
 
-	// Redirect to home if not logged in
-	if (!account && !isAutoConnecting) {
-		navigate({ to: "/" });
+	// Use auth hook to require authentication
+	const { isAuthenticated } = useRequireAuth();
+
+	// Return null if not authenticated (redirect is handled by the hook)
+	if (!isAuthenticated && !isAutoConnecting) {
 		return null;
 	}
 

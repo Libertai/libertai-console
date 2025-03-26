@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useAccountStore } from "@/stores/account";
+import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { AlarmClock, Copy, Eye, EyeOff, Key, MoreHorizontal, Plus, Settings, Trash } from "lucide-react";
+import { useRequireAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import {
 	DropdownMenu,
@@ -25,8 +25,6 @@ interface ApiKey {
 }
 
 function ApiKeys() {
-	const account = useAccountStore((state) => state.account);
-	const navigate = useNavigate();
 	const [showNewKeyModal, setShowNewKeyModal] = useState(false);
 	const [newKeyName, setNewKeyName] = useState("");
 	const [newGeneratedKey, setNewGeneratedKey] = useState<string | null>(null);
@@ -52,9 +50,11 @@ function ApiKeys() {
 		},
 	]);
 
-	// Redirect to home if not logged in
-	if (!account) {
-		navigate({ to: "/" });
+	// Use auth hook to require authentication
+	const { isAuthenticated } = useRequireAuth();
+
+	// Return null if not authenticated (redirect is handled by the hook)
+	if (!isAuthenticated) {
 		return null;
 	}
 
@@ -129,13 +129,13 @@ function ApiKeys() {
 										<td className="px-6 py-4 text-sm font-medium">{key.name}</td>
 										<td className="px-6 py-4 text-sm font-mono">{key.prefix}•••</td>
 										<td className="px-6 py-4 text-sm text-muted-foreground">{key.created}</td>
-										<td className="px-6 py-4 text-sm text-muted-foreground">{key.lastUsed || "Never"}</td>
+										<td className="px-6 py-4 text-sm text-muted-foreground">{key.lastUsed ?? "Never"}</td>
 										<td className="px-6 py-4 text-sm">
 											<span
 												className={`px-2 py-1 rounded-full text-xs font-medium
                           ${
 														key.status === "active"
-															? "bg-emerald-900/30 text-emerald-400"
+															? "dark:bg-emerald-900/30 bg-emerald-900/5 text-emerald-400"
 															: key.status === "expired"
 																? "bg-amber-900/30 text-amber-400"
 																: "bg-red-900/30 text-red-400"
@@ -209,7 +209,7 @@ function ApiKeys() {
 
 						<p className="text-sm">
 							For more detailed instructions and example code in various programming languages, see our{" "}
-							<a href="#" className="text-primary hover:underline">
+							<a href="https://docs.libertai.io" className="text-primary hover:underline" target="_blank">
 								API Documentation
 							</a>
 							.
