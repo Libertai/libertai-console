@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAccountStore } from "@/stores/account";
 import { Button } from "@/components/ui/button";
-import { BarChart3, BarChart4, Calendar, Download, HelpCircle, LineChart, Zap } from "lucide-react";
-import AccountButton from "@/components/AccountButton";
+import { BarChart3, BarChart4, Calendar, Download, HelpCircle, LineChart } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/usage")({
@@ -47,215 +46,199 @@ function Usage() {
 	const maxTokens = Math.max(...mockDailyUsage.map((day) => day.tokens));
 
 	return (
-		<div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white">
-			<header className="border-b border-slate-700">
-				<div className="container mx-auto px-4 py-4">
-					<div className="flex justify-between items-center">
-						<div className="flex items-center gap-2">
-							<Zap className="h-6 w-6 text-blue-400" />
-							<h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-violet-500">
-								LibertAI Dev
-							</h1>
-						</div>
-						<AccountButton />
+		<div className="container mx-auto px-4 py-8">
+			<div className="flex flex-col space-y-8">
+				<div className="flex justify-between items-center">
+					<div>
+						<h1 className="text-3xl font-bold">Usage Statistics</h1>
+						<p className="text-muted-foreground mt-1">Monitor your API usage and costs</p>
+					</div>
+					<div className="flex items-center gap-2">
+						<Button
+							variant={timeRange === "7d" ? "default" : "outline"}
+							size="sm"
+							onClick={() => setTimeRange("7d")}
+							className={timeRange === "7d" ? "" : ""}
+						>
+							7 Days
+						</Button>
+						<Button
+							variant={timeRange === "30d" ? "default" : "outline"}
+							size="sm"
+							onClick={() => setTimeRange("30d")}
+							className={timeRange === "30d" ? "" : ""}
+						>
+							30 Days
+						</Button>
+						<Button
+							variant={timeRange === "90d" ? "default" : "outline"}
+							size="sm"
+							onClick={() => setTimeRange("90d")}
+							className={timeRange === "90d" ? "" : ""}
+						>
+							90 Days
+						</Button>
 					</div>
 				</div>
-			</header>
 
-			<main className="container mx-auto px-4 py-8">
-				<div className="flex flex-col space-y-8">
-					<div className="flex justify-between items-center">
-						<div>
-							<h1 className="text-3xl font-bold">Usage Statistics</h1>
-							<p className="text-slate-400 mt-1">Monitor your API usage and costs</p>
+				{/* Summary Cards */}
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
+						<div className="flex items-center gap-3 mb-2">
+							<BarChart4 className="h-5 w-5 text-primary" />
+							<h2 className="text-lg font-medium">Total Requests</h2>
 						</div>
-						<div className="flex items-center gap-2">
-							<Button
-								variant={timeRange === "7d" ? "default" : "outline"}
-								size="sm"
-								onClick={() => setTimeRange("7d")}
-								className={timeRange === "7d" ? "bg-blue-500 hover:bg-blue-600" : "border-slate-600"}
-							>
-								7 Days
-							</Button>
-							<Button
-								variant={timeRange === "30d" ? "default" : "outline"}
-								size="sm"
-								onClick={() => setTimeRange("30d")}
-								className={timeRange === "30d" ? "bg-blue-500 hover:bg-blue-600" : "border-slate-600"}
-							>
-								30 Days
-							</Button>
-							<Button
-								variant={timeRange === "90d" ? "default" : "outline"}
-								size="sm"
-								onClick={() => setTimeRange("90d")}
-								className={timeRange === "90d" ? "bg-blue-500 hover:bg-blue-600" : "border-slate-600"}
-							>
-								90 Days
-							</Button>
-						</div>
+						<p className="text-3xl font-bold">1,200</p>
+						<p className="text-sm text-emerald-400 mt-1 flex items-center">
+							<span className="inline-block mr-1">↑</span> 8% from previous period
+						</p>
 					</div>
 
-					{/* Summary Cards */}
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-						<div className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700">
-							<div className="flex items-center gap-3 mb-2">
-								<BarChart4 className="h-5 w-5 text-blue-400" />
-								<h2 className="text-lg font-medium">Total Requests</h2>
-							</div>
-							<p className="text-3xl font-bold">1,200</p>
-							<p className="text-sm text-emerald-400 mt-1 flex items-center">
-								<span className="inline-block mr-1">↑</span> 8% from previous period
-							</p>
+					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
+						<div className="flex items-center gap-3 mb-2">
+							<LineChart className="h-5 w-5 text-primary" />
+							<h2 className="text-lg font-medium">Total Tokens</h2>
 						</div>
-
-						<div className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700">
-							<div className="flex items-center gap-3 mb-2">
-								<LineChart className="h-5 w-5 text-violet-400" />
-								<h2 className="text-lg font-medium">Total Tokens</h2>
-							</div>
-							<p className="text-3xl font-bold">66,000</p>
-							<p className="text-sm text-emerald-400 mt-1 flex items-center">
-								<span className="inline-block mr-1">↑</span> 12% from previous period
-							</p>
-						</div>
-
-						<div className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700">
-							<div className="flex items-center gap-3 mb-2">
-								<Calendar className="h-5 w-5 text-amber-400" />
-								<h2 className="text-lg font-medium">Total Cost</h2>
-							</div>
-							<p className="text-3xl font-bold">16.5 LTAI</p>
-							<p className="text-sm text-emerald-400 mt-1 flex items-center">
-								<span className="inline-block mr-1">↑</span> 5% from previous period
-							</p>
-						</div>
+						<p className="text-3xl font-bold">66,000</p>
+						<p className="text-sm text-emerald-400 mt-1 flex items-center">
+							<span className="inline-block mr-1">↑</span> 12% from previous period
+						</p>
 					</div>
 
-					{/* Daily Usage Chart */}
-					<div className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700">
-						<div className="flex items-center justify-between mb-6">
-							<div className="flex items-center gap-3">
-								<BarChart3 className="h-5 w-5 text-blue-400" />
-								<h2 className="text-xl font-semibold">Daily Usage</h2>
-							</div>
-							<Button variant="outline" size="sm" className="border-slate-600">
-								<Download className="h-4 w-4 mr-2" />
-								Export Data
-							</Button>
+					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
+						<div className="flex items-center gap-3 mb-2">
+							<Calendar className="h-5 w-5 text-primary" />
+							<h2 className="text-lg font-medium">Total Cost</h2>
 						</div>
+						<p className="text-3xl font-bold">16.5 LTAI</p>
+						<p className="text-sm text-emerald-400 mt-1 flex items-center">
+							<span className="inline-block mr-1">↑</span> 5% from previous period
+						</p>
+					</div>
+				</div>
 
-						<div className="h-72 flex flex-col">
-							<div className="flex-1 flex items-end justify-between gap-2">
-								{mockDailyUsage.map((day, index) => (
-									<div key={index} className="flex flex-col items-center gap-1 flex-1 group relative">
-										<div className="w-full flex flex-col items-center gap-1">
-											<div
-												className="w-4/5 bg-blue-500/80 hover:bg-blue-400 transition-colors rounded-sm"
-												style={{ height: `${(day.requests / maxRequests) * 100}%` }}
-											></div>
-											<div
-												className="w-4/5 bg-violet-500/80 hover:bg-violet-400 transition-colors rounded-sm"
-												style={{ height: `${(day.tokens / maxTokens) * 30}%` }}
-											></div>
-										</div>
+				{/* Daily Usage Chart */}
+				<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
+					<div className="flex items-center justify-between mb-6">
+						<div className="flex items-center gap-3">
+							<BarChart3 className="h-5 w-5 text-primary" />
+							<h2 className="text-xl font-semibold">Daily Usage</h2>
+						</div>
+						<Button variant="outline" size="sm">
+							<Download className="h-4 w-4 mr-2" />
+							Export Data
+						</Button>
+					</div>
 
-										{/* Tooltip */}
-										<div className="absolute bottom-full mb-2 bg-slate-900 rounded-md border border-slate-700 p-2 text-xs invisible group-hover:visible w-32 z-10">
-											<p className="font-semibold">{day.date}</p>
-											<p className="text-blue-400 flex justify-between mt-1">
-												<span>Requests:</span>
-												<span>{day.requests}</span>
-											</p>
-											<p className="text-violet-400 flex justify-between">
-												<span>Tokens:</span>
-												<span>{day.tokens}</span>
-											</p>
-										</div>
-
-										<span className="text-xs text-slate-400 mt-1">{day.date}</span>
+					<div className="h-72 flex flex-col">
+						<div className="flex-1 flex items-end justify-between gap-2">
+							{mockDailyUsage.map((day, index) => (
+								<div key={index} className="flex flex-col items-center gap-1 flex-1 group relative">
+									<div className="w-full flex flex-col items-center gap-1">
+										<div
+											className="w-4/5 bg-primary/80 hover:bg-primary transition-colors rounded-sm"
+											style={{ height: `${(day.requests / maxRequests) * 100}%` }}
+										></div>
+										<div
+											className="w-4/5 bg-[#8a5cf5]/80 hover:bg-[#8a5cf5] transition-colors rounded-sm"
+											style={{ height: `${(day.tokens / maxTokens) * 30}%` }}
+										></div>
 									</div>
-								))}
-							</div>
 
-							<div className="flex justify-center mt-4 gap-6">
-								<div className="flex items-center gap-2">
-									<div className="w-3 h-3 bg-blue-500 rounded-sm"></div>
-									<span className="text-xs text-slate-300">Requests</span>
+									{/* Tooltip */}
+									<div className="absolute bottom-full mb-2 bg-card rounded-md border border-border p-2 text-xs invisible group-hover:visible w-32 z-10">
+										<p className="font-semibold">{day.date}</p>
+										<p className="text-primary flex justify-between mt-1">
+											<span>Requests:</span>
+											<span>{day.requests}</span>
+										</p>
+										<p className="text-[#8a5cf5] flex justify-between">
+											<span>Tokens:</span>
+											<span>{day.tokens}</span>
+										</p>
+									</div>
+
+									<span className="text-xs text-muted-foreground mt-1">{day.date}</span>
 								</div>
-								<div className="flex items-center gap-2">
-									<div className="w-3 h-3 bg-violet-500 rounded-sm"></div>
-									<span className="text-xs text-slate-300">Tokens</span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					{/* Usage by Model and API Key */}
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-						<div className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700">
-							<div className="flex items-center justify-between mb-6">
-								<h2 className="text-xl font-semibold">Usage by Model</h2>
-								<HelpCircle className="h-4 w-4 text-slate-400" />
-							</div>
-
-							<div className="overflow-x-auto">
-								<table className="w-full">
-									<thead>
-										<tr className="border-b border-slate-700">
-											<th className="px-4 py-3 text-left text-sm font-medium text-slate-300">Model</th>
-											<th className="px-4 py-3 text-right text-sm font-medium text-slate-300">Requests</th>
-											<th className="px-4 py-3 text-right text-sm font-medium text-slate-300">Tokens</th>
-											<th className="px-4 py-3 text-right text-sm font-medium text-slate-300">Cost (LTAI)</th>
-										</tr>
-									</thead>
-									<tbody>
-										{mockModelsUsage.map((model, index) => (
-											<tr key={index} className="border-b border-slate-700/50 hover:bg-slate-700/20">
-												<td className="px-4 py-3 text-sm font-medium">{model.model}</td>
-												<td className="px-4 py-3 text-sm text-right">{model.requests}</td>
-												<td className="px-4 py-3 text-sm text-right">{model.tokens}</td>
-												<td className="px-4 py-3 text-sm text-right">{model.cost}</td>
-											</tr>
-										))}
-									</tbody>
-								</table>
-							</div>
+							))}
 						</div>
 
-						<div className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700">
-							<div className="flex items-center justify-between mb-6">
-								<h2 className="text-xl font-semibold">Usage by API Key</h2>
-								<HelpCircle className="h-4 w-4 text-slate-400" />
+						<div className="flex justify-center mt-4 gap-6">
+							<div className="flex items-center gap-2">
+								<div className="w-3 h-3 bg-primary rounded-sm"></div>
+								<span className="text-xs text-muted-foreground">Requests</span>
 							</div>
-
-							<div className="overflow-x-auto">
-								<table className="w-full">
-									<thead>
-										<tr className="border-b border-slate-700">
-											<th className="px-4 py-3 text-left text-sm font-medium text-slate-300">API Key</th>
-											<th className="px-4 py-3 text-right text-sm font-medium text-slate-300">Requests</th>
-											<th className="px-4 py-3 text-right text-sm font-medium text-slate-300">Tokens</th>
-											<th className="px-4 py-3 text-right text-sm font-medium text-slate-300">Cost (LTAI)</th>
-										</tr>
-									</thead>
-									<tbody>
-										{mockApiKeyUsage.map((key, index) => (
-											<tr key={index} className="border-b border-slate-700/50 hover:bg-slate-700/20">
-												<td className="px-4 py-3 text-sm font-medium">{key.key}</td>
-												<td className="px-4 py-3 text-sm text-right">{key.requests}</td>
-												<td className="px-4 py-3 text-sm text-right">{key.tokens}</td>
-												<td className="px-4 py-3 text-sm text-right">{key.cost}</td>
-											</tr>
-										))}
-									</tbody>
-								</table>
+							<div className="flex items-center gap-2">
+								<div className="w-3 h-3 bg-[#8a5cf5] rounded-sm"></div>
+								<span className="text-xs text-muted-foreground">Tokens</span>
 							</div>
 						</div>
 					</div>
 				</div>
-			</main>
+
+				{/* Usage by Model and API Key */}
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
+						<div className="flex items-center justify-between mb-6">
+							<h2 className="text-xl font-semibold">Usage by Model</h2>
+							<HelpCircle className="h-4 w-4 text-muted-foreground" />
+						</div>
+
+						<div className="overflow-x-auto">
+							<table className="w-full">
+								<thead>
+									<tr className="border-b border-border">
+										<th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Model</th>
+										<th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Requests</th>
+										<th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Tokens</th>
+										<th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Cost (LTAI)</th>
+									</tr>
+								</thead>
+								<tbody>
+									{mockModelsUsage.map((model, index) => (
+										<tr key={index} className="border-b border-border/50 hover:bg-card/70">
+											<td className="px-4 py-3 text-sm font-medium">{model.model}</td>
+											<td className="px-4 py-3 text-sm text-right">{model.requests}</td>
+											<td className="px-4 py-3 text-sm text-right">{model.tokens}</td>
+											<td className="px-4 py-3 text-sm text-right">{model.cost}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
+						<div className="flex items-center justify-between mb-6">
+							<h2 className="text-xl font-semibold">Usage by API Key</h2>
+							<HelpCircle className="h-4 w-4 text-muted-foreground" />
+						</div>
+
+						<div className="overflow-x-auto">
+							<table className="w-full">
+								<thead>
+									<tr className="border-b border-border">
+										<th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">API Key</th>
+										<th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Requests</th>
+										<th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Tokens</th>
+										<th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Cost (LTAI)</th>
+									</tr>
+								</thead>
+								<tbody>
+									{mockApiKeyUsage.map((key, index) => (
+										<tr key={index} className="border-b border-border/50 hover:bg-card/70">
+											<td className="px-4 py-3 text-sm font-medium">{key.key}</td>
+											<td className="px-4 py-3 text-sm text-right">{key.requests}</td>
+											<td className="px-4 py-3 text-sm text-right">{key.tokens}</td>
+											<td className="px-4 py-3 text-sm text-right">{key.cost}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }

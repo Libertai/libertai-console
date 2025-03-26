@@ -57,27 +57,27 @@ export default function AccountButton() {
 		return (
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
-					<Button variant="outline" className="flex items-center gap-2 px-3 h-9 border-slate-600">
+					<Button variant="outline" className="flex items-center gap-2 px-3 h-9 border-border">
 						<span className="flex items-center gap-2">
-							<span className="hidden md:flex items-center text-slate-400 text-xs">
-								<Coins className="h-3 w-3 mr-1 text-blue-400" />
+							<span className="hidden md:flex items-center text-muted-foreground text-xs">
+								<Coins className="h-3 w-3 mr-1 text-primary" />
 								{ltaiBalance} LTAI
 							</span>
-							<span className="h-4 w-px bg-slate-600 hidden md:block"></span>
+							<span className="h-4 w-px bg-border hidden md:block"></span>
 							<span className="text-sm">{formatAddress(account.address)}</span>
 						</span>
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="min-w-[220px]">
-					<div className="px-2 py-2 border-b border-slate-700">
-						<p className="text-xs text-slate-400">Connected as</p>
+					<div className="px-2 py-2 border-b border-border">
+						<p className="text-xs text-muted-foreground">Connected as</p>
 						<p className="font-medium truncate">{formatAddress(account.address)}</p>
 					</div>
 
-					<div className="px-2 py-2 border-b border-slate-700">
-						<p className="text-xs text-slate-400">Balance</p>
+					<div className="px-2 py-2 border-b border-border">
+						<p className="text-xs text-muted-foreground">Balance</p>
 						<p className="font-medium flex items-center">
-							<Coins className="h-3 w-3 mr-1 text-blue-400" />
+							<Coins className="h-3 w-3 mr-1 text-primary" />
 							{ltaiBalance} LTAI
 						</p>
 					</div>
@@ -112,7 +112,10 @@ export default function AccountButton() {
 		<ConnectButton
 			client={thirdwebClient}
 			chain={base}
-			// buttonClassName="bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600"
+			connectButton={{
+				className:
+					"!bg-primary !hover:bg-primary/90 !text-primary-foreground !shadow-sm !h-9 !px-4 !py-2 !rounded-md !text-sm !font-medium !transition-colors !focus-visible:outline-none !focus-visible:ring-1 !focus-visible:ring-ring !disabled:pointer-events-none !disabled:opacity-50",
+			}}
 		/>
 	);
 }
