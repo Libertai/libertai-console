@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Copy, Eye, EyeOff, Key, MoreHorizontal, Plus, Settings, Trash } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -10,7 +10,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ApiKey } from "@/apis/inference";
+import { ApiKeyCreate } from "@/apis/inference";
+import { useApiKeysStore } from "@/stores/apiKeys";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/api-keys")({
 	component: ApiKeys,
@@ -22,55 +24,52 @@ function ApiKeys() {
 	const [newGeneratedKey, setNewGeneratedKey] = useState<string | null>(null);
 	const [showKey, setShowKey] = useState(false);
 
-	// Mock API Keys data - in a real app, these would be fetched from an API
-	const [apiKeys, setApiKeys] = useState<ApiKey[]>([
-		{
-			key: "lt_prod_K1",
-			name: "Production API Key",
-			created_at: "2025-01-15",
-			is_active: true,
-			monthly_limit: null,
-		},
-		{
-			key: "lt_dev_K2",
-			name: "Development API Key",
-			created_at: "2025-02-20",
-			is_active: true,
-			monthly_limit: 5,
-		},
-	]);
-
 	// Use auth hook to require authentication
 	const { isAuthenticated } = useRequireAuth();
+
+	// Use API keys store
+	const { apiKeys, isLoading, fetchApiKeys, createApiKey, deleteApiKey } = useApiKeysStore();
+
+	// Fetch API keys when component mounts
+	useEffect(() => {
+		if (isAuthenticated) {
+			fetchApiKeys();
+		}
+	}, [isAuthenticated, fetchApiKeys]);
 
 	// Return null if not authenticated (redirect is handled by the hook)
 	if (!isAuthenticated) {
 		return null;
 	}
 
-	const handleCreateKey = () => {
+	const handleCreateKey = async () => {
 		if (!newKeyName.trim()) return;
 
-		// Generate a mock API key
-		const generatedKey = `lt_${Math.random().toString(36).substring(2, 8)}_${Math.random().toString(36).substring(2, 15)}`;
+		try {
+			// Create API key with backend
+			const keyData: ApiKeyCreate = {
+				name: newKeyName,
+				monthly_limit: null,
+			};
 
-		setNewGeneratedKey(generatedKey);
+			const newKey = await createApiKey(keyData);
 
-		// In a real app, this would call an API to create the key
-		const newKey: ApiKey = {
-			name: newKeyName,
-			key: `lt_${newKeyName.toLowerCase().substring(0, 4)}_${apiKeys.length + 1}`,
-			created_at: new Date().toISOString().split("T")[0],
-			is_active: true,
-			monthly_limit: null,
-		};
-
-		setApiKeys([...apiKeys, newKey]);
+			if (newKey) {
+				// Show the generated key to the user (only visible once)
+				setNewGeneratedKey(newKey.full_key);
+			}
+		} catch (error) {
+			console.error("Error creating API key:", error);
+			toast.error("Failed to create API key", {
+				description: error instanceof Error ? error.message : "An unknown error occurred",
+			});
+		}
 	};
 
 	const handleCopyKey = () => {
 		if (newGeneratedKey) {
 			navigator.clipboard.writeText(newGeneratedKey);
+			toast.success("API key copied to clipboard");
 		}
 	};
 
@@ -80,8 +79,15 @@ function ApiKeys() {
 		setShowNewKeyModal(false);
 	};
 
-	const handleRevokeKey = (keyId: string) => {
-		setApiKeys(apiKeys.map((key) => (key.key === keyId ? { ...key, is_active: false } : key)));
+	const handleDeleteKey = async (keyId: string) => {
+		try {
+			await deleteApiKey(keyId);
+		} catch (error) {
+			console.error("Error deleting API key:", error);
+			toast.error("Failed to delete API key", {
+				description: error instanceof Error ? error.message : "An unknown error occurred",
+			});
+		}
 	};
 
 	return (
@@ -113,53 +119,67 @@ function ApiKeys() {
 								</tr>
 							</thead>
 							<tbody>
-								{apiKeys.map((key) => (
-									<tr key={key.name} className="border-b border-border/50 hover:bg-card/70">
-										<td className="px-6 py-4 text-sm font-medium">{key.name}</td>
-										<td className="px-6 py-4 text-sm font-mono">{key.key}•••</td>
-										<td className="px-6 py-4 text-sm text-muted-foreground">{key.created_at}</td>
-										<td className="px-6 py-4 text-sm text-muted-foreground">
-											{key.monthly_limit ? `${key.monthly_limit} $` : "None"}
+								{apiKeys.length === 0 && !isLoading ? (
+									<tr className="border-b border-border/50">
+										<td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+											No API keys found. Create one to get started.
 										</td>
-										<td className="px-6 py-4 text-sm">
-											<span
-												className={`px-2 py-1 rounded-full text-xs font-medium
+									</tr>
+								) : isLoading ? (
+									<tr className="border-b border-border/50">
+										<td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+											Loading API keys...
+										</td>
+									</tr>
+								) : (
+									apiKeys.map((key) => (
+										<tr key={key.id} className="border-b border-border/50 hover:bg-card/70">
+											<td className="px-6 py-4 text-sm font-medium">{key.name}</td>
+											<td className="px-6 py-4 text-sm font-mono">{key.key}</td>
+											<td className="px-6 py-4 text-sm text-muted-foreground">{key.created_at}</td>
+											<td className="px-6 py-4 text-sm text-muted-foreground">
+												{key.monthly_limit ? `${key.monthly_limit} $` : "None"}
+											</td>
+											<td className="px-6 py-4 text-sm">
+												<span
+													className={`px-2 py-1 rounded-full text-xs font-medium
                           ${
 														key.is_active
 															? "dark:bg-emerald-900/30 bg-emerald-900/5 text-emerald-400"
 															: "bg-red-900/30 text-red-400"
 													}
                         `}
-											>
-												{key.is_active ? "Active" : "Disabled"}
-											</span>
-										</td>
-										<td className="px-6 py-4 text-right">
-											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
-													<Button variant="ghost" size="icon" className="h-8 w-8">
-														<MoreHorizontal className="h-4 w-4" />
-													</Button>
-												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end" className="w-44">
-													<DropdownMenuItem onClick={() => {}} className="cursor-pointer" disabled={!key.is_active}>
-														<Settings className="h-4 w-4 mr-2" />
-														<span>Edit</span>
-													</DropdownMenuItem>
-													<DropdownMenuSeparator />
-													<DropdownMenuItem
-														onClick={() => handleRevokeKey(key.key)}
-														className="cursor-pointer text-destructive"
-														disabled={!key.is_active}
-													>
-														<Trash className="h-4 w-4 mr-2" />
-														<span>Disable</span>
-													</DropdownMenuItem>
-												</DropdownMenuContent>
-											</DropdownMenu>
-										</td>
-									</tr>
-								))}
+												>
+													{key.is_active ? "Active" : "Disabled"}
+												</span>
+											</td>
+											<td className="px-6 py-4 text-right">
+												<DropdownMenu>
+													<DropdownMenuTrigger asChild>
+														<Button variant="ghost" size="icon" className="h-8 w-8">
+															<MoreHorizontal className="h-4 w-4" />
+														</Button>
+													</DropdownMenuTrigger>
+													<DropdownMenuContent align="end" className="w-44">
+														<DropdownMenuItem onClick={() => {}} className="cursor-pointer" disabled={!key.is_active}>
+															<Settings className="h-4 w-4 mr-2" />
+															<span>Edit</span>
+														</DropdownMenuItem>
+														<DropdownMenuSeparator />
+														<DropdownMenuItem
+															onClick={() => handleDeleteKey(key.id)}
+															className="cursor-pointer text-destructive"
+															disabled={!key.is_active}
+														>
+															<Trash className="h-4 w-4 mr-2" />
+															<span>Delete</span>
+														</DropdownMenuItem>
+													</DropdownMenuContent>
+												</DropdownMenu>
+											</td>
+										</tr>
+									))
+								)}
 							</tbody>
 						</table>
 					</div>
@@ -226,11 +246,11 @@ function ApiKeys() {
 								</div>
 
 								<div className="flex justify-end gap-3 mt-6">
-									<Button variant="outline" onClick={() => setShowNewKeyModal(false)}>
+									<Button variant="outline" onClick={() => setShowNewKeyModal(false)} disabled={isLoading}>
 										Cancel
 									</Button>
-									<Button onClick={handleCreateKey} disabled={!newKeyName.trim()}>
-										Create Key
+									<Button onClick={handleCreateKey} disabled={!newKeyName.trim() || isLoading}>
+										{isLoading ? "Creating..." : "Create Key"}
 									</Button>
 								</div>
 							</>
