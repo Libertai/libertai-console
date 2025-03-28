@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { AlarmClock, Copy, Eye, EyeOff, Key, MoreHorizontal, Plus, Settings, Trash } from "lucide-react";
+import { Copy, Eye, EyeOff, Key, MoreHorizontal, Plus, Settings, Trash } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import {
@@ -10,19 +10,11 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ApiKey } from "@/apis/inference";
 
 export const Route = createFileRoute("/api-keys")({
 	component: ApiKeys,
 });
-
-interface ApiKey {
-	id: string;
-	name: string;
-	prefix: string;
-	created: string;
-	lastUsed: string | null;
-	status: "active" | "expired" | "revoked";
-}
 
 function ApiKeys() {
 	const [showNewKeyModal, setShowNewKeyModal] = useState(false);
@@ -33,20 +25,18 @@ function ApiKeys() {
 	// Mock API Keys data - in a real app, these would be fetched from an API
 	const [apiKeys, setApiKeys] = useState<ApiKey[]>([
 		{
-			id: "key_1",
+			key: "lt_prod_K1",
 			name: "Production API Key",
-			prefix: "lt_prod_K1",
-			created: "2025-01-15",
-			lastUsed: "2025-03-24",
-			status: "active",
+			created_at: "2025-01-15",
+			is_active: true,
+			monthly_limit: null,
 		},
 		{
-			id: "key_2",
+			key: "lt_dev_K2",
 			name: "Development API Key",
-			prefix: "lt_dev_K2",
-			created: "2025-02-20",
-			lastUsed: "2025-03-15",
-			status: "active",
+			created_at: "2025-02-20",
+			is_active: true,
+			monthly_limit: 5,
 		},
 	]);
 
@@ -68,12 +58,11 @@ function ApiKeys() {
 
 		// In a real app, this would call an API to create the key
 		const newKey: ApiKey = {
-			id: `key_${apiKeys.length + 1}`,
 			name: newKeyName,
-			prefix: `lt_${newKeyName.toLowerCase().substring(0, 4)}_${apiKeys.length + 1}`,
-			created: new Date().toISOString().split("T")[0],
-			lastUsed: null,
-			status: "active",
+			key: `lt_${newKeyName.toLowerCase().substring(0, 4)}_${apiKeys.length + 1}`,
+			created_at: new Date().toISOString().split("T")[0],
+			is_active: true,
+			monthly_limit: null,
 		};
 
 		setApiKeys([...apiKeys, newKey]);
@@ -92,7 +81,7 @@ function ApiKeys() {
 	};
 
 	const handleRevokeKey = (keyId: string) => {
-		setApiKeys(apiKeys.map((key) => (key.id === keyId ? { ...key, status: "revoked" as const } : key)));
+		setApiKeys(apiKeys.map((key) => (key.key === keyId ? { ...key, is_active: false } : key)));
 	};
 
 	return (
@@ -118,31 +107,31 @@ function ApiKeys() {
 									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Name</th>
 									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Prefix</th>
 									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Created</th>
-									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Last Used</th>
+									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Limit</th>
 									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Status</th>
 									<th className="px-6 py-4 text-right text-sm font-medium text-muted-foreground">Actions</th>
 								</tr>
 							</thead>
 							<tbody>
 								{apiKeys.map((key) => (
-									<tr key={key.id} className="border-b border-border/50 hover:bg-card/70">
+									<tr key={key.name} className="border-b border-border/50 hover:bg-card/70">
 										<td className="px-6 py-4 text-sm font-medium">{key.name}</td>
-										<td className="px-6 py-4 text-sm font-mono">{key.prefix}•••</td>
-										<td className="px-6 py-4 text-sm text-muted-foreground">{key.created}</td>
-										<td className="px-6 py-4 text-sm text-muted-foreground">{key.lastUsed ?? "Never"}</td>
+										<td className="px-6 py-4 text-sm font-mono">{key.key}•••</td>
+										<td className="px-6 py-4 text-sm text-muted-foreground">{key.created_at}</td>
+										<td className="px-6 py-4 text-sm text-muted-foreground">
+											{key.monthly_limit ? `${key.monthly_limit} $` : "None"}
+										</td>
 										<td className="px-6 py-4 text-sm">
 											<span
 												className={`px-2 py-1 rounded-full text-xs font-medium
                           ${
-														key.status === "active"
+														key.is_active
 															? "dark:bg-emerald-900/30 bg-emerald-900/5 text-emerald-400"
-															: key.status === "expired"
-																? "bg-amber-900/30 text-amber-400"
-																: "bg-red-900/30 text-red-400"
+															: "bg-red-900/30 text-red-400"
 													}
                         `}
 											>
-												{key.status.charAt(0).toUpperCase() + key.status.slice(1)}
+												{key.is_active ? "Active" : "Disabled"}
 											</span>
 										</td>
 										<td className="px-6 py-4 text-right">
@@ -153,30 +142,18 @@ function ApiKeys() {
 													</Button>
 												</DropdownMenuTrigger>
 												<DropdownMenuContent align="end" className="w-44">
-													<DropdownMenuItem
-														onClick={() => {}}
-														className="cursor-pointer"
-														disabled={key.status !== "active"}
-													>
+													<DropdownMenuItem onClick={() => {}} className="cursor-pointer" disabled={!key.is_active}>
 														<Settings className="h-4 w-4 mr-2" />
 														<span>Edit</span>
 													</DropdownMenuItem>
-													<DropdownMenuItem
-														onClick={() => {}}
-														className="cursor-pointer"
-														disabled={key.status !== "active"}
-													>
-														<AlarmClock className="h-4 w-4 mr-2" />
-														<span>Set Expiry</span>
-													</DropdownMenuItem>
 													<DropdownMenuSeparator />
 													<DropdownMenuItem
-														onClick={() => handleRevokeKey(key.id)}
+														onClick={() => handleRevokeKey(key.key)}
 														className="cursor-pointer text-destructive"
-														disabled={key.status !== "active"}
+														disabled={!key.is_active}
 													>
 														<Trash className="h-4 w-4 mr-2" />
-														<span>Revoke</span>
+														<span>Disable</span>
 													</DropdownMenuItem>
 												</DropdownMenuContent>
 											</DropdownMenu>
