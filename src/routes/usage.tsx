@@ -99,7 +99,7 @@ function Usage() {
 							<Calendar className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Total Cost</h2>
 						</div>
-						<p className="text-3xl font-bold">16.5 LTAI</p>
+						<p className="text-3xl font-bold">42 $</p>
 					</div>
 				</div>
 
