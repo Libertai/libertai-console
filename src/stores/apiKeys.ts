@@ -8,13 +8,31 @@ import {
 	FullApiKey,
 	getApiKeysApiKeysAddressGet,
 	updateApiKeyApiKeysIdKeyIdPut,
+	ValidationError,
 } from "@/apis/inference";
 import { useAccountStore } from "./account";
+
+// Helper function to extract FastAPI error details
+const extractFastAPIError = (error?: ValidationError[] | string | undefined): string => {
+	// Check for simple error message in detail field
+	if (error && typeof error === "string") {
+		return error;
+	}
+
+	// FastAPI validation errors are in detail array
+	if (Array.isArray(error)) {
+		const details: ValidationError[] = error;
+		// Get the first error message or join multiple messages
+		if (details.length > 0) {
+			return details.map((d) => d.msg).join(", ");
+		}
+	}
+	return "An unknown error occurred";
+};
 
 type ApiKeysState = {
 	apiKeys: ApiKey[];
 	isLoading: boolean;
-	error: string | null;
 
 	// Actions
 	fetchApiKeys: () => Promise<ApiKey[]>;
@@ -31,18 +49,16 @@ type ApiKeysState = {
 export const useApiKeysStore = create<ApiKeysState>((set) => ({
 	apiKeys: [],
 	isLoading: false,
-	error: null,
 
 	fetchApiKeys: async () => {
 		const account = useAccountStore.getState().account;
 
 		if (!account) {
-			set({ error: "No account connected" });
 			return [];
 		}
 
 		try {
-			set({ isLoading: true, error: null });
+			set({ isLoading: true });
 
 			const response = await getApiKeysApiKeysAddressGet({
 				path: {
@@ -50,18 +66,15 @@ export const useApiKeysStore = create<ApiKeysState>((set) => ({
 				},
 			});
 
-			if (!response.data) {
-				throw new Error("Failed to fetch API keys");
+			if (response.error) {
+				throw new Error(extractFastAPIError(response.error.detail));
 			}
 
 			set({ apiKeys: response.data.keys, isLoading: false });
 			return response.data.keys;
 		} catch (error) {
 			console.error("Error fetching API keys:", error);
-			set({
-				error: error instanceof Error ? error.message : "Failed to fetch API keys",
-				isLoading: false,
-			});
+			set({ isLoading: false });
 			toast.error("Failed to fetch API keys", {
 				description: error instanceof Error ? error.message : "An unknown error occurred",
 			});
@@ -73,12 +86,11 @@ export const useApiKeysStore = create<ApiKeysState>((set) => ({
 		const account = useAccountStore.getState().account;
 
 		if (!account) {
-			set({ error: "No account connected" });
 			return null;
 		}
 
 		try {
-			set({ isLoading: true, error: null });
+			set({ isLoading: true });
 
 			const response = await createApiKeyApiKeysAddressPost({
 				path: {
@@ -87,35 +99,27 @@ export const useApiKeysStore = create<ApiKeysState>((set) => ({
 				body: keyData,
 			});
 
-			if (!response.data) {
-				throw new Error("Failed to create API key");
+			if (response.error) {
+				throw new Error(extractFastAPIError(response.error.detail));
 			}
 
 			// Update the local state with the new key
 			set((state) => ({
-				apiKeys: [...state.apiKeys, response.data!],
+				apiKeys: [...state.apiKeys, response.data],
 				isLoading: false,
 			}));
 
-			toast.success("API key created successfully");
 			return response.data;
 		} catch (error) {
-			console.error("Error creating API key:", error);
-			set({
-				error: error instanceof Error ? error.message : "Failed to create API key",
-				isLoading: false,
-			});
-			toast.error("Failed to create API key", {
-				description: error instanceof Error ? error.message : "An unknown error occurred",
-			});
-			return null;
+			set({ isLoading: false });
+			throw error;
 		}
 	},
 
 	updateApiKey: async (key_id: string, isActive: boolean, name?: string | null, monthlyLimit?: number | null) => {
-		try {
-			set({ isLoading: true, error: null });
+		set({ isLoading: true });
 
+		try {
 			const response = await updateApiKeyApiKeysIdKeyIdPut({
 				path: {
 					key_id,
@@ -127,8 +131,8 @@ export const useApiKeysStore = create<ApiKeysState>((set) => ({
 				},
 			});
 
-			if (!response.data) {
-				throw new Error("Failed to update API key");
+			if (response.error) {
+				throw new Error(extractFastAPIError(response.error.detail));
 			}
 
 			// Update the local state with the updated key
@@ -137,30 +141,26 @@ export const useApiKeysStore = create<ApiKeysState>((set) => ({
 				isLoading: false,
 			}));
 
-			toast.success("API key updated successfully");
 			return response.data;
 		} catch (error) {
-			console.error("Error updating API key:", error);
-			set({
-				error: error instanceof Error ? error.message : "Failed to update API key",
-				isLoading: false,
-			});
-			toast.error("Failed to update API key", {
-				description: error instanceof Error ? error.message : "An unknown error occurred",
-			});
-			return null;
+			set({ isLoading: false });
+			throw error;
 		}
 	},
 
 	deleteApiKey: async (key_id: string) => {
 		try {
-			set({ isLoading: true, error: null });
+			set({ isLoading: true });
 
-			await deleteApiKeyApiKeysIdKeyIdDelete({
+			const response = await deleteApiKeyApiKeysIdKeyIdDelete({
 				path: {
 					key_id,
 				},
 			});
+
+			if (response.error) {
+				throw new Error(extractFastAPIError(response.error.detail));
+			}
 
 			// Since the delete endpoint doesn't return the updated key, we'll just update the local state
 			// by setting is_active to false for the key
@@ -169,18 +169,10 @@ export const useApiKeysStore = create<ApiKeysState>((set) => ({
 				isLoading: false,
 			}));
 
-			toast.success("API key disabled successfully");
 			return true;
 		} catch (error) {
-			console.error("Error disabling API key:", error);
-			set({
-				error: error instanceof Error ? error.message : "Failed to disable API key",
-				isLoading: false,
-			});
-			toast.error("Failed to disable API key", {
-				description: error instanceof Error ? error.message : "An unknown error occurred",
-			});
-			return false;
+			set({ isLoading: false });
+			throw error;
 		}
 	},
 }));

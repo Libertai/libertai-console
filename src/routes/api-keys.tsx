@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Copy, Eye, EyeOff, Key, MoreHorizontal, Plus, Settings, Trash } from "lucide-react";
+import { Copy, Eye, EyeOff, Key, MoreHorizontal, Plus, Settings, Trash, X } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
 import {
@@ -10,9 +10,11 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ApiKeyCreate } from "@/apis/inference";
+import { ApiKey, ApiKeyCreate } from "@/apis/inference";
 import { useApiKeysStore } from "@/stores/apiKeys";
 import { toast } from "sonner";
+import { ApiKeyForm } from "@/components/ApiKeyForm";
+import dayjs from "dayjs";
 
 export const Route = createFileRoute("/api-keys")({
 	component: ApiKeys,
@@ -20,15 +22,18 @@ export const Route = createFileRoute("/api-keys")({
 
 function ApiKeys() {
 	const [showNewKeyModal, setShowNewKeyModal] = useState(false);
-	const [newKeyName, setNewKeyName] = useState("");
+	const [showEditModal, setShowEditModal] = useState(false);
 	const [newGeneratedKey, setNewGeneratedKey] = useState<string | null>(null);
 	const [showKey, setShowKey] = useState(false);
+
+	// Current key being edited
+	const [currentKey, setCurrentKey] = useState<ApiKey | null>(null);
 
 	// Use auth hook to require authentication
 	const { isAuthenticated } = useRequireAuth();
 
 	// Use API keys store
-	const { apiKeys, isLoading, fetchApiKeys, createApiKey, deleteApiKey } = useApiKeysStore();
+	const { apiKeys, isLoading, fetchApiKeys, createApiKey, updateApiKey, deleteApiKey } = useApiKeysStore();
 
 	// Fetch API keys when component mounts
 	useEffect(() => {
@@ -42,14 +47,12 @@ function ApiKeys() {
 		return null;
 	}
 
-	const handleCreateKey = async () => {
-		if (!newKeyName.trim()) return;
-
+	const handleCreateKey = async (formData: { name: string; monthlyLimit: number | null }) => {
 		try {
 			// Create API key with backend
 			const keyData: ApiKeyCreate = {
-				name: newKeyName,
-				monthly_limit: null,
+				name: formData.name,
+				monthly_limit: formData.monthlyLimit,
 			};
 
 			const newKey = await createApiKey(keyData);
@@ -58,6 +61,7 @@ function ApiKeys() {
 				// Show the generated key to the user (only visible once)
 				setNewGeneratedKey(newKey.full_key);
 			}
+			toast.success("API key created successfully");
 		} catch (error) {
 			console.error("Error creating API key:", error);
 			toast.error("Failed to create API key", {
@@ -75,16 +79,46 @@ function ApiKeys() {
 
 	const handleDoneWithKey = () => {
 		setNewGeneratedKey(null);
-		setNewKeyName("");
 		setShowNewKeyModal(false);
 	};
 
 	const handleDeleteKey = async (keyId: string) => {
 		try {
 			await deleteApiKey(keyId);
+			toast.success("API key disabled successfully");
 		} catch (error) {
 			console.error("Error deleting API key:", error);
 			toast.error("Failed to delete API key", {
+				description: error instanceof Error ? error.message : "An unknown error occurred",
+			});
+		}
+	};
+
+	const handleOpenEditModal = (key: ApiKey) => {
+		setCurrentKey(key);
+		setShowEditModal(true);
+	};
+
+	const handleUpdateKey = async (formData: { name: string; monthlyLimit: number | null; isActive?: boolean }) => {
+		if (!currentKey) return;
+
+		try {
+			const updatedKey = await updateApiKey(
+				currentKey.id,
+				formData.isActive ?? currentKey.is_active,
+				formData.name,
+				formData.monthlyLimit,
+			);
+
+			if (updatedKey) {
+				setShowEditModal(false);
+				setCurrentKey(null);
+			}
+
+			toast.success("API key updated successfully");
+		} catch (error) {
+			console.error("Error updating API key:", error);
+			toast.error("Failed to update API key", {
 				description: error instanceof Error ? error.message : "An unknown error occurred",
 			});
 		}
@@ -136,7 +170,9 @@ function ApiKeys() {
 										<tr key={key.id} className="border-b border-border/50 hover:bg-card/70">
 											<td className="px-6 py-4 text-sm font-medium">{key.name}</td>
 											<td className="px-6 py-4 text-sm font-mono">{key.key}</td>
-											<td className="px-6 py-4 text-sm text-muted-foreground">{key.created_at}</td>
+											<td className="px-6 py-4 text-sm text-muted-foreground">
+												{dayjs(key.created_at).format("YYYY-MM-DD")}
+											</td>
 											<td className="px-6 py-4 text-sm text-muted-foreground">
 												{key.monthly_limit ? `${key.monthly_limit} $` : "None"}
 											</td>
@@ -161,7 +197,7 @@ function ApiKeys() {
 														</Button>
 													</DropdownMenuTrigger>
 													<DropdownMenuContent align="end" className="w-44">
-														<DropdownMenuItem onClick={() => {}} className="cursor-pointer" disabled={!key.is_active}>
+														<DropdownMenuItem onClick={() => handleOpenEditModal(key)} className="cursor-pointer">
 															<Settings className="h-4 w-4 mr-2" />
 															<span>Edit</span>
 														</DropdownMenuItem>
@@ -169,7 +205,6 @@ function ApiKeys() {
 														<DropdownMenuItem
 															onClick={() => handleDeleteKey(key.id)}
 															className="cursor-pointer text-destructive"
-															disabled={!key.is_active}
 														>
 															<Trash className="h-4 w-4 mr-2" />
 															<span>Delete</span>
@@ -226,33 +261,12 @@ function ApiKeys() {
 									<h2 className="text-xl font-semibold">Create New API Key</h2>
 								</div>
 
-								<div className="space-y-4">
-									<div className="space-y-2">
-										<label htmlFor="key-name" className="block text-sm font-medium text-muted-foreground">
-											Key Name
-										</label>
-										<input
-											id="key-name"
-											type="text"
-											value={newKeyName}
-											onChange={(e) => setNewKeyName(e.target.value)}
-											placeholder="e.g. Production API Key"
-											className="w-full p-2 bg-secondary border border-border rounded-md"
-										/>
-										<p className="text-xs text-muted-foreground">
-											Give your API key a memorable name to easily identify its purpose
-										</p>
-									</div>
-								</div>
-
-								<div className="flex justify-end gap-3 mt-6">
-									<Button variant="outline" onClick={() => setShowNewKeyModal(false)} disabled={isLoading}>
-										Cancel
-									</Button>
-									<Button onClick={handleCreateKey} disabled={!newKeyName.trim() || isLoading}>
-										{isLoading ? "Creating..." : "Create Key"}
-									</Button>
-								</div>
+								<ApiKeyForm
+									mode="create"
+									onSubmit={handleCreateKey}
+									onCancel={() => setShowNewKeyModal(false)}
+									isLoading={isLoading}
+								/>
 							</>
 						) : (
 							<>
@@ -286,6 +300,31 @@ function ApiKeys() {
 								</div>
 							</>
 						)}
+					</div>
+				</div>
+			)}
+
+			{/* Edit API Key Modal */}
+			{showEditModal && currentKey && (
+				<div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+					<div className="bg-card rounded-xl border border-border p-6 max-w-md w-full">
+						<div className="flex justify-between items-center mb-6">
+							<div className="flex items-center gap-3">
+								<Settings className="h-5 w-5 text-primary" />
+								<h2 className="text-xl font-semibold">Edit API Key</h2>
+							</div>
+							<Button variant="ghost" size="icon" onClick={() => setShowEditModal(false)}>
+								<X className="h-4 w-4" />
+							</Button>
+						</div>
+
+						<ApiKeyForm
+							mode="edit"
+							onSubmit={handleUpdateKey}
+							onCancel={() => setShowEditModal(false)}
+							initialData={currentKey}
+							isLoading={isLoading}
+						/>
 					</div>
 				</div>
 			)}
