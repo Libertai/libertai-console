@@ -69,14 +69,13 @@ function Usage() {
 				</div>
 
 				{/* Summary Cards */}
-				<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
 						<div className="flex items-center gap-3 mb-2">
 							<Zap className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">API Credits</h2>
 						</div>
 						<p className="text-3xl font-bold">{apiCredits}</p>
-						<p className="text-sm text-muted-foreground mt-1">Available credits</p>
 					</div>
 
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -85,9 +84,6 @@ function Usage() {
 							<h2 className="text-lg font-medium">Total Requests</h2>
 						</div>
 						<p className="text-3xl font-bold">1,200</p>
-						<p className="text-sm text-emerald-400 mt-1 flex items-center">
-							<span className="inline-block mr-1">↑</span> 8% from previous period
-						</p>
 					</div>
 
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -96,9 +92,6 @@ function Usage() {
 							<h2 className="text-lg font-medium">Total Tokens</h2>
 						</div>
 						<p className="text-3xl font-bold">66,000</p>
-						<p className="text-sm text-emerald-400 mt-1 flex items-center">
-							<span className="inline-block mr-1">↑</span> 12% from previous period
-						</p>
 					</div>
 
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -107,9 +100,6 @@ function Usage() {
 							<h2 className="text-lg font-medium">Total Cost</h2>
 						</div>
 						<p className="text-3xl font-bold">16.5 LTAI</p>
-						<p className="text-sm text-emerald-400 mt-1 flex items-center">
-							<span className="inline-block mr-1">↑</span> 5% from previous period
-						</p>
 					</div>
 				</div>
 

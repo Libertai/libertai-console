@@ -5,17 +5,18 @@ import { useAccountStore } from "@/stores/account.ts";
 
 export function useRequireAuth() {
 	const account = useAccountStore((state) => state.account);
+	const jwtToken = useAccountStore((state) => state.jwtToken);
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (!account) {
+		if (!account || !jwtToken) {
 			toast.error("Authentication Required", {
-				description: "Please connect your wallet to access this page",
+				description: "Please connect your wallet & sign the message to access this page",
 				duration: 5000,
 			});
 			navigate({ to: "/" });
 		}
-	}, [account, navigate]);
+	}, [account, jwtToken, navigate]);
 
-	return { isAuthenticated: !!account };
+	return { isAuthenticated: !!account && !!jwtToken };
 }

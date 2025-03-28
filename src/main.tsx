@@ -41,8 +41,11 @@ declare module "@tanstack/react-router" {
 	}
 }
 
+// Configure the inference client with cross-origin credentials support
+// This enables sending cookies with requests to different domains
 inferenceClient.setConfig({
 	baseURL: env.LTAI_INFERENCE_API_URL,
+	withCredentials: true, // Enable sending cookies in cross-origin requests
 });
 
 // Render the app
