@@ -4,12 +4,34 @@ import env from "@/config/env.ts";
 import { getBalance } from "thirdweb/extensions/erc20";
 import { thirdwebClient } from "@/config/thirdweb.ts";
 import { base } from "thirdweb/chains";
-import { client as inferenceClient } from "@/apis/inference/client.gen";
 import { getAuthMessageAuthMessagePost, loginWithWalletAuthLoginPost } from "@/apis/inference/sdk.gen";
 import { toast } from "sonner";
+import Cookies from "js-cookie";
 
 const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
-const JWT_STORAGE_KEY = "libertai-auth-token";
+const JWT_COOKIE_NAME = "libertai_auth";
+
+// Determine if we're in development (localhost) or production
+const isDevelopment = window.location.hostname === "localhost";
+
+// Cookie options with environment-specific settings
+// Note: The backend will set the HttpOnly flag which can't be set via JavaScript
+const COOKIE_OPTS = isDevelopment
+	? {
+			// Development environment (localhost) settings
+			secure: false, // Allow HTTP for local development
+			sameSite: "lax" as const, // Less strict for local development
+			path: "/", // Available across the entire site
+			expires: 7, // 7 days expiration
+		}
+	: {
+			// Production environment settings (app.libertai.io and auth.api.libertai.io)
+			secure: true, // Only sent over HTTPS
+			sameSite: "none" as const, // Allow cross-domain cookies
+			domain: ".libertai.io", // Shared top-level domain
+			path: "/", // Available across the entire site
+			expires: 7, // 7 days expiration
+		};
 
 type AccountStoreState = {
 	alephStorage: null;
@@ -37,7 +59,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	formattedLTAIBalance: () => get().ltaiBalance.toFixed(0),
 	formattedAPICredits: () => get().apiCredits.toFixed(0),
 	account: null,
-	jwtToken: localStorage.getItem(JWT_STORAGE_KEY),
+	jwtToken: null,
 
 	onAccountChange: async (newAccount: Account | undefined) => {
 		const state = get();
@@ -117,7 +139,18 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			}
 
 			// Sign the message
-			const signature = await state.signMessage(messageResponse.data.message);
+			let signature = "";
+			if (isDevelopment) {
+				const storedSignature = localStorage.getItem(`libertai_dev_signature_${state.account.address}`);
+				if (storedSignature == null) {
+					signature = await state.signMessage(messageResponse.data.message);
+					localStorage.setItem(`libertai_dev_signature_${state.account.address}`, signature);
+				} else {
+					signature = storedSignature;
+				}
+			} else {
+				signature = await state.signMessage(messageResponse.data.message);
+			}
 
 			// Login with the signature
 			const loginResponse = await loginWithWalletAuthLoginPost({
@@ -151,32 +184,25 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		}
 	},
 	setJWT: (token: string) => {
-		// Store JWT in localStorage
-		localStorage.setItem(JWT_STORAGE_KEY, token);
+		// Store JWT in a secure cookie with cross-domain settings
+		Cookies.set(JWT_COOKIE_NAME, token, COOKIE_OPTS);
 
-		// Update state
 		set({ jwtToken: token });
-
-		// Add JWT to API client headers
-		inferenceClient.setConfig({
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
 	},
 	clearJWT: () => {
-		// Remove JWT from localStorage
-		localStorage.removeItem(JWT_STORAGE_KEY);
+		// Remove JWT cookie with same environment-specific settings
+		Cookies.remove(
+			JWT_COOKIE_NAME,
+			isDevelopment
+				? { path: "/" }
+				: {
+						domain: ".libertai.io",
+						path: "/",
+					},
+		);
 
 		// Update state
 		set({ jwtToken: null });
-
-		// Remove JWT from API client headers
-		inferenceClient.setConfig({
-			headers: {
-				Authorization: undefined,
-			},
-		});
 	},
 	onDisconnect: () => {
 		const state = get();

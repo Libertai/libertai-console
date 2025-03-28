@@ -91,12 +91,6 @@ export const updateExpiredCreditTransactionsCreditsUpdateExpiredPost = <ThrowOnE
  */
 export const getApiKeysApiKeysAddressGet = <ThrowOnError extends boolean = false>(options: Options<GetApiKeysApiKeysAddressGetData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetApiKeysApiKeysAddressGetResponse, GetApiKeysApiKeysAddressGetError, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            }
-        ],
         url: '/api-keys/{address}',
         ...options
     });
@@ -108,12 +102,6 @@ export const getApiKeysApiKeysAddressGet = <ThrowOnError extends boolean = false
  */
 export const createApiKeyApiKeysAddressPost = <ThrowOnError extends boolean = false>(options: Options<CreateApiKeyApiKeysAddressPostData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).post<CreateApiKeyApiKeysAddressPostResponse, CreateApiKeyApiKeysAddressPostError, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            }
-        ],
         url: '/api-keys/{address}',
         ...options,
         headers: {
@@ -129,12 +117,6 @@ export const createApiKeyApiKeysAddressPost = <ThrowOnError extends boolean = fa
  */
 export const deleteApiKeyApiKeysKeyKeyDelete = <ThrowOnError extends boolean = false>(options: Options<DeleteApiKeyApiKeysKeyKeyDeleteData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).delete<unknown, DeleteApiKeyApiKeysKeyKeyDeleteError, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            }
-        ],
         url: '/api-keys/key/{key}',
         ...options
     });
@@ -146,12 +128,6 @@ export const deleteApiKeyApiKeysKeyKeyDelete = <ThrowOnError extends boolean = f
  */
 export const updateApiKeyApiKeysKeyKeyPut = <ThrowOnError extends boolean = false>(options: Options<UpdateApiKeyApiKeysKeyKeyPutData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).put<UpdateApiKeyApiKeysKeyKeyPutResponse, UpdateApiKeyApiKeysKeyKeyPutError, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            }
-        ],
         url: '/api-keys/key/{key}',
         ...options,
         headers: {
@@ -182,12 +158,6 @@ export const logApiKeyUsageApiKeysUsagePost = <ThrowOnError extends boolean = fa
  */
 export const getApiKeyUsageStatsApiKeysUsageKeyGet = <ThrowOnError extends boolean = false>(options: Options<GetApiKeyUsageStatsApiKeysUsageKeyGetData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetApiKeyUsageStatsApiKeysUsageKeyGetResponse, GetApiKeyUsageStatsApiKeysUsageKeyGetError, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            }
-        ],
         url: '/api-keys/usage/{key}',
         ...options
     });

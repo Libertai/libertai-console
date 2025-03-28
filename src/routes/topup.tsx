@@ -92,8 +92,8 @@ function TopUp() {
 		<div className="container mx-auto px-4 py-8">
 			<div className="flex flex-col space-y-8 max-w-4xl mx-auto">
 				<div>
-					<h1 className="text-3xl font-bold">Top Up LTAI Balance</h1>
-					<p className="text-muted-foreground mt-1">Purchase LTAI tokens to power your API requests</p>
+					<h1 className="text-3xl font-bold">Top Up credits balance</h1>
+					<p className="text-muted-foreground mt-1">Purchase credits to power your API requests</p>
 				</div>
 
 				{paymentStage === "select" && (
