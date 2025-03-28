@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAccountStore } from "@/stores/account";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ChevronRight, Coins, CreditCard, HelpCircle } from "lucide-react";
+import { CheckCircle, ChevronRight, CreditCard, HelpCircle, Zap } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { thirdwebClient } from "@/config/thirdweb.ts";
@@ -24,7 +24,7 @@ interface PricingTier {
 
 function TopUp() {
 	const isAutoConnecting = useIsAutoConnecting();
-	const ltaiBalance = useAccountStore((state) => state.formattedLTAIBalance());
+	const apiCredits = useAccountStore((state) => state.formattedAPICredits());
 	const navigate = useNavigate();
 	const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
 	const [paymentStage, setPaymentStage] = useState<"select" | "payment" | "success">("select");
@@ -99,15 +99,20 @@ function TopUp() {
 				{paymentStage === "select" && (
 					<>
 						<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border mb-8">
-							<div className="flex items-center gap-3 mb-4">
-								<Coins className="h-5 w-5 text-primary" />
-								<h2 className="text-xl font-semibold">Your Current Balance</h2>
+							<div className="flex flex-col md:flex-row gap-6">
+								<div className="flex-1">
+									<div className="flex items-center gap-3 mb-4">
+										<Zap className="h-5 w-5 text-primary" />
+										<h2 className="text-xl font-semibold">API Credits</h2>
+									</div>
+									<p className="text-3xl font-bold text-primary">{apiCredits} Credits</p>
+									<p className="text-sm text-muted-foreground mt-2">
+										API credits are used for API requests and are available immediately after purchase.
+										<br />
+										You can buy credits with $LTAI or main ERC-20 tokens on multiple chains.
+									</p>
+								</div>
 							</div>
-							<p className="text-3xl font-bold text-primary">{ltaiBalance} LTAI</p>
-							<p className="text-sm text-muted-foreground mt-2">
-								LTAI tokens are used to pay for API requests. Each token can be used for approximately 1,000 input or
-								output tokens.
-							</p>
 						</div>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -217,7 +222,7 @@ function TopUp() {
 										<span>${selectedTier.price}.00</span>
 									</div>
 									<div className="flex justify-between mb-2 text-sm text-muted-foreground">
-										<span>LTAI Tokens</span>
+										<span>Credits</span>
 										<span>{selectedTier.tokens.toLocaleString()}</span>
 									</div>
 									<div className="border-t border-border my-2"></div>
@@ -229,7 +234,7 @@ function TopUp() {
 
 								<div className="bg-primary/10 p-4 rounded-lg border border-primary/30">
 									<p className="text-sm text-primary-foreground">
-										Your LTAI tokens will be deposited directly to your connected wallet after payment. Tokens do not
+										Your credits will be deposited directly to your connected wallet after payment. Credits do not
 										expire and can be used anytime.
 									</p>
 								</div>

@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { BarChart3, BarChart4, Calendar, Download, HelpCircle, LineChart } from "lucide-react";
+import { BarChart3, BarChart4, Calendar, Download, HelpCircle, LineChart, Zap } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useState } from "react";
+import { useAccountStore } from "@/stores/account";
 
 export const Route = createFileRoute("/usage")({
 	component: Usage,
@@ -32,6 +33,7 @@ const mockApiKeyUsage = [
 
 function Usage() {
 	const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("7d");
+	const apiCredits = useAccountStore((state) => state.formattedAPICredits());
 
 	// Use auth hook to require authentication
 	const { isAuthenticated } = useRequireAuth();
@@ -67,7 +69,16 @@ function Usage() {
 				</div>
 
 				{/* Summary Cards */}
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
+						<div className="flex items-center gap-3 mb-2">
+							<Zap className="h-5 w-5 text-primary" />
+							<h2 className="text-lg font-medium">API Credits</h2>
+						</div>
+						<p className="text-3xl font-bold">{apiCredits}</p>
+						<p className="text-sm text-muted-foreground mt-1">Available credits</p>
+					</div>
+
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
 						<div className="flex items-center gap-3 mb-2">
 							<BarChart4 className="h-5 w-5 text-primary" />

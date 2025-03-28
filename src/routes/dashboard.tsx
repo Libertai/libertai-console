@@ -10,7 +10,7 @@ export const Route = createFileRoute("/dashboard")({
 
 function Dashboard() {
 	const { isAuthenticated } = useRequireAuth();
-	const ltaiBalance = useAccountStore((state) => state.formattedLTAIBalance());
+	const apiCredits = useAccountStore((state) => state.formattedAPICredits());
 	const navigate = useNavigate();
 
 	// In a real app, these would be fetched from an API
@@ -38,9 +38,9 @@ function Dashboard() {
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
 						<div className="flex items-center gap-3 mb-2">
 							<Coins className="h-5 w-5 text-primary" />
-							<h2 className="text-lg font-medium">LTAI Balance</h2>
+							<h2 className="text-lg font-medium">Balance</h2>
 						</div>
-						<p className="text-3xl font-bold">{ltaiBalance} LTAI</p>
+						<p className="text-3xl font-bold">{apiCredits} $</p>
 						<Button size="sm" className="mt-4" onClick={() => navigate({ to: "/topup" })}>
 							Top Up
 						</Button>

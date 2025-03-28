@@ -6,6 +6,8 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import "./styles.css";
 import { NotFoundPage } from "@/components/404.tsx";
+import { client as inferenceClient } from "@/apis/inference/client.gen";
+import env from "@/config/env.ts";
 
 // Add theme detection
 function setInitialTheme() {
@@ -38,6 +40,10 @@ declare module "@tanstack/react-router" {
 		router: typeof router;
 	}
 }
+
+inferenceClient.setConfig({
+	baseURL: env.LTAI_INFERENCE_API_URL,
+});
 
 // Render the app
 const rootElement = document.getElementById("root")!;

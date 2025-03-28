@@ -55,7 +55,9 @@ export function Layout({ children }: Readonly<LayoutProps>) {
 				{/* Desktop Sidebar */}
 				<Sidebar variant="inset">
 					<SidebarHeader className="font-bold text-xl h-16 flex items-center justify-between">
-						<div>LibertAI</div>
+						<Link to={"/"}>
+							<div>LibertAI</div>
+						</Link>
 					</SidebarHeader>
 
 					<SidebarContent>
