@@ -63,7 +63,7 @@ function Index() {
 								</div>
 								<div className="space-y-2">
 									<p className="text-muted-foreground">Current balance</p>
-									<p className="text-3xl font-bold text-primary">{apiCredits} $</p>
+									<p className="text-3xl font-bold text-primary">${apiCredits}</p>
 									<Button className="w-full mt-4" onClick={() => navigate({ to: "/topup" })}>
 										Top Up Balance
 									</Button>
