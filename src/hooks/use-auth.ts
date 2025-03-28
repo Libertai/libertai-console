@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useActiveAccount } from "thirdweb/react";
 import { toast } from "sonner";
+import { useAccountStore } from "@/stores/account.ts";
 
 export function useRequireAuth() {
-	const account = useActiveAccount();
+	const account = useAccountStore((state) => state.account);
 	const navigate = useNavigate();
 
 	useEffect(() => {
