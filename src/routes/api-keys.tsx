@@ -174,7 +174,7 @@ function ApiKeys() {
 												{dayjs(key.created_at).format("YYYY-MM-DD")}
 											</td>
 											<td className="px-6 py-4 text-sm text-muted-foreground">
-												{key.monthly_limit ? `${key.monthly_limit} $` : "None"}
+												{key.monthly_limit ? `$${key.monthly_limit}` : "None"}
 											</td>
 											<td className="px-6 py-4 text-sm">
 												<span

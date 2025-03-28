@@ -40,7 +40,7 @@ function Dashboard() {
 							<Coins className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Balance</h2>
 						</div>
-						<p className="text-3xl font-bold">{apiCredits} $</p>
+						<p className="text-3xl font-bold">${apiCredits}</p>
 						<Button size="sm" className="mt-4" onClick={() => navigate({ to: "/topup" })}>
 							Top Up
 						</Button>
