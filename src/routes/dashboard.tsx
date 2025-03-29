@@ -3,6 +3,7 @@ import { useAccountStore } from "@/stores/account";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, BarChart4, Coins, History, Key, LineChart, Zap } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
+import { useApiKeys } from "@/hooks/use-api-keys.ts";
 
 export const Route = createFileRoute("/dashboard")({
 	component: Dashboard,
@@ -16,7 +17,6 @@ function Dashboard() {
 	// In a real app, these would be fetched from an API
 	const mockStats = {
 		apiCalls: 2853,
-		activeKeys: 2,
 		tokensUsed: 154893,
 		monthlyUsage: [258, 342, 430, 389, 675, 759],
 	};
@@ -25,6 +25,8 @@ function Dashboard() {
 	if (!isAuthenticated) {
 		return null;
 	}
+
+	const { apiKeys } = useApiKeys();
 
 	return (
 		<div className="container mx-auto px-4 py-8">
@@ -60,7 +62,7 @@ function Dashboard() {
 							<Key className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Active Keys</h2>
 						</div>
-						<p className="text-3xl font-bold">{mockStats.activeKeys}</p>
+						<p className="text-3xl font-bold">{apiKeys.filter((key) => key.is_active).length}</p>
 						<Button size="sm" variant="outline" className="mt-4" onClick={() => navigate({ to: "/api-keys" })}>
 							Manage
 						</Button>
