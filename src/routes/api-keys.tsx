@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Copy, Eye, EyeOff, Key, MoreHorizontal, Plus, Settings, Trash, X } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -11,7 +11,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ApiKey, ApiKeyCreate } from "@/apis/inference";
-import { useApiKeysStore } from "@/stores/apiKeys";
+import { useApiKeys } from "@/hooks/use-api-keys";
 import { toast } from "sonner";
 import { ApiKeyForm } from "@/components/ApiKeyForm";
 import dayjs from "dayjs";
@@ -32,15 +32,8 @@ function ApiKeys() {
 	// Use auth hook to require authentication
 	const { isAuthenticated } = useRequireAuth();
 
-	// Use API keys store
-	const { apiKeys, isLoading, fetchApiKeys, createApiKey, updateApiKey, deleteApiKey } = useApiKeysStore();
-
-	// Fetch API keys when component mounts
-	useEffect(() => {
-		if (isAuthenticated) {
-			fetchApiKeys();
-		}
-	}, [isAuthenticated, fetchApiKeys]);
+	// Use API keys query hook
+	const { apiKeys, isLoading, createApiKey, updateApiKey, deleteApiKey } = useApiKeys();
 
 	// Return null if not authenticated (redirect is handled by the hook)
 	if (!isAuthenticated) {
@@ -61,12 +54,8 @@ function ApiKeys() {
 				// Show the generated key to the user (only visible once)
 				setNewGeneratedKey(newKey.full_key);
 			}
-			toast.success("API key created successfully");
 		} catch (error) {
 			console.error("Error creating API key:", error);
-			toast.error("Failed to create API key", {
-				description: error instanceof Error ? error.message : "An unknown error occurred",
-			});
 		}
 	};
 
@@ -85,12 +74,8 @@ function ApiKeys() {
 	const handleDeleteKey = async (keyId: string) => {
 		try {
 			await deleteApiKey(keyId);
-			toast.success("API key disabled successfully");
 		} catch (error) {
 			console.error("Error deleting API key:", error);
-			toast.error("Failed to delete API key", {
-				description: error instanceof Error ? error.message : "An unknown error occurred",
-			});
 		}
 	};
 
@@ -103,24 +88,17 @@ function ApiKeys() {
 		if (!currentKey) return;
 
 		try {
-			const updatedKey = await updateApiKey(
-				currentKey.id,
-				formData.isActive ?? currentKey.is_active,
-				formData.name,
-				formData.monthlyLimit,
-			);
+			await updateApiKey({
+				keyId: currentKey.id,
+				isActive: formData.isActive ?? currentKey.is_active,
+				name: formData.name,
+				monthlyLimit: formData.monthlyLimit,
+			});
 
-			if (updatedKey) {
-				setShowEditModal(false);
-				setCurrentKey(null);
-			}
-
-			toast.success("API key updated successfully");
+			setShowEditModal(false);
+			setCurrentKey(null);
 		} catch (error) {
 			console.error("Error updating API key:", error);
-			toast.error("Failed to update API key", {
-				description: error instanceof Error ? error.message : "An unknown error occurred",
-			});
 		}
 	};
 
