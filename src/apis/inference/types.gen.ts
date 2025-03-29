@@ -25,13 +25,6 @@ export type ApiKeyUpdate = {
     monthly_limit?: number | null;
 };
 
-export type ApiKeyUsageLog = {
-    key: string;
-    credits_used: number;
-    input_tokens: number;
-    output_tokens: number;
-};
-
 export type AuthLoginRequest = {
     address: string;
     signature: string;
@@ -54,6 +47,14 @@ export type AuthMessageResponse = {
 export type CreditBalanceResponse = {
     address: string;
     balance: number;
+};
+
+/**
+ * Input and output tokens for a single day.
+ */
+export type DailyTokens = {
+    input_tokens: number;
+    output_tokens: number;
 };
 
 /**
@@ -93,6 +94,14 @@ export type HttpValidationError = {
     detail?: Array<ValidationError>;
 };
 
+export type InferenceCallData = {
+    key: string;
+    credits_used: number;
+    input_tokens: number;
+    output_tokens: number;
+    model_name: string;
+};
+
 export type ThirdwebWebhookPayload = {
     data: {
         [key: string]: unknown;
@@ -108,6 +117,32 @@ export type TokenStats = {
     input_tokens: number;
     output_tokens: number;
     credits_used: number;
+};
+
+/**
+ * Usage statistics grouped by model or API key.
+ */
+export type UsageByEntity = {
+    name: string;
+    calls: number;
+    total_tokens: number;
+    cost: number;
+};
+
+/**
+ * Detailed usage statistics for a date range.
+ */
+export type UsageStats = {
+    inference_calls: number;
+    input_tokens: number;
+    output_tokens: number;
+    total_tokens: number;
+    cost: number;
+    daily_usage: {
+        [key: string]: DailyTokens;
+    };
+    usage_by_model: Array<UsageByEntity>;
+    usage_by_api_key: Array<UsageByEntity>;
 };
 
 export type ValidationError = {
@@ -352,23 +387,23 @@ export type UpdateApiKeyApiKeysKeyIdPutResponses = {
 
 export type UpdateApiKeyApiKeysKeyIdPutResponse = UpdateApiKeyApiKeysKeyIdPutResponses[keyof UpdateApiKeyApiKeysKeyIdPutResponses];
 
-export type LogApiKeyUsageApiKeysUsagePostData = {
-    body: ApiKeyUsageLog;
+export type RegisterInferenceCallApiKeysUsagePostData = {
+    body: InferenceCallData;
     path?: never;
     query?: never;
     url: '/api-keys/usage';
 };
 
-export type LogApiKeyUsageApiKeysUsagePostErrors = {
+export type RegisterInferenceCallApiKeysUsagePostErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type LogApiKeyUsageApiKeysUsagePostError = LogApiKeyUsageApiKeysUsagePostErrors[keyof LogApiKeyUsageApiKeysUsagePostErrors];
+export type RegisterInferenceCallApiKeysUsagePostError = RegisterInferenceCallApiKeysUsagePostErrors[keyof RegisterInferenceCallApiKeysUsagePostErrors];
 
-export type LogApiKeyUsageApiKeysUsagePostResponses = {
+export type RegisterInferenceCallApiKeysUsagePostResponses = {
     /**
      * Successful Response
      */
@@ -399,6 +434,40 @@ export type GetDashboardStatsStatsDashboardGetResponses = {
 };
 
 export type GetDashboardStatsStatsDashboardGetResponse = GetDashboardStatsStatsDashboardGetResponses[keyof GetDashboardStatsStatsDashboardGetResponses];
+
+export type GetUsageStatsStatsUsageGetData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Start date in format YYYY-MM-DD
+         */
+        start_date: string;
+        /**
+         * End date in format YYYY-MM-DD
+         */
+        end_date: string;
+    };
+    url: '/stats/usage';
+};
+
+export type GetUsageStatsStatsUsageGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetUsageStatsStatsUsageGetError = GetUsageStatsStatsUsageGetErrors[keyof GetUsageStatsStatsUsageGetErrors];
+
+export type GetUsageStatsStatsUsageGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: UsageStats;
+};
+
+export type GetUsageStatsStatsUsageGetResponse = GetUsageStatsStatsUsageGetResponses[keyof GetUsageStatsStatsUsageGetResponses];
 
 export type ClientOptions = {
     baseURL: 'http://localhost:8000' | (string & {});
