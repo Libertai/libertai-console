@@ -65,12 +65,14 @@ export function useUsageStats(startDate: string, endDate: string) {
 	});
 
 	// Transform daily_usage data for chart
-	const dailyChartData = Object.entries(usageQuery.data?.daily_usage || {}).map(([date, tokens]) => ({
-		date,
-		input_tokens: tokens.input_tokens,
-		output_tokens: tokens.output_tokens,
-		tokens: tokens.input_tokens + tokens.output_tokens,
-	})).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+	const dailyChartData = Object.entries(usageQuery.data?.daily_usage || {})
+		.map(([date, tokens]) => ({
+			date,
+			input_tokens: tokens.input_tokens,
+			output_tokens: tokens.output_tokens,
+			tokens: tokens.input_tokens + tokens.output_tokens,
+		}))
+		.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
 	return {
 		stats: usageQuery.data,

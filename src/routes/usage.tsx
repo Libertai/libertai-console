@@ -7,19 +7,19 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { useUsageStats } from "@/hooks/use-dashboard-stats";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format, subDays } from "date-fns";
+import dayjs from "dayjs";
 
 export const Route = createFileRoute("/usage")({
 	component: Usage,
 });
 
 function formatDate(date: Date): string {
-	return format(date, "yyyy-MM-dd");
+	return dayjs(date).format("YYYY-MM-DD");
 }
 
 function Usage() {
 	const [timeRange, setTimeRange] = useState<"7d" | "30d" | "custom">("7d");
-	const [startDate, setStartDate] = useState<string>(formatDate(subDays(new Date(), 7)));
+	const [startDate, setStartDate] = useState<string>(formatDate(dayjs().subtract(7, "day").toDate()));
 	const [endDate, setEndDate] = useState<string>(formatDate(new Date()));
 
 	// Use auth hook to require authentication
@@ -34,10 +34,10 @@ function Usage() {
 		const now = new Date();
 
 		if (timeRange === "7d") {
-			setStartDate(formatDate(subDays(now, 7)));
+			setStartDate(formatDate(dayjs(now).subtract(7, "day").toDate()));
 			setEndDate(formatDate(now));
 		} else if (timeRange === "30d") {
-			setStartDate(formatDate(subDays(now, 30)));
+			setStartDate(formatDate(dayjs(now).subtract(30, "day").toDate()));
 			setEndDate(formatDate(now));
 		}
 	}, [timeRange]);
