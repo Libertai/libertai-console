@@ -13,10 +13,45 @@ import {
 	SidebarMenuItem,
 	SidebarProvider,
 	SidebarTrigger,
+	useSidebar,
 } from "./ui/sidebar";
 
 interface LayoutProps {
 	children: ReactNode;
+}
+
+// Component that wraps menu items to auto-close sidebar on mobile
+function SidebarMenuItemWithAutoClose({
+	to,
+	tooltip,
+	isActive,
+	icon,
+	label,
+}: {
+	to: string;
+	tooltip: string;
+	isActive: boolean;
+	icon: React.ReactNode;
+	label: string;
+}) {
+	const { isMobile, setOpenMobile } = useSidebar();
+
+	const handleClick = () => {
+		if (isMobile) {
+			setOpenMobile(false);
+		}
+	};
+
+	return (
+		<SidebarMenuItem>
+			<Link to={to} onClick={handleClick}>
+				<SidebarMenuButton tooltip={tooltip} isActive={isActive}>
+					{icon}
+					<span>{label}</span>
+				</SidebarMenuButton>
+			</Link>
+		</SidebarMenuItem>
+	);
 }
 
 export function Layout({ children }: Readonly<LayoutProps>) {
@@ -62,50 +97,45 @@ export function Layout({ children }: Readonly<LayoutProps>) {
 
 					<SidebarContent>
 						<SidebarMenu>
-							<SidebarMenuItem>
-								<Link to="/">
-									<SidebarMenuButton tooltip="Home" isActive={currentPath === "/"}>
-										<LayoutDashboard className="h-4 w-4" />
-										<span>Home</span>
-									</SidebarMenuButton>
-								</Link>
-							</SidebarMenuItem>
+							<SidebarMenuItemWithAutoClose
+								to="/"
+								tooltip="Home"
+								isActive={currentPath === "/"}
+								icon={<LayoutDashboard className="h-4 w-4" />}
+								label="Home"
+							/>
 
-							<SidebarMenuItem>
-								<Link to="/dashboard">
-									<SidebarMenuButton tooltip="Dashboard" isActive={currentPath === "/dashboard"}>
-										<PieChart className="h-4 w-4" />
-										<span>Dashboard</span>
-									</SidebarMenuButton>
-								</Link>
-							</SidebarMenuItem>
+							<SidebarMenuItemWithAutoClose
+								to="/dashboard"
+								tooltip="Dashboard"
+								isActive={currentPath === "/dashboard"}
+								icon={<PieChart className="h-4 w-4" />}
+								label="Dashboard"
+							/>
 
-							<SidebarMenuItem>
-								<Link to="/api-keys">
-									<SidebarMenuButton tooltip="API Keys" isActive={currentPath === "/api-keys"}>
-										<Key className="h-4 w-4" />
-										<span>API Keys</span>
-									</SidebarMenuButton>
-								</Link>
-							</SidebarMenuItem>
+							<SidebarMenuItemWithAutoClose
+								to="/api-keys"
+								tooltip="API Keys"
+								isActive={currentPath === "/api-keys"}
+								icon={<Key className="h-4 w-4" />}
+								label="API Keys"
+							/>
 
-							<SidebarMenuItem>
-								<Link to="/usage">
-									<SidebarMenuButton tooltip="Usage" isActive={currentPath === "/usage"}>
-										<LineChart className="h-4 w-4" />
-										<span>Usage</span>
-									</SidebarMenuButton>
-								</Link>
-							</SidebarMenuItem>
+							<SidebarMenuItemWithAutoClose
+								to="/usage"
+								tooltip="Usage"
+								isActive={currentPath === "/usage"}
+								icon={<LineChart className="h-4 w-4" />}
+								label="Usage"
+							/>
 
-							<SidebarMenuItem>
-								<Link to="/topup">
-									<SidebarMenuButton tooltip="Top Up" isActive={currentPath === "/topup"}>
-										<Coins className="h-4 w-4" />
-										<span>Top Up</span>
-									</SidebarMenuButton>
-								</Link>
-							</SidebarMenuItem>
+							<SidebarMenuItemWithAutoClose
+								to="/topup"
+								tooltip="Top Up"
+								isActive={currentPath === "/topup"}
+								icon={<Coins className="h-4 w-4" />}
+								label="Top Up"
+							/>
 						</SidebarMenu>
 					</SidebarContent>
 				</Sidebar>
