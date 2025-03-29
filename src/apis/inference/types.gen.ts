@@ -28,6 +28,8 @@ export type ApiKeyUpdate = {
 export type ApiKeyUsageLog = {
     key: string;
     credits_used: number;
+    input_tokens: number;
+    output_tokens: number;
 };
 
 export type AuthLoginRequest = {
@@ -52,6 +54,17 @@ export type AuthMessageResponse = {
 export type CreditBalanceResponse = {
     address: string;
     balance: number;
+};
+
+/**
+ * Dashboard statistics for a user.
+ */
+export type DashboardStats = {
+    address: string;
+    monthly_usage: {
+        [key: string]: number;
+    };
+    current_month: TokenStats;
 };
 
 export type ExpiredCreditTransaction = {
@@ -84,6 +97,17 @@ export type ThirdwebWebhookPayload = {
     data: {
         [key: string]: unknown;
     };
+};
+
+/**
+ * Stats about token usage for the current month.
+ */
+export type TokenStats = {
+    inference_calls: number;
+    total_tokens: number;
+    input_tokens: number;
+    output_tokens: number;
+    credits_used: number;
 };
 
 export type ValidationError = {
@@ -226,111 +250,107 @@ export type GetUserBalanceCreditsBalanceGetResponses = {
 
 export type GetUserBalanceCreditsBalanceGetResponse = GetUserBalanceCreditsBalanceGetResponses[keyof GetUserBalanceCreditsBalanceGetResponses];
 
-export type GetApiKeysApiKeysAddressGetData = {
+export type GetApiKeysApiKeysGetData = {
     body?: never;
-    path: {
-        address: string;
-    };
+    path?: never;
     query?: never;
-    url: '/api-keys/{address}';
+    url: '/api-keys';
 };
 
-export type GetApiKeysApiKeysAddressGetErrors = {
+export type GetApiKeysApiKeysGetErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GetApiKeysApiKeysAddressGetError = GetApiKeysApiKeysAddressGetErrors[keyof GetApiKeysApiKeysAddressGetErrors];
+export type GetApiKeysApiKeysGetError = GetApiKeysApiKeysGetErrors[keyof GetApiKeysApiKeysGetErrors];
 
-export type GetApiKeysApiKeysAddressGetResponses = {
+export type GetApiKeysApiKeysGetResponses = {
     /**
      * Successful Response
      */
     200: ApiKeyListResponse;
 };
 
-export type GetApiKeysApiKeysAddressGetResponse = GetApiKeysApiKeysAddressGetResponses[keyof GetApiKeysApiKeysAddressGetResponses];
+export type GetApiKeysApiKeysGetResponse = GetApiKeysApiKeysGetResponses[keyof GetApiKeysApiKeysGetResponses];
 
-export type CreateApiKeyApiKeysAddressPostData = {
+export type CreateApiKeyApiKeysPostData = {
     body: ApiKeyCreate;
-    path: {
-        address: string;
-    };
+    path?: never;
     query?: never;
-    url: '/api-keys/{address}';
+    url: '/api-keys';
 };
 
-export type CreateApiKeyApiKeysAddressPostErrors = {
+export type CreateApiKeyApiKeysPostErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateApiKeyApiKeysAddressPostError = CreateApiKeyApiKeysAddressPostErrors[keyof CreateApiKeyApiKeysAddressPostErrors];
+export type CreateApiKeyApiKeysPostError = CreateApiKeyApiKeysPostErrors[keyof CreateApiKeyApiKeysPostErrors];
 
-export type CreateApiKeyApiKeysAddressPostResponses = {
+export type CreateApiKeyApiKeysPostResponses = {
     /**
      * Successful Response
      */
     200: FullApiKey;
 };
 
-export type CreateApiKeyApiKeysAddressPostResponse = CreateApiKeyApiKeysAddressPostResponses[keyof CreateApiKeyApiKeysAddressPostResponses];
+export type CreateApiKeyApiKeysPostResponse = CreateApiKeyApiKeysPostResponses[keyof CreateApiKeyApiKeysPostResponses];
 
-export type DeleteApiKeyApiKeysIdKeyIdDeleteData = {
+export type DeleteApiKeyApiKeysKeyIdDeleteData = {
     body?: never;
     path: {
         key_id: string;
     };
     query?: never;
-    url: '/api-keys/id/{key_id}';
+    url: '/api-keys/{key_id}';
 };
 
-export type DeleteApiKeyApiKeysIdKeyIdDeleteErrors = {
+export type DeleteApiKeyApiKeysKeyIdDeleteErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type DeleteApiKeyApiKeysIdKeyIdDeleteError = DeleteApiKeyApiKeysIdKeyIdDeleteErrors[keyof DeleteApiKeyApiKeysIdKeyIdDeleteErrors];
+export type DeleteApiKeyApiKeysKeyIdDeleteError = DeleteApiKeyApiKeysKeyIdDeleteErrors[keyof DeleteApiKeyApiKeysKeyIdDeleteErrors];
 
-export type DeleteApiKeyApiKeysIdKeyIdDeleteResponses = {
+export type DeleteApiKeyApiKeysKeyIdDeleteResponses = {
     /**
      * Successful Response
      */
     200: unknown;
 };
 
-export type UpdateApiKeyApiKeysIdKeyIdPutData = {
+export type UpdateApiKeyApiKeysKeyIdPutData = {
     body: ApiKeyUpdate;
     path: {
         key_id: string;
     };
     query?: never;
-    url: '/api-keys/id/{key_id}';
+    url: '/api-keys/{key_id}';
 };
 
-export type UpdateApiKeyApiKeysIdKeyIdPutErrors = {
+export type UpdateApiKeyApiKeysKeyIdPutErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type UpdateApiKeyApiKeysIdKeyIdPutError = UpdateApiKeyApiKeysIdKeyIdPutErrors[keyof UpdateApiKeyApiKeysIdKeyIdPutErrors];
+export type UpdateApiKeyApiKeysKeyIdPutError = UpdateApiKeyApiKeysKeyIdPutErrors[keyof UpdateApiKeyApiKeysKeyIdPutErrors];
 
-export type UpdateApiKeyApiKeysIdKeyIdPutResponses = {
+export type UpdateApiKeyApiKeysKeyIdPutResponses = {
     /**
      * Successful Response
      */
     200: ApiKey;
 };
 
-export type UpdateApiKeyApiKeysIdKeyIdPutResponse = UpdateApiKeyApiKeysIdKeyIdPutResponses[keyof UpdateApiKeyApiKeysIdKeyIdPutResponses];
+export type UpdateApiKeyApiKeysKeyIdPutResponse = UpdateApiKeyApiKeysKeyIdPutResponses[keyof UpdateApiKeyApiKeysKeyIdPutResponses];
 
 export type LogApiKeyUsageApiKeysUsagePostData = {
     body: ApiKeyUsageLog;
@@ -354,6 +374,31 @@ export type LogApiKeyUsageApiKeysUsagePostResponses = {
      */
     200: unknown;
 };
+
+export type GetDashboardStatsStatsDashboardGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/stats/dashboard';
+};
+
+export type GetDashboardStatsStatsDashboardGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetDashboardStatsStatsDashboardGetError = GetDashboardStatsStatsDashboardGetErrors[keyof GetDashboardStatsStatsDashboardGetErrors];
+
+export type GetDashboardStatsStatsDashboardGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: DashboardStats;
+};
+
+export type GetDashboardStatsStatsDashboardGetResponse = GetDashboardStatsStatsDashboardGetResponses[keyof GetDashboardStatsStatsDashboardGetResponses];
 
 export type ClientOptions = {
     baseURL: 'http://localhost:8000' | (string & {});
