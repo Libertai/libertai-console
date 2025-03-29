@@ -10,14 +10,15 @@ export const Route = createFileRoute("/usage")({
 });
 
 // Mock data for usage statistics
+// Total tokens calculated as input + output
 const mockDailyUsage = [
-	{ date: "03/18", requests: 120, tokens: 7800 },
-	{ date: "03/19", requests: 145, tokens: 8900 },
-	{ date: "03/20", requests: 98, tokens: 6500 },
-	{ date: "03/21", requests: 210, tokens: 12400 },
-	{ date: "03/22", requests: 180, tokens: 11000 },
-	{ date: "03/23", requests: 165, tokens: 10200 },
-	{ date: "03/24", requests: 190, tokens: 11300 },
+	{ date: "03/18", requests: 120, input_tokens: 5200, output_tokens: 2600, tokens: 7800 },
+	{ date: "03/19", requests: 145, input_tokens: 5900, output_tokens: 3000, tokens: 8900 },
+	{ date: "03/20", requests: 98, input_tokens: 4300, output_tokens: 2200, tokens: 6500 },
+	{ date: "03/21", requests: 210, input_tokens: 8200, output_tokens: 4200, tokens: 12400 },
+	{ date: "03/22", requests: 180, input_tokens: 7300, output_tokens: 3700, tokens: 11000 },
+	{ date: "03/23", requests: 165, input_tokens: 6800, output_tokens: 3400, tokens: 10200 },
+	{ date: "03/24", requests: 190, input_tokens: 7500, output_tokens: 3800, tokens: 11300 },
 ];
 
 const mockModelsUsage = [
@@ -40,8 +41,13 @@ function Usage() {
 	// Function to handle export data to CSV
 	const handleExportData = () => {
 		// Create CSV content
-		const headers = ["Date", "Requests", "Tokens"];
-		const csvRows = [headers.join(","), ...mockDailyUsage.map((day) => [day.date, day.requests, day.tokens].join(","))];
+		const headers = ["Date", "Requests", "Input Tokens", "Output Tokens", "Total Tokens"];
+		const csvRows = [
+			headers.join(","),
+			...mockDailyUsage.map((day) =>
+				[day.date, day.requests, day.input_tokens, day.output_tokens, day.tokens].join(","),
+			),
+		];
 		const csvContent = csvRows.join("\n");
 
 		// Create a blob with the CSV data
@@ -120,11 +126,11 @@ function Usage() {
 				</div>
 
 				{/* Daily Usage Chart */}
-				<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
+				<div className="bg-card/50 backdrop-blur-sm md:p-6 max-sm:p-4 rounded-xl border border-border">
 					<div className="flex items-center justify-between mb-6">
 						<div className="flex items-center gap-3">
 							<BarChart3 className="h-5 w-5 text-primary" />
-							<h2 className="text-xl font-semibold">Daily Usage</h2>
+							<h2 className="text-xl font-semibold">Daily Token Usage</h2>
 						</div>
 						<Button variant="outline" size="sm" onClick={handleExportData}>
 							<Download className="h-4 w-4 mr-2" />
@@ -164,6 +170,7 @@ function Usage() {
 									formatter={(value, name) => [value.toLocaleString(), name]}
 									itemStyle={{ padding: "4px 0" }}
 									cursor={{ fill: "rgba(128, 128, 128, 0.1)" }}
+									labelFormatter={(label) => `Date: ${label}`}
 								/>
 								<Legend
 									align="center"
@@ -173,14 +180,21 @@ function Usage() {
 									wrapperStyle={{ paddingTop: "10px" }}
 								/>
 								<Bar
-									yAxisId="left"
-									dataKey="requests"
-									name="Requests"
-									fill="var(--primary)"
+									yAxisId="right"
+									dataKey="input_tokens"
+									name="Input"
+									fill="#7c3aed"
 									radius={[4, 4, 0, 0]}
 									barSize={24}
 								/>
-								<Bar yAxisId="right" dataKey="tokens" name="Tokens" fill="#8a5cf5" radius={[4, 4, 0, 0]} barSize={24} />
+								<Bar
+									yAxisId="right"
+									dataKey="output_tokens"
+									name="Output"
+									fill="#a78bfa"
+									radius={[4, 4, 0, 0]}
+									barSize={24}
+								/>
 							</BarChart>
 						</ResponsiveContainer>
 					</div>

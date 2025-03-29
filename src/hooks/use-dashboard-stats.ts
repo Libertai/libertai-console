@@ -9,20 +9,6 @@ export function useDashboardStats() {
 	const statsQuery = useQuery({
 		queryKey: ["dashboardStats", account?.address],
 		queryFn: async () => {
-			if (!account) {
-				return {
-					address: "",
-					monthly_usage: {},
-					current_month: {
-						inference_calls: 0,
-						total_tokens: 0,
-						input_tokens: 0,
-						output_tokens: 0,
-						credits_used: 0,
-					},
-				};
-			}
-
 			const response = await getDashboardStatsStatsDashboardGet();
 
 			if (response.error) {
@@ -34,8 +20,6 @@ export function useDashboardStats() {
 			return response.data;
 		},
 		enabled: !!account, // Only run the query when account exists
-		staleTime: 5 * 60 * 1000, // 5 minutes
-		refetchOnWindowFocus: false,
 	});
 
 	// Transform monthly_usage data for chart
