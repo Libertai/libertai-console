@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useAccountStore } from "@/stores/account";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, BarChart4, Coins, History, Key, LineChart, Zap } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useApiKeys } from "@/hooks/use-api-keys.ts";
+import { useCredits } from "@/hooks/use-credits";
 
 export const Route = createFileRoute("/dashboard")({
 	component: Dashboard,
@@ -11,8 +11,9 @@ export const Route = createFileRoute("/dashboard")({
 
 function Dashboard() {
 	const { isAuthenticated } = useRequireAuth();
-	const apiCredits = useAccountStore((state) => state.formattedAPICredits());
+	const { formattedCredits } = useCredits();
 	const navigate = useNavigate();
+	const { apiKeys } = useApiKeys();
 
 	// In a real app, these would be fetched from an API
 	const mockStats = {
@@ -25,8 +26,6 @@ function Dashboard() {
 	if (!isAuthenticated) {
 		return null;
 	}
-
-	const { apiKeys } = useApiKeys();
 
 	return (
 		<div className="container mx-auto px-4 py-8">
@@ -42,7 +41,7 @@ function Dashboard() {
 							<Coins className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Balance</h2>
 						</div>
-						<p className="text-3xl font-bold">${apiCredits}</p>
+						<p className="text-3xl font-bold">${formattedCredits}</p>
 						<Button size="sm" className="mt-4" onClick={() => navigate({ to: "/topup" })}>
 							Top Up
 						</Button>

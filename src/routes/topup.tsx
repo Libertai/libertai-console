@@ -9,6 +9,7 @@ import { PayEmbed, useIsAutoConnecting } from "thirdweb/react";
 import { base } from "thirdweb/chains";
 import env from "@/config/env.ts";
 import { TopUpAmountInput } from "@/components/TopUpAmountInput";
+import { useCredits } from "@/hooks/use-credits";
 
 export const Route = createFileRoute("/topup")({
 	component: TopUp,
@@ -26,10 +27,11 @@ type PricingTier = {
 function TopUp() {
 	const isAutoConnecting = useIsAutoConnecting();
 	const account = useAccountStore((state) => state.account);
-	const apiCredits = useAccountStore((state) => state.formattedAPICredits());
+	const { formattedCredits } = useCredits();
 	const navigate = useNavigate();
 	const [customAmount, setCustomAmount] = useState<number | null>(null);
 	const [paymentStage, setPaymentStage] = useState<"select" | "payment" | "success">("select");
+	const { refreshCredits } = useCredits();
 
 	// Pricing tiers
 	const pricingTiers: PricingTier[] = [
@@ -79,6 +81,7 @@ function TopUp() {
 
 	const handlePaymentSuccess = () => {
 		setPaymentStage("success");
+		refreshCredits();
 	};
 
 	const handleGoBackToSelection = () => {
@@ -120,7 +123,7 @@ function TopUp() {
 										<Zap className="h-5 w-5 text-primary" />
 										<h2 className="text-xl font-semibold">Credits balance</h2>
 									</div>
-									<p className="text-3xl font-bold text-primary">${apiCredits}</p>
+									<p className="text-3xl font-bold text-primary">${formattedCredits}</p>
 									<p className="text-sm text-muted-foreground mt-2">
 										API credits are used for API requests and are available immediately after purchase.
 										<br />

@@ -4,6 +4,7 @@ export type ApiKey = {
     id: string;
     key: string;
     name: string;
+    user_address: string;
     created_at: string;
     is_active: boolean;
     monthly_limit?: number | null;
@@ -48,6 +49,11 @@ export type AuthMessageResponse = {
     message: string;
 };
 
+export type CreditBalanceResponse = {
+    address: string;
+    balance: number;
+};
+
 export type ExpiredCreditTransaction = {
     transaction_hash: string;
     address: string;
@@ -63,6 +69,7 @@ export type FullApiKey = {
     id: string;
     key: string;
     name: string;
+    user_address: string;
     created_at: string;
     is_active: boolean;
     monthly_limit?: number | null;
@@ -193,6 +200,31 @@ export type UpdateExpiredCreditTransactionsCreditsUpdateExpiredPostResponses = {
 };
 
 export type UpdateExpiredCreditTransactionsCreditsUpdateExpiredPostResponse = UpdateExpiredCreditTransactionsCreditsUpdateExpiredPostResponses[keyof UpdateExpiredCreditTransactionsCreditsUpdateExpiredPostResponses];
+
+export type GetUserBalanceCreditsBalanceGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/credits/balance';
+};
+
+export type GetUserBalanceCreditsBalanceGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetUserBalanceCreditsBalanceGetError = GetUserBalanceCreditsBalanceGetErrors[keyof GetUserBalanceCreditsBalanceGetErrors];
+
+export type GetUserBalanceCreditsBalanceGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: CreditBalanceResponse;
+};
+
+export type GetUserBalanceCreditsBalanceGetResponse = GetUserBalanceCreditsBalanceGetResponses[keyof GetUserBalanceCreditsBalanceGetResponses];
 
 export type GetApiKeysApiKeysAddressGetData = {
     body?: never;

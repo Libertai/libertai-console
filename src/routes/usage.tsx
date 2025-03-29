@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { BarChart3, BarChart4, Calendar, Download, HelpCircle, LineChart, Zap } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useState } from "react";
-import { useAccountStore } from "@/stores/account";
+import { useCredits } from "@/hooks/use-credits";
 
 export const Route = createFileRoute("/usage")({
 	component: Usage,
@@ -33,7 +33,7 @@ const mockApiKeyUsage = [
 
 function Usage() {
 	const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("7d");
-	const apiCredits = useAccountStore((state) => state.formattedAPICredits());
+	const { formattedCredits } = useCredits();
 
 	// Use auth hook to require authentication
 	const { isAuthenticated } = useRequireAuth();
@@ -75,7 +75,7 @@ function Usage() {
 							<Zap className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">API Credits</h2>
 						</div>
-						<p className="text-3xl font-bold">{apiCredits}</p>
+						<p className="text-3xl font-bold">{formattedCredits}</p>
 					</div>
 
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
