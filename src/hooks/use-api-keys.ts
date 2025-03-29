@@ -2,10 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
 	ApiKeyCreate,
-	createApiKeyApiKeysAddressPost,
-	deleteApiKeyApiKeysIdKeyIdDelete,
-	getApiKeysApiKeysAddressGet,
-	updateApiKeyApiKeysIdKeyIdPut,
+	createApiKeyApiKeysPost,
+	deleteApiKeyApiKeysKeyIdDelete,
+	getApiKeysApiKeysGet,
+	updateApiKeyApiKeysKeyIdPut,
 	ValidationError,
 } from "@/apis/inference";
 import { useAccountStore } from "@/stores/account";
@@ -40,11 +40,7 @@ export function useApiKeys() {
 				return { keys: [] };
 			}
 
-			const response = await getApiKeysApiKeysAddressGet({
-				path: {
-					address: account.address,
-				},
-			});
+			const response = await getApiKeysApiKeysGet();
 
 			if (response.error) {
 				throw new Error(extractFastAPIError(response.error.detail));
@@ -62,10 +58,7 @@ export function useApiKeys() {
 				throw new Error("No account available");
 			}
 
-			const response = await createApiKeyApiKeysAddressPost({
-				path: {
-					address: account.address,
-				},
+			const response = await createApiKeyApiKeysPost({
 				body: keyData,
 			});
 
@@ -99,7 +92,7 @@ export function useApiKeys() {
 			name?: string | null;
 			monthlyLimit?: number | null;
 		}) => {
-			const response = await updateApiKeyApiKeysIdKeyIdPut({
+			const response = await updateApiKeyApiKeysKeyIdPut({
 				path: {
 					key_id: keyId,
 				},
@@ -130,7 +123,7 @@ export function useApiKeys() {
 	// Mutation for deleting an API key
 	const deleteMutation = useMutation({
 		mutationFn: async (keyId: string) => {
-			const response = await deleteApiKeyApiKeysIdKeyIdDelete({
+			const response = await deleteApiKeyApiKeysKeyIdDelete({
 				path: {
 					key_id: keyId,
 				},
