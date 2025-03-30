@@ -3,13 +3,15 @@ import { useAccountStore } from "@/stores/account";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ChevronRight, CreditCard, HelpCircle, Zap } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { thirdwebClient } from "@/config/thirdweb.ts";
 import { PayEmbed, useIsAutoConnecting } from "thirdweb/react";
 import { base } from "thirdweb/chains";
 import env from "@/config/env.ts";
 import { TopUpAmountInput } from "@/components/TopUpAmountInput";
 import { useCredits } from "@/hooks/use-credits";
+import { PaymentMethod, PaymentMethodSelector } from "@/components/PaymentMethodSelector";
+import { LTAIPaymentForm } from "@/components/LTAIPaymentForm";
 
 export const Route = createFileRoute("/topup")({
 	component: TopUp,
@@ -27,11 +29,22 @@ type PricingTier = {
 function TopUp() {
 	const isAutoConnecting = useIsAutoConnecting();
 	const account = useAccountStore((state) => state.account);
+	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
 	const { formattedCredits } = useCredits();
 	const navigate = useNavigate();
 	const [customAmount, setCustomAmount] = useState<number | null>(null);
 	const [paymentStage, setPaymentStage] = useState<"select" | "payment" | "success">("select");
+	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("crypto");
 	const { refreshCredits } = useCredits();
+	const hasLTAI = ltaiBalance > 0;
+
+	// Effect to set initial payment method
+	useEffect(() => {
+		// Default to crypto payment if user has no LTAI tokens
+		if (!hasLTAI) {
+			setPaymentMethod("crypto");
+		}
+	}, [hasLTAI]);
 
 	// Pricing tiers
 	const pricingTiers: PricingTier[] = [
@@ -200,7 +213,7 @@ function TopUp() {
 						<div className="flex flex-col md:flex-row gap-8">
 							<div className="flex-1">
 								<h3 className="text-lg font-medium mb-4">Order Summary</h3>
-								<div className="bg-card/70 p-4 rounded-lg border border-border mb-4">
+								<div className="bg-card p-4 rounded-lg border border-border mb-4">
 									<div className="flex justify-between mb-2">
 										<span className="text-muted-foreground">Credits top-up</span>
 										<span>${paymentDetails.price.toFixed(2)}</span>
@@ -212,45 +225,54 @@ function TopUp() {
 									</div>
 								</div>
 
-								<div className="bg-primary/10 p-4 rounded-lg border border-primary/30">
-									<p className="text-sm text-primary-foreground">
+								<div className="bg-primary/5 dark:bg-primary/10 p-4 rounded-lg border border-primary/20">
+									<p className="text-sm text-foreground">
 										Your credits will be deposited directly to your connected wallet after payment. Credits do not
 										expire and can be used anytime.
 									</p>
+								</div>
+
+								{/* Payment Method Selector */}
+								<div className="mt-6">
+									<PaymentMethodSelector
+										onSelectMethod={setPaymentMethod}
+										selectedMethod={paymentMethod}
+										hasLTAI={hasLTAI}
+									/>
 								</div>
 							</div>
 
 							<div className="flex-1">
 								<h3 className="text-lg font-medium mb-4">Payment Method</h3>
-								<div className="bg-card/70 p-4 rounded-lg border border-border">
-									{/* Here we use the ThirdWeb PayEmbed component for crypto payments */}
-									<PayEmbed
-										client={thirdwebClient}
-										payOptions={{
-											mode: "direct_payment",
-											buyWithFiat: false,
-											onPurchaseSuccess: handlePaymentSuccess,
-											purchaseData: {
-												userAddress: account!.address,
-											},
-											paymentInfo: {
-												chain: base,
-												sellerAddress: env.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS,
-												amount: paymentDetails.usdcAmount,
-												token: {
-													name: "USDC",
-													symbol: "USDC",
-													address: env.USDC_BASE_ADDRESS,
+								<div className="bg-card p-4 rounded-lg border border-border">
+									{paymentMethod === "crypto" ? (
+										/* ThirdWeb PayEmbed component for crypto payments */
+										<PayEmbed
+											client={thirdwebClient}
+											payOptions={{
+												mode: "direct_payment",
+												buyWithFiat: false,
+												onPurchaseSuccess: handlePaymentSuccess,
+												purchaseData: {
+													userAddress: account!.address,
 												},
-											},
-										}}
-										className="w-full!"
-									/>
-
-									{/* Add a mock button to simulate successful payment for demo purposes */}
-									{/*<Button onClick={handlePaymentSuccess} className="w-full mt-4">*/}
-									{/*	Simulate Successful Payment*/}
-									{/*</Button>*/}
+												paymentInfo: {
+													chain: base,
+													sellerAddress: env.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS,
+													amount: paymentDetails.usdcAmount,
+													token: {
+														name: "USDC",
+														symbol: "USDC",
+														address: env.USDC_BASE_ADDRESS,
+													},
+												},
+											}}
+											className="w-full!"
+										/>
+									) : (
+										/* LTAI Payment Form */
+										<LTAIPaymentForm usdAmount={paymentDetails.price} onPaymentSuccess={handlePaymentSuccess} />
+									)}
 								</div>
 							</div>
 						</div>
@@ -269,10 +291,12 @@ function TopUp() {
 							</p>
 						</div>
 
-						<div className="bg-card/70 p-6 rounded-lg border border-border mb-8 max-w-md mx-auto">
+						<div className="bg-card p-6 rounded-lg border border-border mb-8 max-w-md mx-auto">
 							<div className="flex justify-between mb-3">
 								<span className="text-muted-foreground">Amount Paid:</span>
-								<span className="font-medium">${paymentDetails.price.toFixed(2)} USDC</span>
+								<span className="font-medium">
+									${paymentDetails.price.toFixed(2)} {paymentMethod === "ltai" ? "in LTAI" : "USDC"}
+								</span>
 							</div>
 							<div className="flex justify-between">
 								<span className="text-muted-foreground">Transaction Hash:</span>
