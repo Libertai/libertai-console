@@ -6,6 +6,7 @@ import { useApiKeys } from "@/hooks/data/use-api-keys";
 import { useCredits } from "@/hooks/data/use-credits";
 import { useStats } from "@/hooks/data/use-stats";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/dashboard")({
 	component: Dashboard,
@@ -13,10 +14,10 @@ export const Route = createFileRoute("/dashboard")({
 
 function Dashboard() {
 	const { isAuthenticated } = useRequireAuth();
-	const { formattedCredits } = useCredits();
+	const { formattedCredits, isLoading: areCreditsLoading } = useCredits();
 	const navigate = useNavigate();
-	const { apiKeys } = useApiKeys();
-	const { apiCalls, tokensUsed, chartData, isLoading } = useStats();
+	const { apiKeys, isLoading: areApiKeysLoading } = useApiKeys();
+	const { apiCalls, tokensUsed, chartData, isLoading: areStatsLoading } = useStats();
 
 	// Return null if not authenticated (redirect is handled by the hook)
 	if (!isAuthenticated) {
@@ -37,7 +38,9 @@ function Dashboard() {
 							<Coins className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Balance</h2>
 						</div>
-						<p className="text-3xl font-bold">${formattedCredits}</p>
+						<p className="text-3xl font-bold">
+							{areCreditsLoading ? <Skeleton className="h-10 w-32" /> : `$${formattedCredits}`}
+						</p>
 						<Button size="sm" className="mt-4" onClick={() => navigate({ to: "/topup" })}>
 							Top Up
 						</Button>
@@ -48,7 +51,7 @@ function Dashboard() {
 							<Zap className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">API Calls</h2>
 						</div>
-						<p className="text-3xl font-bold">{apiCalls}</p>
+						<p className="text-3xl font-bold">{areStatsLoading ? <Skeleton className="h-10 w-32" /> : apiCalls}</p>
 						<p className="text-xs text-muted-foreground mt-4">This month</p>
 					</div>
 
@@ -57,7 +60,9 @@ function Dashboard() {
 							<Key className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Active Keys</h2>
 						</div>
-						<p className="text-3xl font-bold">{apiKeys.filter((key) => key.is_active).length}</p>
+						<p className="text-3xl font-bold">
+							{areApiKeysLoading ? <Skeleton className="h-10 w-32" /> : apiKeys.filter((key) => key.is_active).length}
+						</p>
 						<Button size="sm" variant="outline" className="mt-4" onClick={() => navigate({ to: "/api-keys" })}>
 							Manage
 						</Button>
@@ -68,7 +73,7 @@ function Dashboard() {
 							<LineChart className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Tokens Used</h2>
 						</div>
-						<p className="text-3xl font-bold">{tokensUsed}</p>
+						<p className="text-3xl font-bold">{areStatsLoading ? <Skeleton className="h-10 w-32" /> : tokensUsed}</p>
 						<p className="text-xs text-muted-foreground mt-4">This month</p>
 					</div>
 				</div>
@@ -81,9 +86,11 @@ function Dashboard() {
 						</div>
 
 						<div className="h-64">
-							{isLoading ? (
-								<div className="flex items-center justify-center h-full">
-									<p className="text-muted-foreground">Loading chart data...</p>
+							{areStatsLoading ? (
+								<div className="flex flex-col gap-4 justify-center px-6 h-full">
+									<Skeleton className="h-4 w-full" />
+									<Skeleton className="h-32 w-full" />
+									<Skeleton className="h-4 w-3/4 mx-auto" />
 								</div>
 							) : (
 								<ResponsiveContainer width="100%" height="100%">

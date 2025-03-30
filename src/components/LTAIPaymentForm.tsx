@@ -9,6 +9,7 @@ import { thirdwebClient } from "@/config/thirdweb";
 import env from "@/config/env";
 import { useLTAIPrice } from "@/hooks/use-ltai-price";
 import { prepareContractCall, sendTransaction } from "thirdweb";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface LTAIPaymentFormProps {
 	usdAmount: number;
@@ -121,9 +122,31 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 
 	if (isLoading) {
 		return (
-			<div className="flex flex-col items-center justify-center p-6">
-				<Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-				<p>Calculating LTAI amount...</p>
+			<div className="space-y-6">
+				<div className="bg-card p-4 rounded-lg border border-border">
+					<div className="flex justify-between mb-2">
+						<Skeleton className="h-5 w-24" />
+						<Skeleton className="h-5 w-16" />
+					</div>
+					<div className="flex justify-between mb-2">
+						<Skeleton className="h-5 w-24" />
+						<Skeleton className="h-5 w-32" />
+					</div>
+					<div className="border-t border-border my-2"></div>
+					<div className="flex justify-between font-medium">
+						<Skeleton className="h-5 w-28" />
+						<Skeleton className="h-5 w-20" />
+					</div>
+					<div className="flex justify-between mt-2 text-xs">
+						<Skeleton className="h-4 w-28" />
+						<Skeleton className="h-4 w-20" />
+					</div>
+				</div>
+
+				<div className="space-y-4">
+					<Skeleton className="h-10 w-full" />
+					<Skeleton className="h-10 w-full" />
+				</div>
 			</div>
 		);
 	}
