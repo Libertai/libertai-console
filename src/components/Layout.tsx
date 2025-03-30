@@ -2,7 +2,6 @@ import { ReactNode, useEffect, useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Link, useRouter } from "@tanstack/react-router";
 import AccountButton from "./AccountButton";
-import { Coins, Key, LayoutDashboard, LineChart, PieChart } from "lucide-react";
 import {
 	Sidebar,
 	SidebarContent,
@@ -50,10 +49,18 @@ function SidebarMenuItemWithAutoClose({
 	);
 }
 
+type SidebarItem = {
+	to: string;
+	icon: ReactNode;
+	label: string;
+};
+
 export function Layout({
 	children,
+	sidebarItems,
 }: Readonly<{
 	children: ReactNode;
+	sidebarItems: SidebarItem[];
 }>) {
 	const router = useRouter();
 	const [currentPath, setCurrentPath] = useState(router.state.location.pathname);
@@ -97,45 +104,16 @@ export function Layout({
 
 					<SidebarContent>
 						<SidebarMenu>
-							<SidebarMenuItemWithAutoClose
-								to="/"
-								tooltip="Home"
-								isActive={currentPath === "/"}
-								icon={<LayoutDashboard className="h-4 w-4" />}
-								label="Home"
-							/>
-
-							<SidebarMenuItemWithAutoClose
-								to="/dashboard"
-								tooltip="Dashboard"
-								isActive={currentPath === "/dashboard"}
-								icon={<PieChart className="h-4 w-4" />}
-								label="Dashboard"
-							/>
-
-							<SidebarMenuItemWithAutoClose
-								to="/api-keys"
-								tooltip="API Keys"
-								isActive={currentPath === "/api-keys"}
-								icon={<Key className="h-4 w-4" />}
-								label="API Keys"
-							/>
-
-							<SidebarMenuItemWithAutoClose
-								to="/usage"
-								tooltip="Usage"
-								isActive={currentPath === "/usage"}
-								icon={<LineChart className="h-4 w-4" />}
-								label="Usage"
-							/>
-
-							<SidebarMenuItemWithAutoClose
-								to="/topup"
-								tooltip="Top Up"
-								isActive={currentPath === "/topup"}
-								icon={<Coins className="h-4 w-4" />}
-								label="Top Up"
-							/>
+							{sidebarItems.map((item) => (
+								<SidebarMenuItemWithAutoClose
+									to={item.to}
+									tooltip={item.label}
+									isActive={currentPath === item.to}
+									icon={item.icon}
+									label={item.label}
+									key={item.to}
+								/>
+							))}
 						</SidebarMenu>
 					</SidebarContent>
 				</Sidebar>

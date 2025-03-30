@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUserBalanceCreditsBalanceGet } from "@/apis/inference";
-import { useAccountStore } from "@/stores/account";
+import { useAccountStore } from "@/stores/account.ts";
 import { toast } from "sonner";
 
 export function useCredits() {

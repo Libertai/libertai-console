@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, BarChart4, Coins, History, Key, LineChart, Zap } from "lucide-react";
+import { AlertCircle, BarChart4, Coins, Key, LineChart, Zap } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { useApiKeys } from "@/hooks/use-api-keys.ts";
-import { useCredits } from "@/hooks/use-credits";
-import { useStats } from "@/hooks/use-stats";
+import { useApiKeys } from "@/hooks/data/use-api-keys";
+import { useCredits } from "@/hooks/data/use-credits";
+import { useStats } from "@/hooks/data/use-stats";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 export const Route = createFileRoute("/dashboard")({
@@ -154,12 +154,6 @@ function Dashboard() {
 								<span className="flex items-center gap-2">
 									<LineChart className="h-4 w-4" />
 									View Detailed Usage
-								</span>
-							</Button>
-							<Button variant="outline" className="w-full justify-between">
-								<span className="flex items-center gap-2">
-									<History className="h-4 w-4" />
-									Request History
 								</span>
 							</Button>
 							<a href="https://docs.libertai.io" target="_blank">
