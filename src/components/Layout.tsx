@@ -16,10 +16,6 @@ import {
 	useSidebar,
 } from "./ui/sidebar";
 
-interface LayoutProps {
-	children: ReactNode;
-}
-
 // Component that wraps menu items to auto-close sidebar on mobile
 function SidebarMenuItemWithAutoClose({
 	to,
@@ -27,13 +23,13 @@ function SidebarMenuItemWithAutoClose({
 	isActive,
 	icon,
 	label,
-}: {
+}: Readonly<{
 	to: string;
 	tooltip: string;
 	isActive: boolean;
-	icon: React.ReactNode;
+	icon: ReactNode;
 	label: string;
-}) {
+}>) {
 	const { isMobile, setOpenMobile } = useSidebar();
 
 	const handleClick = () => {
@@ -44,7 +40,7 @@ function SidebarMenuItemWithAutoClose({
 
 	return (
 		<SidebarMenuItem>
-			<Link to={to} onClick={handleClick}>
+			<Link to={to} onClick={handleClick} disabled={isActive}>
 				<SidebarMenuButton tooltip={tooltip} isActive={isActive}>
 					{icon}
 					<span>{label}</span>
@@ -54,7 +50,11 @@ function SidebarMenuItemWithAutoClose({
 	);
 }
 
-export function Layout({ children }: Readonly<LayoutProps>) {
+export function Layout({
+	children,
+}: Readonly<{
+	children: ReactNode;
+}>) {
 	const router = useRouter();
 	const [currentPath, setCurrentPath] = useState(router.state.location.pathname);
 

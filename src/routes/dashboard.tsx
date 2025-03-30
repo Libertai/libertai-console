@@ -162,12 +162,14 @@ function Dashboard() {
 									Request History
 								</span>
 							</Button>
-							<Button variant="outline" className="w-full justify-between">
-								<span className="flex items-center gap-2">
-									<AlertCircle className="h-4 w-4" />
-									API Documentation
-								</span>
-							</Button>
+							<a href="https://docs.libertai.io" target="_blank">
+								<Button variant="outline" className="w-full justify-between">
+									<span className="flex items-center gap-2">
+										<AlertCircle className="h-4 w-4" />
+										API Documentation
+									</span>
+								</Button>
+							</a>
 						</div>
 					</div>
 				</div>
