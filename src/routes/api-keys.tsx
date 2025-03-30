@@ -11,7 +11,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ApiKey, ApiKeyCreate } from "@/apis/inference";
-import { useApiKeys } from "@/hooks/use-api-keys";
+import { useApiKeys } from "@/hooks/data/use-api-keys";
 import { toast } from "sonner";
 import { ApiKeyForm } from "@/components/ApiKeyForm";
 import dayjs from "dayjs";

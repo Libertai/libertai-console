@@ -4,7 +4,7 @@ import { BarChart3, BarChart4, Calendar as CalendarIcon, Download, HelpCircle, L
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { useUsageStats } from "@/hooks/use-stats";
+import { useUsageStats } from "@/hooks/data/use-stats";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import dayjs from "dayjs";

@@ -3,7 +3,7 @@ import { useAccountStore } from "@/stores/account";
 import { ArrowRight, Coins, Key, LayoutDashboard, LineChart, MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AccountButton from "@/components/AccountButton";
-import { useCredits } from "@/hooks/use-credits";
+import { useCredits } from "@/hooks/data/use-credits";
 
 export const Route = createFileRoute("/")({
 	component: Index,

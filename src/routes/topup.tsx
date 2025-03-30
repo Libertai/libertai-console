@@ -9,7 +9,7 @@ import { PayEmbed, useIsAutoConnecting } from "thirdweb/react";
 import { base } from "thirdweb/chains";
 import env from "@/config/env.ts";
 import { TopUpAmountInput } from "@/components/TopUpAmountInput";
-import { useCredits } from "@/hooks/use-credits";
+import { useCredits } from "@/hooks/data/use-credits";
 import { PaymentMethod, PaymentMethodSelector } from "@/components/PaymentMethodSelector";
 import { LTAIPaymentForm } from "@/components/LTAIPaymentForm";
 import { useQueryState } from "nuqs";
