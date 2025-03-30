@@ -28,8 +28,12 @@ type PricingTier = {
 
 function TopUp() {
 	const isAutoConnecting = useIsAutoConnecting();
+
 	const account = useAccountStore((state) => state.account);
 	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
+	const lastTransactionHash = useAccountStore((state) => state.lastTransactionHash);
+	const setLastTransactionHash = useAccountStore((state) => state.setLastTransactionHash);
+
 	const { formattedCredits } = useCredits();
 	const navigate = useNavigate();
 	const [customAmount, setCustomAmount] = useState<number | null>(null);
@@ -90,6 +94,8 @@ function TopUp() {
 	const handleSelectCustomAmount = (amount: number) => {
 		setCustomAmount(amount);
 		setPaymentStage("payment");
+		// Reset transaction hash when starting a new payment
+		setLastTransactionHash(null);
 	};
 
 	const handlePaymentSuccess = () => {
@@ -210,8 +216,8 @@ function TopUp() {
 							</Button>
 						</div>
 
-						<div className="flex flex-col md:flex-row gap-8">
-							<div className="flex-1">
+						<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+							<div>
 								<h3 className="text-lg font-medium mb-4">Order Summary</h3>
 								<div className="bg-card p-4 rounded-lg border border-border mb-4">
 									<div className="flex justify-between mb-2">
@@ -242,7 +248,7 @@ function TopUp() {
 								</div>
 							</div>
 
-							<div className="flex-1">
+							<div>
 								<h3 className="text-lg font-medium mb-4">Payment Method</h3>
 								<div className="bg-card p-4 rounded-lg border border-border">
 									{paymentMethod === "crypto" ? (
@@ -252,7 +258,13 @@ function TopUp() {
 											payOptions={{
 												mode: "direct_payment",
 												buyWithFiat: false,
-												onPurchaseSuccess: handlePaymentSuccess,
+												onPurchaseSuccess: (data) => {
+													// Store transaction hash if available
+													if (data.type === "transaction") {
+														setLastTransactionHash(data.transactionHash);
+													}
+													handlePaymentSuccess();
+												},
 												purchaseData: {
 													userAddress: account!.address,
 												},
@@ -267,7 +279,7 @@ function TopUp() {
 													},
 												},
 											}}
-											className="w-full!"
+											className="!w-full"
 										/>
 									) : (
 										/* LTAI Payment Form */
@@ -286,9 +298,7 @@ function TopUp() {
 								<CheckCircle className="h-8 w-8 text-emerald-400" />
 							</div>
 							<h2 className="text-2xl font-semibold">Payment Successful!</h2>
-							<p className="text-muted-foreground">
-								You have successfully purchased ${paymentDetails.price} of credits.
-							</p>
+							<p className="text-muted-foreground">Your credits will be added to your account shortly.</p>
 						</div>
 
 						<div className="bg-card p-6 rounded-lg border border-border mb-8 max-w-md mx-auto">
@@ -300,7 +310,20 @@ function TopUp() {
 							</div>
 							<div className="flex justify-between">
 								<span className="text-muted-foreground">Transaction Hash:</span>
-								<span className="font-medium text-primary">0x1a2...3b4c</span>
+								{lastTransactionHash ? (
+									<a
+										href={`https://basescan.org/tx/${useAccountStore.getState().lastTransactionHash}`}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="font-medium text-primary hover:underline overflow-hidden text-ellipsis"
+									>
+										{lastTransactionHash.slice(0, 10)}...
+										{lastTransactionHash.slice(-8)}
+										<span className="ml-1 text-xs">↗</span>
+									</a>
+								) : (
+									<span className="font-medium text-primary">Transaction pending</span>
+								)}
 							</div>
 						</div>
 

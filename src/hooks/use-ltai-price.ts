@@ -1,24 +1,47 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchLTAIPrice, calculateLTAIAmount } from "./use-credits";
+import { z } from "zod";
+
+// Fetch the LTAI token price from CoinGecko API
+async function fetchLTAIPrice(): Promise<number> {
+	try {
+		const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=libertai&vs_currencies=usd");
+		const data = await response.json();
+
+		const coingeckoPriceSchema = z.object({
+			libertai: z.object({
+				usd: z.number(),
+			}),
+		});
+
+		const parsedData = coingeckoPriceSchema.parse(data);
+		return parsedData.libertai.usd;
+	} catch (error) {
+		console.error("Error fetching LTAI price:", error);
+		// Return a fallback price if the API call fails
+		return 0;
+	}
+}
 
 export function useLTAIPrice() {
-  const priceQuery = useQuery({
-    queryKey: ["ltai-price"],
-    queryFn: fetchLTAIPrice,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false,
-  });
+	const priceQuery = useQuery({
+		queryKey: ["ltai-price"],
+		queryFn: fetchLTAIPrice,
+		staleTime: 60 * 1000, // 1 minute
+	});
 
-  const getRequiredLTAI = (usdAmount: number): number => {
-    if (!priceQuery.data) return 0;
-    return calculateLTAIAmount(usdAmount, priceQuery.data);
-  };
+	const getRequiredLTAI = (usdAmount: number): number => {
+		if (!priceQuery.data) return 0;
+		const ltaiPrice = priceQuery.data;
 
-  return {
-    price: priceQuery.data || 0,
-    isLoading: priceQuery.isLoading,
-    isError: priceQuery.isError,
-    error: priceQuery.error,
-    getRequiredLTAI,
-  };
+		if (!ltaiPrice || ltaiPrice <= 0) return 0;
+		return usdAmount / ltaiPrice;
+	};
+
+	return {
+		price: priceQuery.data ?? 0,
+		isLoading: priceQuery.isLoading,
+		isError: priceQuery.isError,
+		error: priceQuery.error,
+		getRequiredLTAI,
+	};
 }

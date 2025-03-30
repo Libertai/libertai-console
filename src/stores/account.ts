@@ -21,6 +21,7 @@ type AccountStoreState = {
 	account: Account | null;
 	jwtToken: string | null;
 	isAuthenticating: boolean;
+	lastTransactionHash: string | null;
 
 	onAccountChange: (newAccount: Account | undefined) => Promise<void>;
 	signMessage: (message: string) => Promise<string>;
@@ -28,6 +29,7 @@ type AccountStoreState = {
 	getAPICredits: () => Promise<number>;
 	onDisconnect: () => void;
 	authenticate: (address: string) => Promise<boolean>;
+	setLastTransactionHash: (hash: string | null) => void;
 };
 
 export const useAccountStore = create<AccountStoreState>((set, get) => ({
@@ -39,6 +41,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	account: null,
 	jwtToken: null,
 	isAuthenticating: false,
+	lastTransactionHash: null,
 
 	onAccountChange: async (newAccount: Account | undefined) => {
 		const state = get();
@@ -166,7 +169,18 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		}
 	},
 	onDisconnect: () => {
-		set({ account: null, alephStorage: null, jwtToken: null, ltaiBalance: 0, apiCredits: 0 });
+		set({
+			account: null,
+			alephStorage: null,
+			jwtToken: null,
+			ltaiBalance: 0,
+			apiCredits: 0,
+			lastTransactionHash: null,
+		});
+	},
+
+	setLastTransactionHash: (hash: string | null) => {
+		set({ lastTransactionHash: hash });
 	},
 }));
 

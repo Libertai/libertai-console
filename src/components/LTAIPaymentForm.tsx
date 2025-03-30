@@ -15,13 +15,15 @@ interface LTAIPaymentFormProps {
 	onPaymentSuccess: () => void;
 }
 
-export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: LTAIPaymentFormProps) {
+export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPaymentFormProps>) {
 	const [isApproving, setIsApproving] = useState(false);
 	const [isProcessing, setIsProcessing] = useState(false);
+	const [isApproved, setIsApproved] = useState(false);
 
 	const account = useAccountStore((state) => state.account);
 	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
 	const getLTAIBalance = useAccountStore((state) => state.getLTAIBalance);
+	const setLastTransactionHash = useAccountStore((state) => state.setLastTransactionHash);
 
 	const { price: ltaiPrice, isLoading, getRequiredLTAI } = useLTAIPrice();
 	const ltaiAmount = getRequiredLTAI(usdAmount);
@@ -50,6 +52,9 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: LTAIPaymentForm
 			toast.success("Approval successful", {
 				description: "Now you can proceed with the payment",
 			});
+
+			// Set approval state to true
+			setIsApproved(true);
 
 			// After approval, update the LTAI balance
 			await getLTAIBalance();
@@ -89,10 +94,13 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: LTAIPaymentForm
 			});
 
 			// Send the transaction
-			await sendTransaction({
+			const { transactionHash } = await sendTransaction({
 				transaction,
 				account,
 			});
+
+			// Store the transaction hash for display
+			setLastTransactionHash(transactionHash);
 
 			toast.success("Payment successful", {
 				description: "Your credits will be added to your account shortly",
@@ -154,7 +162,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: LTAIPaymentForm
 				<Button
 					onClick={handleApprovePayment}
 					className="w-full"
-					disabled={isApproving || isProcessing || !hasEnoughLTAI}
+					disabled={isApproving || isProcessing || !hasEnoughLTAI || isApproved}
 				>
 					{isApproving ? (
 						<>
@@ -169,7 +177,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: LTAIPaymentForm
 				<Button
 					onClick={handleProcessPayment}
 					className="w-full"
-					disabled={isProcessing || isApproving || !hasEnoughLTAI}
+					disabled={isProcessing || isApproving || !hasEnoughLTAI || !isApproved}
 				>
 					{isProcessing ? (
 						<>
@@ -183,7 +191,11 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: LTAIPaymentForm
 			</div>
 
 			<div className="bg-primary/5 dark:bg-primary/10 p-4 rounded-lg border border-primary/20 text-sm text-foreground">
-				<p>This payment will use {ltaiAmount.toFixed(2)} LTAI tokens from your wallet to purchase credits.</p>
+				<p>
+					Please note that with price variations, you might not get the exact amount of credits as displayed.
+					<br />
+					If you need an exact amount of credits, use the crypto payment method.
+				</p>
 			</div>
 		</div>
 	);
