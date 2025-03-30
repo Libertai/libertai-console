@@ -64,3 +64,29 @@ export function useCredits() {
 		isRefreshing: refreshCreditsMutation.isPending,
 	};
 }
+
+// Fetch the LTAI token price from CoinGecko API
+export async function fetchLTAIPrice(): Promise<number> {
+	try {
+		const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=libertai&vs_currencies=usd');
+		const data = await response.json();
+		
+		if (data && data.libertai && data.libertai.usd) {
+			return data.libertai.usd;
+		} else {
+			// Fallback price if the API doesn't return the expected data
+			console.warn('Failed to fetch LTAI price from CoinGecko, using fallback price');
+			return 0.05; // Fallback price in USD
+		}
+	} catch (error) {
+		console.error('Error fetching LTAI price:', error);
+		// Return a fallback price if the API call fails
+		return 0.05; // Fallback price in USD
+	}
+}
+
+// Calculate the amount of LTAI tokens needed for a given USD amount
+export function calculateLTAIAmount(usdAmount: number, ltaiPrice: number): number {
+	if (!ltaiPrice || ltaiPrice <= 0) return 0;
+	return usdAmount / ltaiPrice;
+}
