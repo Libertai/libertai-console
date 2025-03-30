@@ -6,32 +6,11 @@ import { thirdwebClient } from "@/config/thirdweb.ts";
 import { base } from "thirdweb/chains";
 import { getAuthMessageAuthMessagePost, loginWithWalletAuthLoginPost } from "@/apis/inference/sdk.gen";
 import { toast } from "sonner";
-import Cookies from "js-cookie";
 
 const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
-const JWT_COOKIE_NAME = "libertai_auth";
 
 // Determine if we're in development (localhost) or production
 const isDevelopment = window.location.hostname === "localhost";
-
-// Cookie options with environment-specific settings
-// Note: The backend will set the HttpOnly flag which can't be set via JavaScript
-const COOKIE_OPTS = isDevelopment
-	? {
-			// Development environment (localhost) settings
-			secure: false, // Allow HTTP for local development
-			sameSite: "lax" as const, // Less strict for local development
-			path: "/", // Available across the entire site
-			expires: 7, // 7 days expiration
-		}
-	: {
-			// Production environment settings (app.libertai.io and auth.api.libertai.io)
-			secure: true, // Only sent over HTTPS
-			sameSite: "none" as const, // Allow cross-domain cookies
-			domain: ".libertai.io", // Shared top-level domain
-			path: "/", // Available across the entire site
-			expires: 7, // 7 days expiration
-		};
 
 type AccountStoreState = {
 	alephStorage: null;
@@ -41,15 +20,14 @@ type AccountStoreState = {
 	formattedAPICredits: () => string;
 	account: Account | null;
 	jwtToken: string | null;
+	isAuthenticating: boolean;
 
 	onAccountChange: (newAccount: Account | undefined) => Promise<void>;
 	signMessage: (message: string) => Promise<string>;
 	getLTAIBalance: () => Promise<number>;
 	getAPICredits: () => Promise<number>;
 	onDisconnect: () => void;
-	authenticate: () => Promise<boolean>;
-	setJWT: (token: string) => void;
-	clearJWT: () => void;
+	authenticate: (address: string) => Promise<boolean>;
 };
 
 export const useAccountStore = create<AccountStoreState>((set, get) => ({
@@ -60,6 +38,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	formattedAPICredits: () => get().apiCredits.toFixed(0),
 	account: null,
 	jwtToken: null,
+	isAuthenticating: false,
 
 	onAccountChange: async (newAccount: Account | undefined) => {
 		const state = get();
@@ -74,15 +53,22 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			return;
 		}
 
-		set({ account: newAccount });
-
-		// Authenticate with the API and get API credits
-		const authSuccess = await state.authenticate();
-
-		if (!authSuccess) {
-			// set({ account: null });
+		if (state.isAuthenticating) {
+			// Prevent multiple simultaneous authentication attempts
 			return;
 		}
+
+		// Authenticate with the API
+		set({ isAuthenticating: true });
+		const authSuccess = await state.authenticate(newAccount.address);
+		set({ isAuthenticating: false });
+
+		if (!authSuccess) {
+			set({ account: null });
+			return;
+		}
+
+		set({ account: newAccount });
 
 		// Get LTAI token balance from blockchain
 		const ltaiBalance = await state.getLTAIBalance();
@@ -116,18 +102,14 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		// For now we'll return a placeholder value until we implement the proper endpoint
 		return 0;
 	},
-	authenticate: async (): Promise<boolean> => {
+	authenticate: async (address: string): Promise<boolean> => {
 		const state = get();
-
-		if (state.account === null) {
-			return false;
-		}
 
 		try {
 			// Get the message to sign
 			const messageResponse = await getAuthMessageAuthMessagePost({
 				body: {
-					address: state.account.address,
+					address: address,
 				},
 			});
 
@@ -139,12 +121,12 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			}
 
 			// Sign the message
-			let signature = "";
+			let signature;
 			if (isDevelopment) {
-				const storedSignature = localStorage.getItem(`libertai_dev_signature_${state.account.address}`);
+				const storedSignature = localStorage.getItem(`libertai_dev_signature_${address}`);
 				if (storedSignature == null) {
 					signature = await state.signMessage(messageResponse.data.message);
-					localStorage.setItem(`libertai_dev_signature_${state.account.address}`, signature);
+					localStorage.setItem(`libertai_dev_signature_${address}`, signature);
 				} else {
 					signature = storedSignature;
 				}
@@ -155,14 +137,14 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			// Login with the signature
 			const loginResponse = await loginWithWalletAuthLoginPost({
 				body: {
-					address: state.account.address,
+					address: address,
 					signature: signature,
 				},
 			});
 
 			if (loginResponse.data?.access_token) {
 				// Store the JWT token
-				state.setJWT(loginResponse.data.access_token);
+				set({ jwtToken: loginResponse.data.access_token });
 
 				// Update API credits
 				const apiCredits = await state.getAPICredits();
@@ -183,31 +165,8 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			return false;
 		}
 	},
-	setJWT: (token: string) => {
-		// Store JWT in a secure cookie with cross-domain settings
-		Cookies.set(JWT_COOKIE_NAME, token, COOKIE_OPTS);
-
-		set({ jwtToken: token });
-	},
-	clearJWT: () => {
-		// Remove JWT cookie with same environment-specific settings
-		Cookies.remove(
-			JWT_COOKIE_NAME,
-			isDevelopment
-				? { path: "/" }
-				: {
-						domain: ".libertai.io",
-						path: "/",
-					},
-		);
-
-		// Update state
-		set({ jwtToken: null });
-	},
 	onDisconnect: () => {
-		const state = get();
-		state.clearJWT();
-		set({ account: null, alephStorage: null, ltaiBalance: 0, apiCredits: 0 });
+		set({ account: null, alephStorage: null, jwtToken: null, ltaiBalance: 0, apiCredits: 0 });
 	},
 }));
 
