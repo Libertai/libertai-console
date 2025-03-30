@@ -14,6 +14,7 @@ import { ApiKey, ApiKeyCreate } from "@/apis/inference";
 import { useApiKeys } from "@/hooks/data/use-api-keys";
 import { toast } from "sonner";
 import { ApiKeyForm } from "@/components/ApiKeyForm";
+import { Skeleton } from "@/components/ui/skeleton";
 import dayjs from "dayjs";
 
 export const Route = createFileRoute("/api-keys")({
@@ -138,11 +139,23 @@ function ApiKeys() {
 										</td>
 									</tr>
 								) : isLoading ? (
-									<tr className="border-b border-border/50">
-										<td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
-											Loading API keys...
-										</td>
-									</tr>
+									<>
+										<tr className="border-b border-border/50">
+											<td colSpan={6} className="px-6 py-2">
+												<Skeleton className="h-10 w-full my-1" />
+											</td>
+										</tr>
+										<tr className="border-b border-border/50">
+											<td colSpan={6} className="px-6 py-2">
+												<Skeleton className="h-10 w-full my-1" />
+											</td>
+										</tr>
+										<tr className="border-b border-border/50">
+											<td colSpan={6} className="px-6 py-2">
+												<Skeleton className="h-10 w-full my-1" />
+											</td>
+										</tr>
+									</>
 								) : (
 									apiKeys.map((key) => (
 										<tr key={key.id} className="border-b border-border/50 hover:bg-card/70">

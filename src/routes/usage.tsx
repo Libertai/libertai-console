@@ -7,6 +7,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { useUsageStats } from "@/hooks/data/use-stats";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
 import dayjs from "dayjs";
 
 export const Route = createFileRoute("/usage")({
@@ -131,7 +132,9 @@ function Usage() {
 							<BarChart4 className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Total Requests</h2>
 						</div>
-						<p className="text-3xl font-bold">{isLoading ? "Loading..." : totalRequests.toLocaleString()}</p>
+						<p className="text-3xl font-bold">
+							{isLoading ? <Skeleton className="h-10 w-32" /> : totalRequests.toLocaleString()}
+						</p>
 					</div>
 
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -139,7 +142,9 @@ function Usage() {
 							<LineChart className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Input tokens</h2>
 						</div>
-						<p className="text-3xl font-bold">{isLoading ? "Loading..." : inputTokens.toLocaleString()}</p>
+						<p className="text-3xl font-bold">
+							{isLoading ? <Skeleton className="h-10 w-32" /> : inputTokens.toLocaleString()}
+						</p>
 					</div>
 
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -147,7 +152,9 @@ function Usage() {
 							<Rocket className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Output Tokens</h2>
 						</div>
-						<p className="text-3xl font-bold">{isLoading ? "Loading..." : outputTokens.toLocaleString()}</p>
+						<p className="text-3xl font-bold">
+							{isLoading ? <Skeleton className="h-10 w-32" /> : outputTokens.toLocaleString()}
+						</p>
 					</div>
 
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -155,7 +162,9 @@ function Usage() {
 							<CalendarIcon className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Cost</h2>
 						</div>
-						<p className="text-3xl font-bold">${isLoading ? "Loading..." : totalCost.toLocaleString()}</p>
+						<p className="text-3xl font-bold">
+							{isLoading ? <Skeleton className="h-10 w-32" /> : `$${totalCost.toLocaleString()}`}
+						</p>
 					</div>
 				</div>
 
@@ -179,8 +188,10 @@ function Usage() {
 
 					<div className="h-72">
 						{isLoading ? (
-							<div className="h-full flex items-center justify-center">
-								<p>Loading data...</p>
+							<div className="h-full flex flex-col gap-4 justify-center px-6">
+								<Skeleton className="h-6 w-full" />
+								<Skeleton className="h-32 w-full" />
+								<Skeleton className="h-6 w-3/4 mx-auto" />
 							</div>
 						) : dailyChartData.length === 0 ? (
 							<div className="h-full flex items-center justify-center">
@@ -264,7 +275,11 @@ function Usage() {
 
 						<div className="overflow-x-auto">
 							{isLoading ? (
-								<p>Loading data...</p>
+								<div className="space-y-2 py-1">
+									<Skeleton className="h-8 w-full" />
+									<Skeleton className="h-8 w-full" />
+									<Skeleton className="h-8 w-full" />
+								</div>
 							) : modelUsage.length === 0 ? (
 								<p>No data available for the selected date range</p>
 							) : (
@@ -300,7 +315,11 @@ function Usage() {
 
 						<div className="overflow-x-auto">
 							{isLoading ? (
-								<p>Loading data...</p>
+								<div className="space-y-2 py-1">
+									<Skeleton className="h-8 w-full" />
+									<Skeleton className="h-8 w-full" />
+									<Skeleton className="h-8 w-full" />
+								</div>
 							) : apiKeyUsage.length === 0 ? (
 								<p>No data available for the selected date range</p>
 							) : (
