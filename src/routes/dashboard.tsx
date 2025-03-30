@@ -4,7 +4,7 @@ import { AlertCircle, BarChart4, Coins, History, Key, LineChart, Zap } from "luc
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useApiKeys } from "@/hooks/use-api-keys.ts";
 import { useCredits } from "@/hooks/use-credits";
-import { useDashboardStats } from "@/hooks/use-dashboard-stats";
+import { useStats } from "@/hooks/use-stats";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 export const Route = createFileRoute("/dashboard")({
@@ -16,7 +16,7 @@ function Dashboard() {
 	const { formattedCredits } = useCredits();
 	const navigate = useNavigate();
 	const { apiKeys } = useApiKeys();
-	const { apiCalls, tokensUsed, chartData, isLoading } = useDashboardStats();
+	const { apiCalls, tokensUsed, chartData, isLoading } = useStats();
 
 	// Return null if not authenticated (redirect is handled by the hook)
 	if (!isAuthenticated) {

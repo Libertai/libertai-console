@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getDashboardStatsStatsDashboardGet, getUsageStatsStatsUsageGet } from "@/apis/inference";
 import { useAccountStore } from "@/stores/account";
 
-export function useDashboardStats() {
+export function useStats() {
 	const account = useAccountStore((state) => state.account);
 
 	// Query for dashboard statistics
