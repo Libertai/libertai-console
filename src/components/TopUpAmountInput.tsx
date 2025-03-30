@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DollarSign } from "lucide-react";
+import { useQueryState } from "nuqs";
 
 interface TopUpAmountInputProps {
 	pricingTiers: {
@@ -12,45 +13,63 @@ interface TopUpAmountInputProps {
 		usdcAmount: string;
 		popular?: boolean;
 	}[];
-	onSelectAmount: (amount: number) => void;
+	onSelectAmount: () => void;
 }
 
 export function TopUpAmountInput({ pricingTiers, onSelectAmount }: Readonly<TopUpAmountInputProps>) {
-	const [customAmount, setCustomAmount] = useState("10");
+	const [amount, setAmount] = useQueryState("amount", {
+		defaultValue: "",
+		parse: (value) => (value !== "" ? value : ""),
+		serialize: (value) => (value !== undefined ? value.toString() : ""),
+	});
 	const [error, setError] = useState("");
 
-	const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
 		// Remove non-numeric characters except decimal point
-		const value = e.target.value.replace(/[^\d.]/g, "");
+		const parsedValue = e.target.value.replace(/[^\d.]/g, "");
 
 		// Ensure only one decimal point
-		const parts = value.split(".");
-		const formatted = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join("")}` : value;
+		const parts = parsedValue.split(".");
+		let value = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join("")}` : parsedValue;
 
-		setCustomAmount(formatted);
+		// Limit to 2 decimal places
+		if (parts.length === 2 && parts[1].length > 2) {
+			value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+		}
 
-		// Clear error if input is valid
-		if (Number(formatted) >= 1) {
+		// For empty or partial input (like just "."), store the correct value
+		// Empty string should be treated as empty, not 0
+		setAmount(value === "" ? "" : value);
+
+		// Clear error if input is valid or still being typed
+		if (Number(value) >= 1) {
 			setError("");
-		} else if (formatted === "" || formatted === ".") {
+		} else if (value === "" || value === "." || value.endsWith(".")) {
+			// Don't show error while user is still typing
 			setError("");
+		} else if (value.includes(".") && Number(value) < 1) {
+			// Show error for completed decimal inputs less than $1
+			setError("Minimum amount is $1");
 		} else {
 			setError("Minimum amount is $1");
 		}
 	};
 
 	const handleSubmit = () => {
-		const amount = Number(customAmount);
-		if (isNaN(amount) || amount < 1) {
+		const parsedAmount = Number(amount);
+		if (isNaN(parsedAmount) || parsedAmount < 1) {
 			setError("Please enter a valid amount (minimum $1)");
 			return;
 		}
 
-		onSelectAmount(amount);
+		// Round to 2 decimal places for final submission
+		const roundedAmount = Math.round(parsedAmount * 100) / 100;
+		setAmount(roundedAmount.toString());
+		onSelectAmount();
 	};
 
 	const handleSelectTier = (price: number) => {
-		setCustomAmount(price.toString());
+		setAmount(price.toString());
 		setError("");
 	};
 
@@ -67,7 +86,7 @@ export function TopUpAmountInput({ pricingTiers, onSelectAmount }: Readonly<TopU
 
 						<Input
 							type="text"
-							value={customAmount}
+							value={amount}
 							onChange={handleAmountChange}
 							className="pl-10 text-lg font-medium h-12"
 							placeholder="Enter amount"
@@ -80,26 +99,26 @@ export function TopUpAmountInput({ pricingTiers, onSelectAmount }: Readonly<TopU
 					<Button
 						onClick={handleSubmit}
 						className="w-full h-12 text-lg"
-						disabled={!customAmount || Number(customAmount) < 1 || !!error}
+						disabled={!amount || Number(amount) < 1 || !!error}
 					>
 						Top Up
 					</Button>
 
 					<div className="bg-card/50 p-3 rounded-lg mt-3 border border-border">
 						<p className="text-sm font-medium mb-2">Usage Estimates:</p>
-						{customAmount && Number(customAmount) >= 1 ? (
+						{amount !== "" && Number(amount) >= 1 ? (
 							<div className="space-y-1 text-sm">
 								<div className="flex justify-between">
 									<span className="text-muted-foreground">API calls:</span>
-									<span className="font-medium">~{Math.round(Number(customAmount) * 20).toLocaleString()}</span>
+									<span className="font-medium">~{Math.round(Number(amount) * 20).toLocaleString()}</span>
 								</div>
 								<div className="flex justify-between">
 									<span className="text-muted-foreground">Basic queries:</span>
-									<span className="font-medium">~{Math.round(Number(customAmount) * 80).toLocaleString()}</span>
+									<span className="font-medium">~{Math.round(Number(amount) * 80).toLocaleString()}</span>
 								</div>
 								<div className="flex justify-between">
 									<span className="text-muted-foreground">Advanced queries:</span>
-									<span className="font-medium">~{Math.round(Number(customAmount) * 40).toLocaleString()}</span>
+									<span className="font-medium">~{Math.round(Number(amount) * 40).toLocaleString()}</span>
 								</div>
 							</div>
 						) : (
@@ -128,7 +147,7 @@ export function TopUpAmountInput({ pricingTiers, onSelectAmount }: Readonly<TopU
 							<div
 								key={tier.id}
 								className={`relative bg-card/50 backdrop-blur-sm rounded-xl border ${
-									customAmount === tier.price.toString() ? "border-primary ring-2 ring-primary/20" : "border-border"
+									amount === tier.price.toString() ? "border-primary ring-2 ring-primary/20" : "border-border"
 								} hover:border-primary transition-all`}
 							>
 								{tier.popular && (
@@ -160,7 +179,7 @@ export function TopUpAmountInput({ pricingTiers, onSelectAmount }: Readonly<TopU
 
 									<Button
 										onClick={() => handleSelectTier(tier.price)}
-										variant={customAmount === tier.price.toString() ? "default" : "outline"}
+										variant={amount === tier.price.toString() ? "default" : "outline"}
 										className="w-full mt-2"
 									>
 										Select

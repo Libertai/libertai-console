@@ -3,6 +3,7 @@ import { ThirdwebProvider } from "thirdweb/react";
 import { ThemeProvider } from "./ThemeProvider";
 import { Toaster } from "./ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NuqsAdapter } from "nuqs/adapters/react";
 
 type ProvidersProps = {
 	children: ReactNode;
@@ -19,12 +20,14 @@ const queryClient = new QueryClient({
 
 const Providers = ({ children }: ProvidersProps) => {
 	return (
-		<ThemeProvider defaultTheme="system" storageKey="libertai-ui-theme">
-			<QueryClientProvider client={queryClient}>
-				<ThirdwebProvider>{children}</ThirdwebProvider>
-				<Toaster richColors />
-			</QueryClientProvider>
-		</ThemeProvider>
+		<NuqsAdapter>
+			<ThemeProvider defaultTheme="system" storageKey="libertai-ui-theme">
+				<QueryClientProvider client={queryClient}>
+					<ThirdwebProvider>{children}</ThirdwebProvider>
+					<Toaster richColors />
+				</QueryClientProvider>
+			</ThemeProvider>
+		</NuqsAdapter>
 	);
 };
 

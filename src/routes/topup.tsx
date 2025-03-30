@@ -3,7 +3,7 @@ import { useAccountStore } from "@/stores/account";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ChevronRight, CreditCard, HelpCircle, Zap } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { thirdwebClient } from "@/config/thirdweb.ts";
 import { PayEmbed, useIsAutoConnecting } from "thirdweb/react";
 import { base } from "thirdweb/chains";
@@ -12,6 +12,7 @@ import { TopUpAmountInput } from "@/components/TopUpAmountInput";
 import { useCredits } from "@/hooks/use-credits";
 import { PaymentMethod, PaymentMethodSelector } from "@/components/PaymentMethodSelector";
 import { LTAIPaymentForm } from "@/components/LTAIPaymentForm";
+import { useQueryState } from "nuqs";
 
 export const Route = createFileRoute("/topup")({
 	component: TopUp,
@@ -36,19 +37,38 @@ function TopUp() {
 
 	const { formattedCredits } = useCredits();
 	const navigate = useNavigate();
-	const [customAmount, setCustomAmount] = useState<number | null>(null);
-	const [paymentStage, setPaymentStage] = useState<"select" | "payment" | "success">("select");
-	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("crypto");
+
+	// Use nuqs for URL state
+	const [stage, setStage] = useQueryState("stage", {
+		defaultValue: "select",
+		parse: (value): "select" | "payment" | "success" => {
+			if (value === "payment" || value === "success") return value;
+			return "select";
+		},
+	});
+	const [amount, setAmount] = useQueryState("amount", {
+		defaultValue: "",
+		parse: (value) => (value !== "" ? value : ""),
+		serialize: (value) => (value !== undefined ? value.toString() : ""),
+	});
+	const [method, setMethod] = useQueryState("method", {
+		defaultValue: "crypto",
+		parse: (value): PaymentMethod => {
+			if (value === "ltai") return "ltai";
+			return "crypto";
+		},
+	});
+
 	const { refreshCredits } = useCredits();
 	const hasLTAI = ltaiBalance > 0;
 
 	// Effect to set initial payment method
 	useEffect(() => {
-		// Default to crypto payment if user has no LTAI tokens
-		if (!hasLTAI) {
-			setPaymentMethod("crypto");
+		// Default to crypto payment if user has no LTAI tokens and no method is set
+		if (!hasLTAI && method === "crypto") {
+			setMethod("crypto");
 		}
-	}, [hasLTAI]);
+	}, [hasLTAI, method, setMethod]);
 
 	// Pricing tiers
 	const pricingTiers: PricingTier[] = [
@@ -91,39 +111,26 @@ function TopUp() {
 		return null;
 	}
 
-	const handleSelectCustomAmount = (amount: number) => {
-		setCustomAmount(amount);
-		setPaymentStage("payment");
+	const handleSelectAmount = () => {
+		// The input amount is already in the URL via useQueryState
+		setStage("payment");
 		// Reset transaction hash when starting a new payment
 		setLastTransactionHash(null);
 	};
 
 	const handlePaymentSuccess = () => {
-		setPaymentStage("success");
+		setStage("success");
 		refreshCredits();
 	};
 
 	const handleGoBackToSelection = () => {
-		setCustomAmount(null);
-		setPaymentStage("select");
+		setAmount(null);
+		setStage("select");
 	};
 
 	const handleGoToDashboard = () => {
 		navigate({ to: "/dashboard" });
 	};
-
-	// Get the current payment details (either from selected tier or custom amount)
-	const paymentDetails = (() => {
-		if (customAmount) {
-			// Rough calculation: 1$ = 20,000 tokens (same ratio as $5 for 100,000 tokens)
-			return {
-				price: customAmount,
-				usdcAmount: customAmount.toString(),
-			};
-		}
-
-		return null;
-	})();
 
 	return (
 		<div className="container mx-auto px-4 py-8">
@@ -133,7 +140,7 @@ function TopUp() {
 					<p className="text-muted-foreground mt-1">Purchase credits to power your API requests</p>
 				</div>
 
-				{paymentStage === "select" && (
+				{stage === "select" && (
 					<>
 						<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border mb-8">
 							<div className="flex flex-col md:flex-row gap-6">
@@ -153,7 +160,7 @@ function TopUp() {
 						</div>
 
 						{/* Custom amount input component */}
-						<TopUpAmountInput pricingTiers={pricingTiers} onSelectAmount={handleSelectCustomAmount} />
+						<TopUpAmountInput pricingTiers={pricingTiers} onSelectAmount={handleSelectAmount} />
 
 						<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
 							<div className="flex items-center gap-3 mb-4">
@@ -204,7 +211,7 @@ function TopUp() {
 					</>
 				)}
 
-				{paymentStage === "payment" && paymentDetails && (
+				{stage === "payment" && (
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
 						<div className="flex justify-between items-center mb-8">
 							<div className="flex items-center gap-3">
@@ -222,12 +229,12 @@ function TopUp() {
 								<div className="bg-card p-4 rounded-lg border border-border mb-4">
 									<div className="flex justify-between mb-2">
 										<span className="text-muted-foreground">Credits top-up</span>
-										<span>${paymentDetails.price.toFixed(2)}</span>
+										<span>${Number(amount).toFixed(2)}</span>
 									</div>
 									<div className="border-t border-border my-2"></div>
 									<div className="flex justify-between font-medium">
 										<span>Total</span>
-										<span>${paymentDetails.price.toFixed(2)}</span>
+										<span>${Number(amount).toFixed(2)}</span>
 									</div>
 								</div>
 
@@ -241,8 +248,8 @@ function TopUp() {
 								{/* Payment Method Selector */}
 								<div className="mt-6">
 									<PaymentMethodSelector
-										onSelectMethod={setPaymentMethod}
-										selectedMethod={paymentMethod}
+										onSelectMethod={setMethod}
+										selectedMethod={method as PaymentMethod}
 										hasLTAI={hasLTAI}
 									/>
 								</div>
@@ -251,7 +258,7 @@ function TopUp() {
 							<div>
 								<h3 className="text-lg font-medium mb-4">Payment Method</h3>
 								<div className="bg-card p-4 rounded-lg border border-border">
-									{paymentMethod === "crypto" ? (
+									{method === "crypto" ? (
 										/* ThirdWeb PayEmbed component for crypto payments */
 										<PayEmbed
 											client={thirdwebClient}
@@ -266,12 +273,12 @@ function TopUp() {
 													handlePaymentSuccess();
 												},
 												purchaseData: {
-													userAddress: account!.address,
+													userAddress: account?.address,
 												},
 												paymentInfo: {
 													chain: base,
 													sellerAddress: env.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS,
-													amount: paymentDetails.usdcAmount,
+													amount: amount.toString(),
 													token: {
 														name: "USDC",
 														symbol: "USDC",
@@ -283,7 +290,7 @@ function TopUp() {
 										/>
 									) : (
 										/* LTAI Payment Form */
-										<LTAIPaymentForm usdAmount={paymentDetails.price} onPaymentSuccess={handlePaymentSuccess} />
+										<LTAIPaymentForm usdAmount={Number(amount)} onPaymentSuccess={handlePaymentSuccess} />
 									)}
 								</div>
 							</div>
@@ -291,7 +298,7 @@ function TopUp() {
 					</div>
 				)}
 
-				{paymentStage === "success" && paymentDetails && (
+				{stage === "success" && (
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border text-center">
 						<div className="flex flex-col items-center gap-4 mb-8">
 							<div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center">
@@ -305,7 +312,7 @@ function TopUp() {
 							<div className="flex justify-between mb-3">
 								<span className="text-muted-foreground">Amount Paid:</span>
 								<span className="font-medium">
-									${paymentDetails.price.toFixed(2)} {paymentMethod === "ltai" ? "in LTAI" : "USDC"}
+									${Number(amount).toFixed(2)} {method === "ltai" ? "in LTAI" : "USDC"}
 								</span>
 							</div>
 							<div className="flex justify-between">
@@ -314,11 +321,9 @@ function TopUp() {
 									<a
 										href={`https://basescan.org/tx/${useAccountStore.getState().lastTransactionHash}`}
 										target="_blank"
-										rel="noopener noreferrer"
 										className="font-medium text-primary hover:underline overflow-hidden text-ellipsis"
 									>
-										{lastTransactionHash.slice(0, 10)}...
-										{lastTransactionHash.slice(-8)}
+										{lastTransactionHash}
 										<span className="ml-1 text-xs">↗</span>
 									</a>
 								) : (
