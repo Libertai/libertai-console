@@ -23,6 +23,71 @@ function Dashboard() {
 	if (!isAuthenticated) {
 		return null;
 	}
+	
+	// Quick actions data
+	const quickActions = [
+		{
+			id: "apiKeys",
+			icon: <Key className="h-4 w-4" />,
+			label: "Manage API Keys",
+			onClick: () => navigate({ to: "/api-keys" }),
+			external: false
+		},
+		{
+			id: "usage",
+			icon: <LineChart className="h-4 w-4" />,
+			label: "View Detailed Usage",
+			onClick: () => navigate({ to: "/usage" }),
+			external: false
+		},
+		{
+			id: "docs",
+			icon: <AlertCircle className="h-4 w-4" />,
+			label: "API Documentation",
+			href: "https://docs.libertai.io",
+			external: true
+		}
+	];
+
+	// Dashboard stat cards data
+	const dashboardStats = [
+		{
+			id: "balance",
+			title: "Balance",
+			icon: <Coins className="h-5 w-5 text-primary" />,
+			value: areCreditsLoading ? <Skeleton className="h-10 w-32" /> : `$${formattedCredits}`,
+			action: {
+				label: "Top Up",
+				variant: "default",
+				onClick: () => navigate({ to: "/top-up" })
+			}
+		},
+		{
+			id: "apiCalls",
+			title: "API Calls",
+			icon: <Zap className="h-5 w-5 text-primary" />,
+			value: areStatsLoading ? <Skeleton className="h-10 w-32" /> : apiCalls,
+			footer: "This month"
+		},
+		{
+			id: "activeKeys",
+			title: "Active Keys",
+			icon: <Key className="h-5 w-5 text-primary" />,
+			value: areApiKeysLoading ? <Skeleton className="h-10 w-32" /> : apiKeys.filter((key) => key.is_active).length,
+			action: {
+				label: "Manage",
+				variant: "outline",
+				onClick: () => navigate({ to: "/api-keys" })
+			}
+		},
+		{
+			id: "tokensUsed",
+			title: "Tokens Used",
+			icon: <LineChart className="h-5 w-5 text-primary" />,
+			value: areStatsLoading ? <Skeleton className="h-10 w-32" /> : tokensUsed,
+			footer: "This month"
+		}
+	];
 
 	return (
 		<div className="container mx-auto px-4 py-8">
@@ -33,49 +98,26 @@ function Dashboard() {
 				</div>
 
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
-						<div className="flex items-center gap-3 mb-2">
-							<Coins className="h-5 w-5 text-primary" />
-							<h2 className="text-lg font-medium">Balance</h2>
+					{dashboardStats.map((stat) => (
+						<div key={stat.id} className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
+							<div className="flex items-center gap-3 mb-2">
+								{stat.icon}
+								<h2 className="text-lg font-medium">{stat.title}</h2>
+							</div>
+							<p className="text-3xl font-bold">{stat.value}</p>
+							{stat.action && (
+								<Button 
+									size="sm" 
+									variant={stat.action.variant as "default" | "outline"} 
+									className="mt-4" 
+									onClick={stat.action.onClick}
+								>
+									{stat.action.label}
+								</Button>
+							)}
+							{stat.footer && <p className="text-xs text-muted-foreground mt-4">{stat.footer}</p>}
 						</div>
-						<p className="text-3xl font-bold">
-							{areCreditsLoading ? <Skeleton className="h-10 w-32" /> : `$${formattedCredits}`}
-						</p>
-						<Button size="sm" className="mt-4" onClick={() => navigate({ to: "/topup" })}>
-							Top Up
-						</Button>
-					</div>
-
-					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
-						<div className="flex items-center gap-3 mb-2">
-							<Zap className="h-5 w-5 text-primary" />
-							<h2 className="text-lg font-medium">API Calls</h2>
-						</div>
-						<p className="text-3xl font-bold">{areStatsLoading ? <Skeleton className="h-10 w-32" /> : apiCalls}</p>
-						<p className="text-xs text-muted-foreground mt-4">This month</p>
-					</div>
-
-					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
-						<div className="flex items-center gap-3 mb-2">
-							<Key className="h-5 w-5 text-primary" />
-							<h2 className="text-lg font-medium">Active Keys</h2>
-						</div>
-						<p className="text-3xl font-bold">
-							{areApiKeysLoading ? <Skeleton className="h-10 w-32" /> : apiKeys.filter((key) => key.is_active).length}
-						</p>
-						<Button size="sm" variant="outline" className="mt-4" onClick={() => navigate({ to: "/api-keys" })}>
-							Manage
-						</Button>
-					</div>
-
-					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
-						<div className="flex items-center gap-3 mb-2">
-							<LineChart className="h-5 w-5 text-primary" />
-							<h2 className="text-lg font-medium">Tokens Used</h2>
-						</div>
-						<p className="text-3xl font-bold">{areStatsLoading ? <Skeleton className="h-10 w-32" /> : tokensUsed}</p>
-						<p className="text-xs text-muted-foreground mt-4">This month</p>
-					</div>
+					))}
 				</div>
 
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -146,31 +188,32 @@ function Dashboard() {
 							<Zap className="h-5 w-5 text-primary" />
 						</div>
 
+						
 						<div className="space-y-3">
-							<Button
-								variant="outline"
-								className="w-full justify-between"
-								onClick={() => navigate({ to: "/api-keys" })}
-							>
-								<span className="flex items-center gap-2">
-									<Key className="h-4 w-4" />
-									Manage API Keys
-								</span>
-							</Button>
-							<Button variant="outline" className="w-full justify-between" onClick={() => navigate({ to: "/usage" })}>
-								<span className="flex items-center gap-2">
-									<LineChart className="h-4 w-4" />
-									View Detailed Usage
-								</span>
-							</Button>
-							<a href="https://docs.libertai.io" target="_blank">
-								<Button variant="outline" className="w-full justify-between">
-									<span className="flex items-center gap-2">
-										<AlertCircle className="h-4 w-4" />
-										API Documentation
-									</span>
-								</Button>
-							</a>
+							{quickActions.map((action) => (
+								action.external ? (
+									<a key={action.id} href={action.href} target="_blank">
+										<Button variant="outline" className="w-full justify-between">
+											<span className="flex items-center gap-2">
+												{action.icon}
+												{action.label}
+											</span>
+										</Button>
+									</a>
+								) : (
+									<Button
+										key={action.id}
+										variant="outline"
+										className="w-full justify-between"
+										onClick={action.onClick}
+									>
+										<span className="flex items-center gap-2">
+											{action.icon}
+											{action.label}
+										</span>
+									</Button>
+								)
+							))}
 						</div>
 					</div>
 				</div>
