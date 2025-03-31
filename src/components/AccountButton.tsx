@@ -18,7 +18,7 @@ export default function AccountButton() {
 	const wallet = useActiveWallet();
 	const { disconnect } = useDisconnect();
 	const onAccountChange = useAccountStore((state) => state.onAccountChange);
-	const ltaiBalance = useAccountStore((state) => state.formattedLTAIBalance());
+	const formattedLtaiBalance = useAccountStore((state) => state.formattedLTAIBalance());
 
 	useEffect(() => {
 		onAccountChange(account).then();
@@ -40,11 +40,11 @@ export default function AccountButton() {
 				<DropdownMenuTrigger asChild>
 					<Button variant="outline" className="flex items-center gap-2 px-3 h-9 border-border">
 						<span className="flex items-center gap-2">
-							{ltaiBalance !== "0" ? (
+							{formattedLtaiBalance !== "0" ? (
 								<>
 									<span className="hidden md:flex items-center text-muted-foreground text-xs">
 										<Coins className="h-3 w-3 mr-1 text-primary" />
-										{ltaiBalance} LTAI
+										{formattedLtaiBalance} LTAI
 									</span>
 									<span className="h-4 w-px bg-border hidden md:block"></span>
 								</>
@@ -66,7 +66,7 @@ export default function AccountButton() {
 						<p className="text-xs text-muted-foreground">Balance</p>
 						<p className="font-medium flex items-center">
 							<Coins className="h-3 w-3 mr-1 text-primary" />
-							{ltaiBalance} LTAI
+							{formattedLtaiBalance} LTAI
 						</p>
 					</div>
 					<DropdownMenuSeparator />

@@ -8,7 +8,7 @@ const developersSidebarItems = [
 	{ to: "/dashboard", icon: <PieChart className="h-4 w-4" />, label: "Dashboard" },
 	{ to: "/api-keys", icon: <Key className="h-4 w-4" />, label: "API Keys" },
 	{ to: "/usage", icon: <LineChart className="h-4 w-4" />, label: "Usage" },
-	{ to: "/topup", icon: <Coins className="h-4 w-4" />, label: "Top Up" },
+	{ to: "/top-up", icon: <Coins className="h-4 w-4" />, label: "Top Up" },
 ];
 
 export const Route = createRootRoute({

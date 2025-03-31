@@ -8,9 +8,7 @@ interface TopUpAmountInputProps {
 	pricingTiers: {
 		id: string;
 		name: string;
-		tokens: number;
 		price: number;
-		usdcAmount: string;
 		popular?: boolean;
 	}[];
 	onSelectAmount: () => void;
@@ -73,6 +71,13 @@ export function TopUpAmountInput({ pricingTiers, onSelectAmount }: Readonly<TopU
 		setError("");
 	};
 
+	// Usage estimate data
+	const usageEstimates = [
+		{ id: "apiCalls", label: "API calls:", multiplier: 20 },
+		{ id: "basicQueries", label: "Basic queries:", multiplier: 80 },
+		{ id: "advancedQueries", label: "Advanced queries:", multiplier: 40 },
+	];
+
 	return (
 		<div className="space-y-6">
 			<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -108,18 +113,14 @@ export function TopUpAmountInput({ pricingTiers, onSelectAmount }: Readonly<TopU
 						<p className="text-sm font-medium mb-2">Usage Estimates:</p>
 						{amount !== "" && Number(amount) >= 1 ? (
 							<div className="space-y-1 text-sm">
-								<div className="flex justify-between">
-									<span className="text-muted-foreground">API calls:</span>
-									<span className="font-medium">~{Math.round(Number(amount) * 20).toLocaleString()}</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="text-muted-foreground">Basic queries:</span>
-									<span className="font-medium">~{Math.round(Number(amount) * 80).toLocaleString()}</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="text-muted-foreground">Advanced queries:</span>
-									<span className="font-medium">~{Math.round(Number(amount) * 40).toLocaleString()}</span>
-								</div>
+								{usageEstimates.map((estimate) => (
+									<div key={estimate.id} className="flex justify-between">
+										<span className="text-muted-foreground">{estimate.label}</span>
+										<span className="font-medium">
+											~{Math.round(Number(amount) * estimate.multiplier).toLocaleString()}
+										</span>
+									</div>
+								))}
 							</div>
 						) : (
 							<p className="text-sm text-muted-foreground">Enter an amount to see usage estimates</p>
@@ -132,62 +133,44 @@ export function TopUpAmountInput({ pricingTiers, onSelectAmount }: Readonly<TopU
 				<h3 className="text-lg font-medium">Or select a plan</h3>
 
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-					{pricingTiers.map((tier) => {
-						// Calculate approximate API calls (assuming average of 1000 tokens per call)
-						const apiCalls = Math.round(tier.tokens / 1000);
-
-						// Calculate approximate queries based on token usage
-						// Assuming a query is about 50 tokens input and 200 tokens output for base model
-						const baseQueries = Math.round(tier.tokens / 250);
-
-						// Assuming a query is about 50 tokens input and 200 tokens output for advanced model
-						const advancedQueries = Math.round(tier.tokens / 500);
-
-						return (
-							<div
-								key={tier.id}
-								className={`relative bg-card/50 backdrop-blur-sm rounded-xl border ${
-									amount === tier.price.toString() ? "border-primary ring-2 ring-primary/20" : "border-border"
-								} hover:border-primary transition-all`}
-							>
-								{tier.popular && (
-									<div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground text-xs py-1 px-3 rounded-full">
-										Popular
-									</div>
-								)}
-
-								<div className="p-5">
-									<div className="flex justify-between items-center mb-3">
-										<h4 className="font-medium">{tier.name}</h4>
-										<span className="text-xl font-bold">${tier.price}</span>
-									</div>
-
-									<div className="space-y-2 text-sm mb-4">
-										<div className="flex justify-between">
-											<span className="text-muted-foreground">API calls:</span>
-											<span className="font-medium">~{apiCalls.toLocaleString()}</span>
-										</div>
-										<div className="flex justify-between">
-											<span className="text-muted-foreground">Basic queries:</span>
-											<span className="font-medium">~{baseQueries.toLocaleString()}</span>
-										</div>
-										<div className="flex justify-between">
-											<span className="text-muted-foreground">Advanced queries:</span>
-											<span className="font-medium">~{advancedQueries.toLocaleString()}</span>
-										</div>
-									</div>
-
-									<Button
-										onClick={() => handleSelectTier(tier.price)}
-										variant={amount === tier.price.toString() ? "default" : "outline"}
-										className="w-full mt-2"
-									>
-										Select
-									</Button>
+					{pricingTiers.map((tier) => (
+						<div
+							key={tier.id}
+							className={`relative bg-card/50 backdrop-blur-sm rounded-xl border ${
+								amount === tier.price.toString() ? "border-primary ring-2 ring-primary/20" : "border-border"
+							} hover:border-primary transition-all`}
+						>
+							{tier.popular && (
+								<div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground text-xs py-1 px-3 rounded-full">
+									Popular
 								</div>
+							)}
+
+							<div className="p-5">
+								<div className="flex justify-between items-center mb-3">
+									<h4 className="font-medium">{tier.name}</h4>
+									<span className="text-xl font-bold">${tier.price}</span>
+								</div>
+
+								<div className="space-y-2 text-sm mb-4">
+									{usageEstimates.map((estimate) => (
+										<div key={estimate.id} className="flex justify-between">
+											<span className="text-muted-foreground">{estimate.label}</span>
+											<span className="font-medium">~{tier.price * estimate.multiplier}</span>
+										</div>
+									))}
+								</div>
+
+								<Button
+									onClick={() => handleSelectTier(tier.price)}
+									variant={amount === tier.price.toString() ? "default" : "outline"}
+									className="w-full mt-2"
+								>
+									Select
+								</Button>
 							</div>
-						);
-					})}
+						</div>
+					))}
 				</div>
 			</div>
 		</div>
