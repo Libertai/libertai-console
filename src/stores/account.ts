@@ -24,11 +24,10 @@ type AccountStoreState = {
 	lastTransactionHash: string | null;
 
 	onAccountChange: (newAccount: Account | undefined) => Promise<void>;
-	signMessage: (message: string) => Promise<string>;
 	getLTAIBalance: () => Promise<number>;
 	getAPICredits: () => Promise<number>;
 	onDisconnect: () => void;
-	authenticate: (address: string) => Promise<boolean>;
+	authenticate: (account: Account) => Promise<boolean>;
 	setLastTransactionHash: (hash: string | null) => void;
 };
 
@@ -63,7 +62,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 
 		// Authenticate with the API
 		set({ isAuthenticating: true });
-		const authSuccess = await state.authenticate(newAccount.address);
+		const authSuccess = await state.authenticate(newAccount);
 		set({ isAuthenticating: false });
 
 		if (!authSuccess) {
@@ -76,15 +75,6 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		// Get LTAI token balance from blockchain
 		const ltaiBalance = await state.getLTAIBalance();
 		set({ ltaiBalance: ltaiBalance });
-	},
-	signMessage: (message: string): Promise<string> => {
-		const state = get();
-
-		if (state.account === null) {
-			throw Error("No account");
-		}
-
-		return state.account.signMessage({ message });
 	},
 	getLTAIBalance: async (): Promise<number> => {
 		const state = get();
@@ -105,14 +95,14 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		// For now we'll return a placeholder value until we implement the proper endpoint
 		return 0;
 	},
-	authenticate: async (address: string): Promise<boolean> => {
+	authenticate: async (account: Account): Promise<boolean> => {
 		const state = get();
 
 		try {
 			// Get the message to sign
 			const messageResponse = await getAuthMessageAuthMessagePost({
 				body: {
-					address: address,
+					address: account.address,
 				},
 			});
 
@@ -126,21 +116,21 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			// Sign the message
 			let signature;
 			if (isDevelopment) {
-				const storedSignature = localStorage.getItem(`libertai_dev_signature_${address}`);
+				const storedSignature = localStorage.getItem(`libertai_dev_signature_${account.address}`);
 				if (storedSignature == null) {
-					signature = await state.signMessage(messageResponse.data.message);
-					localStorage.setItem(`libertai_dev_signature_${address}`, signature);
+					signature = await account.signMessage({ message: messageResponse.data.message });
+					localStorage.setItem(`libertai_dev_signature_${account.address}`, signature);
 				} else {
 					signature = storedSignature;
 				}
 			} else {
-				signature = await state.signMessage(messageResponse.data.message);
+				signature = await account.signMessage({ message: messageResponse.data.message });
 			}
 
 			// Login with the signature
 			const loginResponse = await loginWithWalletAuthLoginPost({
 				body: {
-					address: address,
+					address: account.address,
 					signature: signature,
 				},
 			});
