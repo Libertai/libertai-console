@@ -8,13 +8,39 @@ import { base } from "thirdweb/chains";
 import { thirdwebClient } from "@/config/thirdweb";
 import env from "@/config/env";
 import { useLTAIPrice } from "@/hooks/use-ltai-price";
-import { prepareContractCall, sendTransaction } from "thirdweb";
+import { eth_getTransactionReceipt, getRpcClient, prepareContractCall, sendTransaction } from "thirdweb";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface LTAIPaymentFormProps {
 	usdAmount: number;
 	onPaymentSuccess: () => void;
 }
+
+/**
+ * Helper function to wait for transaction confirmation
+ */
+const waitForTransaction = async (transactionHash: `0x${string}`, maxAttempts = 20) => {
+	const rpcClient = getRpcClient({ client: thirdwebClient, chain: base });
+	for (let i = 0; i < maxAttempts; i++) {
+		try {
+			const receipt = await eth_getTransactionReceipt(rpcClient, {
+				hash: transactionHash,
+			});
+
+			// Receipt might be null if transaction is not yet mined
+			if (receipt && receipt.status === "success") {
+				return receipt;
+			}
+
+			// Wait before next attempt
+			await new Promise((resolve) => setTimeout(resolve, 3000));
+		} catch (_error) {
+			// Receipt might not be available yet
+			await new Promise((resolve) => setTimeout(resolve, 3000));
+		}
+	}
+	throw new Error("Transaction confirmation timeout");
+};
 
 export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPaymentFormProps>) {
 	const [isApproving, setIsApproving] = useState(false);
@@ -48,17 +74,34 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 				amount: ltaiAmount.toString(),
 			});
 
-			await sendTransaction({ transaction: tx, account });
+			// Send the transaction and get the hash
+			const { transactionHash } = await sendTransaction({ transaction: tx, account });
 
-			toast.success("Approval successful", {
-				description: "Now you can proceed with the payment",
-			});
+			// Create a pending toast
+			const toastId = toast.loading("Waiting for approval confirmation...");
 
-			// Set approval state to true
-			setIsApproved(true);
+			try {
+				// Wait for the transaction to be confirmed
+				await waitForTransaction(transactionHash);
 
-			// After approval, update the LTAI balance
-			await getLTAIBalance();
+				// Update the toast
+				toast.success("Approval successful", {
+					id: toastId,
+					description: "Now you can proceed with the payment",
+				});
+
+				// Set approval state to true
+				setIsApproved(true);
+
+				// After approval, update the LTAI balance
+				await getLTAIBalance();
+			} catch (confirmError) {
+				console.error("Approval confirmation error:", confirmError);
+				toast.error("Approval confirmation failed", {
+					id: toastId,
+					description: confirmError instanceof Error ? confirmError.message : "Transaction may not have been confirmed",
+				});
+			}
 		} catch (error) {
 			console.error("Approval error:", error);
 			toast.error("Approval failed", {
@@ -103,13 +146,28 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 			// Store the transaction hash for display
 			setLastTransactionHash(transactionHash);
 
-			toast.success("Payment successful", {
-				description: "Your credits will be added to your account shortly",
-			});
+			// Create a pending toast
+			const toastId = toast.loading("Waiting for payment confirmation...");
 
-			// After successful payment, update the LTAI balance and call the success handler
-			await getLTAIBalance();
-			onPaymentSuccess();
+			try {
+				// Wait for the transaction to be confirmed
+				await waitForTransaction(transactionHash);
+
+				// Update the toast
+				toast.success("Payment successful", {
+					id: toastId,
+				});
+
+				// After successful payment, update the LTAI balance and call the success handler
+				await getLTAIBalance();
+				onPaymentSuccess();
+			} catch (confirmError) {
+				console.error("Payment confirmation error:", confirmError);
+				toast.error("Payment confirmation failed", {
+					id: toastId,
+					description: confirmError instanceof Error ? confirmError.message : "Transaction may not have been confirmed",
+				});
+			}
 		} catch (error) {
 			console.error("Payment error:", error);
 			toast.error("Payment failed", {
