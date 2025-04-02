@@ -102,7 +102,7 @@ function TopUp() {
 			usdcAmount: "350",
 		},
 	];
-	
+
 	// Pricing models data
 	const pricingModels = [
 		{
@@ -110,17 +110,17 @@ function TopUp() {
 			name: "Base Model (libertai-7b)",
 			rates: [
 				{ id: "input", type: "Input tokens:", rate: "0.0001 LTAI / token" },
-				{ id: "output", type: "Output tokens:", rate: "0.0002 LTAI / token" }
-			]
+				{ id: "output", type: "Output tokens:", rate: "0.0002 LTAI / token" },
+			],
 		},
 		{
 			id: "advanced",
 			name: "Advanced Model (libertai-34b)",
 			rates: [
 				{ id: "input", type: "Input tokens:", rate: "0.0002 LTAI / token" },
-				{ id: "output", type: "Output tokens:", rate: "0.0004 LTAI / token" }
-			]
-		}
+				{ id: "output", type: "Output tokens:", rate: "0.0004 LTAI / token" },
+			],
+		},
 	];
 
 	// Use auth hook to require authentication
@@ -194,14 +194,17 @@ function TopUp() {
 								</p>
 
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-									{pricingModels.map(model => (
+									{pricingModels.map((model) => (
 										<div key={model.id} className="border border-border rounded-lg overflow-hidden">
 											<div className="bg-secondary px-4 py-2">
 												<h3 className="font-medium">{model.name}</h3>
 											</div>
 											<div className="p-4">
 												{model.rates.map((rate, index) => (
-													<p key={`${rate.id}`} className={`flex justify-between ${index < model.rates.length - 1 ? 'mb-2' : ''}`}>
+													<p
+														key={`${rate.id}`}
+														className={`flex justify-between ${index < model.rates.length - 1 ? "mb-2" : ""}`}
+													>
 														<span>{rate.type}</span>
 														<span className="font-medium">{rate.rate}</span>
 													</p>
@@ -327,7 +330,7 @@ function TopUp() {
 										target="_blank"
 										className="font-medium text-primary hover:underline overflow-hidden text-ellipsis"
 									>
-										{lastTransactionHash}
+										{lastTransactionHash.slice(0, 6)}...{lastTransactionHash.slice(-6)}
 										<span className="ml-1 text-xs">↗</span>
 									</a>
 								) : (
