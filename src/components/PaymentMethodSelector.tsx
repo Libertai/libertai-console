@@ -23,7 +23,7 @@ export function PaymentMethodSelector({
 			icon: <CreditCard className="h-5 w-5 text-primary" />,
 			title: "Pay with crypto",
 			description: "Use USDC, ETH & more",
-			disabled: false
+			disabled: false,
 		},
 		{
 			id: "ltai",
@@ -31,10 +31,10 @@ export function PaymentMethodSelector({
 			icon: <Coins className="h-5 w-5 text-primary" />,
 			title: "Pay with LTAI",
 			description: hasLTAI ? "Use your LTAI tokens" : "No LTAI tokens available",
-			disabled: !hasLTAI
-		}
+			disabled: !hasLTAI,
+		},
 	];
-	
+
 	return (
 		<div className="space-y-4">
 			<h3 className="text-lg font-medium mb-2">Select Payment Method</h3>
@@ -55,12 +55,10 @@ export function PaymentMethodSelector({
 						type="button"
 					>
 						<div className="flex items-center gap-3">
-							<div className="p-2 rounded-full bg-primary/10 dark:bg-primary/20">
-								{option.icon}
-							</div>
+							<div className="p-2 rounded-full bg-primary/10 dark:bg-primary/20">{option.icon}</div>
 							<div className="text-left">
 								<p className="font-medium text-foreground">{option.title}</p>
-								<p className="text-xs text-foreground/70">{option.description}</p>
+								<p className="text-xs text-foreground/70 text-pretty">{option.description}</p>
 							</div>
 						</div>
 					</Button>

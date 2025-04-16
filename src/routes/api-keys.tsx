@@ -220,19 +220,23 @@ function ApiKeys() {
 						<p>To use LibertAI's LLM inference API, make requests using your API key:</p>
 
 						<div className="bg-secondary/50 p-4 rounded-md border border-border/50">
-							<pre className="text-sm font-mono overflow-x-auto whitespace-pre-wrap">{`curl -X POST https://api.libertai.io/v1/completions \\
+							<pre className="text-sm font-mono overflow-x-auto whitespace-pre-wrap">{`curl -X POST https://api.libertai.io/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -d '{
-    "model": "libertai-7b",
-    "prompt": "Once upon a time",
-    "max_tokens": 150
+    "model": "hermes-3-8b",
+     "messages": [
+      {
+        "role": "user",
+        "content": "Hello!"
+      }
+    ]
   }'`}</pre>
 						</div>
 
 						<p className="text-sm">
 							For more detailed instructions and example code in various programming languages, see our{" "}
-							<a href="https://docs.libertai.io" className="text-primary hover:underline" target="_blank">
+							<a href="https://docs.libertai.io/apis/text" className="text-primary hover:underline" target="_blank">
 								API Documentation
 							</a>
 							.
