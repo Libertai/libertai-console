@@ -173,26 +173,3 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		set({ lastTransactionHash: hash });
 	},
 }));
-
-// 		async initAlephStorage() {
-// 			const settingsStore = useSettingsStore();
-//
-// 			if (this.account === null) {
-// 				return;
-// 			}
-//
-// 			const hash = settingsStore.signatureHash[this.account.address] ?? (await this.signMessage(LIBERTAI_MESSAGE));
-// 			if (settingsStore.isSignatureHashStored) {
-// 				settingsStore.signatureHash[this.account.address] = hash;
-// 			}
-//
-// 			const alephStorage = await AlephPersistentStorage.initialize(hash, this.account.chain);
-// 			if (!alephStorage) {
-// 				return;
-// 			}
-//
-// 			this.alephStorage = alephStorage;
-// 			const settingsOnAleph = await this.alephStorage.fetchSettings();
-// 			const saveOnAleph = !settingsOnAleph;
-// 			await settingsStore.update(settingsOnAleph ?? {}, saveOnAleph);
-// 		},
