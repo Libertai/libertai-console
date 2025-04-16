@@ -103,26 +103,6 @@ function TopUp() {
 		},
 	];
 
-	// Pricing models data
-	const pricingModels = [
-		{
-			id: "base",
-			name: "Base Model (libertai-7b)",
-			rates: [
-				{ id: "input", type: "Input tokens:", rate: "0.0001 LTAI / token" },
-				{ id: "output", type: "Output tokens:", rate: "0.0002 LTAI / token" },
-			],
-		},
-		{
-			id: "advanced",
-			name: "Advanced Model (libertai-34b)",
-			rates: [
-				{ id: "input", type: "Input tokens:", rate: "0.0002 LTAI / token" },
-				{ id: "output", type: "Output tokens:", rate: "0.0004 LTAI / token" },
-			],
-		},
-	];
-
 	// Use auth hook to require authentication
 	const { isAuthenticated } = useRequireAuth();
 
@@ -189,30 +169,16 @@ function TopUp() {
 							</div>
 							<div className="space-y-4 text-card-foreground">
 								<p>
-									LibertAI tokens (LTAI) are used to pay for API requests based on the number of tokens processed. Token
-									usage is calculated based on the combined input and output tokens for each request.
+									LibertAI offers various models with competitive pricing for text generation.
+									<br />
+									Each model offers different intelligence & reasoning capabilities to match your needs.
+									<br />
+									For detailed information about the available models & their pricing, please check the{" "}
+									<a href="https://docs.libertai.io/apis/text" className="text-primary hover:underline" target="_blank">
+										API documentation
+									</a>
+									.
 								</p>
-
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-									{pricingModels.map((model) => (
-										<div key={model.id} className="border border-border rounded-lg overflow-hidden">
-											<div className="bg-secondary px-4 py-2">
-												<h3 className="font-medium">{model.name}</h3>
-											</div>
-											<div className="p-4">
-												{model.rates.map((rate, index) => (
-													<p
-														key={`${rate.id}`}
-														className={`flex justify-between ${index < model.rates.length - 1 ? "mb-2" : ""}`}
-													>
-														<span>{rate.type}</span>
-														<span className="font-medium">{rate.rate}</span>
-													</p>
-												))}
-											</div>
-										</div>
-									))}
-								</div>
 							</div>
 						</div>
 					</>

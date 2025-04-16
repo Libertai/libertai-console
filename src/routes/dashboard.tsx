@@ -23,7 +23,7 @@ function Dashboard() {
 	if (!isAuthenticated) {
 		return null;
 	}
-	
+
 	// Quick actions data
 	const quickActions = [
 		{
@@ -31,22 +31,22 @@ function Dashboard() {
 			icon: <Key className="h-4 w-4" />,
 			label: "Manage API Keys",
 			onClick: () => navigate({ to: "/api-keys" }),
-			external: false
+			external: false,
 		},
 		{
 			id: "usage",
 			icon: <LineChart className="h-4 w-4" />,
 			label: "View Detailed Usage",
 			onClick: () => navigate({ to: "/usage" }),
-			external: false
+			external: false,
 		},
 		{
 			id: "docs",
 			icon: <AlertCircle className="h-4 w-4" />,
 			label: "API Documentation",
-			href: "https://docs.libertai.io",
-			external: true
-		}
+			href: "https://docs.libertai.io/apis",
+			external: true,
+		},
 	];
 
 	// Dashboard stat cards data
@@ -59,15 +59,15 @@ function Dashboard() {
 			action: {
 				label: "Top Up",
 				variant: "default",
-				onClick: () => navigate({ to: "/top-up" })
-			}
+				onClick: () => navigate({ to: "/top-up" }),
+			},
 		},
 		{
 			id: "apiCalls",
 			title: "API Calls",
 			icon: <Zap className="h-5 w-5 text-primary" />,
 			value: areStatsLoading ? <Skeleton className="h-10 w-32" /> : apiCalls,
-			footer: "This month"
+			footer: "This month",
 		},
 		{
 			id: "activeKeys",
@@ -77,16 +77,16 @@ function Dashboard() {
 			action: {
 				label: "Manage",
 				variant: "outline",
-				onClick: () => navigate({ to: "/api-keys" })
-			}
+				onClick: () => navigate({ to: "/api-keys" }),
+			},
 		},
 		{
 			id: "tokensUsed",
 			title: "Tokens Used",
 			icon: <LineChart className="h-5 w-5 text-primary" />,
 			value: areStatsLoading ? <Skeleton className="h-10 w-32" /> : tokensUsed,
-			footer: "This month"
-		}
+			footer: "This month",
+		},
 	];
 
 	return (
@@ -106,10 +106,10 @@ function Dashboard() {
 							</div>
 							<p className="text-3xl font-bold">{stat.value}</p>
 							{stat.action && (
-								<Button 
-									size="sm" 
-									variant={stat.action.variant as "default" | "outline"} 
-									className="mt-4" 
+								<Button
+									size="sm"
+									variant={stat.action.variant as "default" | "outline"}
+									className="mt-4"
 									onClick={stat.action.onClick}
 								>
 									{stat.action.label}
@@ -188,9 +188,8 @@ function Dashboard() {
 							<Zap className="h-5 w-5 text-primary" />
 						</div>
 
-						
 						<div className="space-y-3">
-							{quickActions.map((action) => (
+							{quickActions.map((action) =>
 								action.external ? (
 									<a key={action.id} href={action.href} target="_blank">
 										<Button variant="outline" className="w-full justify-between">
@@ -201,19 +200,14 @@ function Dashboard() {
 										</Button>
 									</a>
 								) : (
-									<Button
-										key={action.id}
-										variant="outline"
-										className="w-full justify-between"
-										onClick={action.onClick}
-									>
+									<Button key={action.id} variant="outline" className="w-full justify-between" onClick={action.onClick}>
 										<span className="flex items-center gap-2">
 											{action.icon}
 											{action.label}
 										</span>
 									</Button>
-								)
-							))}
+								),
+							)}
 						</div>
 					</div>
 				</div>

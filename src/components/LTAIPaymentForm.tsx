@@ -61,6 +61,9 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 	const handleApprovePayment = async () => {
 		if (!account || !ltaiPrice || !ltaiAmount) return;
 
+		// Approving a bit more than required in case of price fluctuations
+		const amountToApprove = ltaiAmount * 1.1;
+
 		setIsApproving(true);
 		try {
 			// Approve the payment processor to spend LTAI tokens
@@ -71,7 +74,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 					client: thirdwebClient,
 				},
 				spender: PAYMENT_PROCESSOR_ADDRESS,
-				amount: ltaiAmount.toString(),
+				amount: amountToApprove.toString(),
 			});
 
 			// Send the transaction and get the hash
