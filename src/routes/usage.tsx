@@ -132,9 +132,11 @@ function Usage() {
 							<BarChart4 className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Total Requests</h2>
 						</div>
-						<p className="text-3xl font-bold">
-							{isLoading ? <Skeleton className="h-10 w-32" /> : totalRequests.toLocaleString()}
-						</p>
+						{isLoading ? (
+							<Skeleton className="h-10 w-32" />
+						) : (
+							<p className="text-3xl font-bold">{totalRequests.toLocaleString()}</p>
+						)}
 					</div>
 
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -142,9 +144,11 @@ function Usage() {
 							<LineChart className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Input tokens</h2>
 						</div>
-						<p className="text-3xl font-bold">
-							{isLoading ? <Skeleton className="h-10 w-32" /> : inputTokens.toLocaleString()}
-						</p>
+						{isLoading ? (
+							<Skeleton className="h-10 w-32" />
+						) : (
+							<p className="text-3xl font-bold">{inputTokens.toLocaleString()}</p>
+						)}
 					</div>
 
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -152,9 +156,11 @@ function Usage() {
 							<Rocket className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Output Tokens</h2>
 						</div>
-						<p className="text-3xl font-bold">
-							{isLoading ? <Skeleton className="h-10 w-32" /> : outputTokens.toLocaleString()}
-						</p>
+						{isLoading ? (
+							<Skeleton className="h-10 w-32" />
+						) : (
+							<p className="text-3xl font-bold">{outputTokens.toLocaleString()}</p>
+						)}
 					</div>
 
 					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -162,9 +168,11 @@ function Usage() {
 							<CalendarIcon className="h-5 w-5 text-primary" />
 							<h2 className="text-lg font-medium">Cost</h2>
 						</div>
-						<p className="text-3xl font-bold">
-							{isLoading ? <Skeleton className="h-10 w-32" /> : `$${totalCost.toLocaleString()}`}
-						</p>
+						{isLoading ? (
+							<Skeleton className="h-10 w-32" />
+						) : (
+							<p className="text-3xl font-bold">{`$${totalCost.toLocaleString()}`}</p>
+						)}
 					</div>
 				</div>
 

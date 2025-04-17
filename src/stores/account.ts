@@ -4,13 +4,14 @@ import env from "@/config/env.ts";
 import { getBalance } from "thirdweb/extensions/erc20";
 import { thirdwebClient } from "@/config/thirdweb.ts";
 import { base } from "thirdweb/chains";
-import { getAuthMessageAuthMessagePost, loginWithWalletAuthLoginPost } from "@/apis/inference/sdk.gen";
+import {
+	checkAuthStatusAuthStatusGet,
+	getAuthMessageAuthMessagePost,
+	loginWithWalletAuthLoginPost,
+} from "@/apis/inference/sdk.gen";
 import { toast } from "sonner";
 
 const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
-
-// Determine if we're in development (localhost) or production
-const isDevelopment = window.location.hostname === "localhost";
 
 type AccountStoreState = {
 	alephStorage: null;
@@ -19,7 +20,7 @@ type AccountStoreState = {
 	formattedLTAIBalance: () => string;
 	formattedAPICredits: () => string;
 	account: Account | null;
-	jwtToken: string | null;
+	isAuthenticated: boolean;
 	isAuthenticating: boolean;
 	lastTransactionHash: string | null;
 
@@ -28,6 +29,7 @@ type AccountStoreState = {
 	getAPICredits: () => Promise<number>;
 	onDisconnect: () => void;
 	authenticate: (account: Account) => Promise<boolean>;
+	checkAuthStatus: (accountAddress: string) => Promise<boolean>;
 	setLastTransactionHash: (hash: string | null) => void;
 };
 
@@ -39,6 +41,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	formattedAPICredits: () => get().apiCredits.toFixed(0),
 	account: null,
 	jwtToken: null,
+	isAuthenticated: false,
 	isAuthenticating: false,
 	lastTransactionHash: null,
 
@@ -60,17 +63,24 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			return;
 		}
 
-		// Authenticate with the API
+		// First check if we're already authenticated with this wallet
 		set({ isAuthenticating: true });
-		const authSuccess = await state.authenticate(newAccount);
+		const isAlreadyAuthenticated = await state.checkAuthStatus(newAccount.address);
+
+		let authSuccess = isAlreadyAuthenticated;
+		if (!isAlreadyAuthenticated) {
+			// Need to authenticate with a signature
+			authSuccess = await state.authenticate(newAccount);
+		}
+
 		set({ isAuthenticating: false });
 
 		if (!authSuccess) {
-			set({ account: null });
+			set({ account: null, isAuthenticated: false });
 			return;
 		}
 
-		set({ account: newAccount });
+		set({ account: newAccount, isAuthenticated: true });
 
 		// Get LTAI token balance from blockchain
 		const ltaiBalance = await state.getLTAIBalance();
@@ -95,6 +105,16 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		// For now we'll return a placeholder value until we implement the proper endpoint
 		return 0;
 	},
+	checkAuthStatus: async (accountAddress: string): Promise<boolean> => {
+		try {
+			const response = await checkAuthStatusAuthStatusGet();
+
+			return !!(response.data?.authenticated && response.data.address === accountAddress);
+		} catch (error) {
+			console.error("Auth status check error:", error);
+			return false;
+		}
+	},
 	authenticate: async (account: Account): Promise<boolean> => {
 		const state = get();
 
@@ -114,18 +134,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			}
 
 			// Sign the message
-			let signature;
-			if (isDevelopment) {
-				const storedSignature = localStorage.getItem(`libertai_dev_signature_${account.address}`);
-				if (storedSignature == null) {
-					signature = await account.signMessage({ message: messageResponse.data.message });
-					localStorage.setItem(`libertai_dev_signature_${account.address}`, signature);
-				} else {
-					signature = storedSignature;
-				}
-			} else {
-				signature = await account.signMessage({ message: messageResponse.data.message });
-			}
+			const signature = await account.signMessage({ message: messageResponse.data.message });
 
 			// Login with the signature
 			const loginResponse = await loginWithWalletAuthLoginPost({
@@ -137,7 +146,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 
 			if (loginResponse.data?.access_token) {
 				// Store the JWT token
-				set({ jwtToken: loginResponse.data.access_token });
+				set({ isAuthenticated: true });
 
 				// Update API credits
 				const apiCredits = await state.getAPICredits();
@@ -162,7 +171,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		set({
 			account: null,
 			alephStorage: null,
-			jwtToken: null,
+			isAuthenticated: false,
 			ltaiBalance: 0,
 			apiCredits: 0,
 			lastTransactionHash: null,

@@ -4,19 +4,19 @@ import { toast } from "sonner";
 import { useAccountStore } from "@/stores/account.ts";
 
 export function useRequireAuth() {
+	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
 	const account = useAccountStore((state) => state.account);
-	const jwtToken = useAccountStore((state) => state.jwtToken);
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (!account || !jwtToken) {
+		if (!isAuthenticated || !account) {
 			toast.error("Authentication Required", {
 				description: "Please connect your wallet & sign the message to access this page",
 				duration: 5000,
 			});
 			navigate({ to: "/" });
 		}
-	}, [account, jwtToken, navigate]);
+	}, [isAuthenticated, account, navigate]);
 
-	return { isAuthenticated: !!account && !!jwtToken };
+	return { isAuthenticated };
 }

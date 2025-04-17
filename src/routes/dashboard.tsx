@@ -7,6 +7,7 @@ import { useCredits } from "@/hooks/data/use-credits";
 import { useStats } from "@/hooks/data/use-stats";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { isValidElement } from "react";
 
 export const Route = createFileRoute("/dashboard")({
 	component: Dashboard,
@@ -104,7 +105,7 @@ function Dashboard() {
 								{stat.icon}
 								<h2 className="text-lg font-medium">{stat.title}</h2>
 							</div>
-							<p className="text-3xl font-bold">{stat.value}</p>
+							{isValidElement(stat.value) ? stat.value : <p className="text-3xl font-bold">{stat.value}</p>}
 							{stat.action && (
 								<Button
 									size="sm"

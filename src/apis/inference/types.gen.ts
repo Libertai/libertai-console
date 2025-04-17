@@ -10,6 +10,10 @@ export type ApiKey = {
     monthly_limit?: number | null;
 };
 
+export type ApiKeyAdminListResponse = {
+    keys: Array<string>;
+};
+
 export type ApiKeyCreate = {
     name: string;
     monthly_limit?: number | null;
@@ -42,6 +46,11 @@ export type AuthMessageRequest = {
 
 export type AuthMessageResponse = {
     message: string;
+};
+
+export type AuthStatusResponse = {
+    authenticated: boolean;
+    address?: string | null;
 };
 
 export type CreditBalanceResponse = {
@@ -96,9 +105,9 @@ export type HttpValidationError = {
 
 export type InferenceCallData = {
     key: string;
-    credits_used: number;
     input_tokens: number;
     output_tokens: number;
+    cached_tokens?: number;
     model_name: string;
 };
 
@@ -200,6 +209,31 @@ export type LoginWithWalletAuthLoginPostResponses = {
 };
 
 export type LoginWithWalletAuthLoginPostResponse = LoginWithWalletAuthLoginPostResponses[keyof LoginWithWalletAuthLoginPostResponses];
+
+export type CheckAuthStatusAuthStatusGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/status';
+};
+
+export type CheckAuthStatusAuthStatusGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CheckAuthStatusAuthStatusGetError = CheckAuthStatusAuthStatusGetErrors[keyof CheckAuthStatusAuthStatusGetErrors];
+
+export type CheckAuthStatusAuthStatusGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: AuthStatusResponse;
+};
+
+export type CheckAuthStatusAuthStatusGetResponse = CheckAuthStatusAuthStatusGetResponses[keyof CheckAuthStatusAuthStatusGetResponses];
 
 export type ProcessLtaiTransactionsCreditsLtaiProcessPostData = {
     body?: never;
@@ -387,28 +421,59 @@ export type UpdateApiKeyApiKeysKeyIdPutResponses = {
 
 export type UpdateApiKeyApiKeysKeyIdPutResponse = UpdateApiKeyApiKeysKeyIdPutResponses[keyof UpdateApiKeyApiKeysKeyIdPutResponses];
 
-export type RegisterInferenceCallApiKeysUsagePostData = {
+export type RegisterInferenceCallApiKeysAdminUsagePostData = {
     body: InferenceCallData;
+    headers: {
+        'x-admin-token': string;
+    };
     path?: never;
     query?: never;
-    url: '/api-keys/usage';
+    url: '/api-keys/admin/usage';
 };
 
-export type RegisterInferenceCallApiKeysUsagePostErrors = {
+export type RegisterInferenceCallApiKeysAdminUsagePostErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type RegisterInferenceCallApiKeysUsagePostError = RegisterInferenceCallApiKeysUsagePostErrors[keyof RegisterInferenceCallApiKeysUsagePostErrors];
+export type RegisterInferenceCallApiKeysAdminUsagePostError = RegisterInferenceCallApiKeysAdminUsagePostErrors[keyof RegisterInferenceCallApiKeysAdminUsagePostErrors];
 
-export type RegisterInferenceCallApiKeysUsagePostResponses = {
+export type RegisterInferenceCallApiKeysAdminUsagePostResponses = {
     /**
      * Successful Response
      */
     200: unknown;
 };
+
+export type GetAdminAllApiKeysApiKeysAdminListGetData = {
+    body?: never;
+    headers: {
+        'x-admin-token': string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api-keys/admin/list';
+};
+
+export type GetAdminAllApiKeysApiKeysAdminListGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetAdminAllApiKeysApiKeysAdminListGetError = GetAdminAllApiKeysApiKeysAdminListGetErrors[keyof GetAdminAllApiKeysApiKeysAdminListGetErrors];
+
+export type GetAdminAllApiKeysApiKeysAdminListGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: ApiKeyAdminListResponse;
+};
+
+export type GetAdminAllApiKeysApiKeysAdminListGetResponse = GetAdminAllApiKeysApiKeysAdminListGetResponses[keyof GetAdminAllApiKeysApiKeysAdminListGetResponses];
 
 export type GetDashboardStatsStatsDashboardGetData = {
     body?: never;
