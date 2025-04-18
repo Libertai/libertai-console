@@ -53,16 +53,17 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 	const setLastTransactionHash = useAccountStore((state) => state.setLastTransactionHash);
 
 	const { price: ltaiPrice, isLoading, getRequiredLTAI } = useLTAIPrice();
-	const ltaiAmount = getRequiredLTAI(usdAmount);
+	const originalLtaiAmount = getRequiredLTAI(usdAmount, false);
+	const discountedLtaiAmount = getRequiredLTAI(usdAmount, true);
 
 	const LTAI_CONTRACT_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
 	const PAYMENT_PROCESSOR_ADDRESS = env.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS as `0x${string}`;
 
 	const handleApprovePayment = async () => {
-		if (!account || !ltaiPrice || !ltaiAmount) return;
+		if (!account || !ltaiPrice || !discountedLtaiAmount) return;
 
 		// Approving a bit more than required in case of price fluctuations
-		const amountToApprove = ltaiAmount * 1.1;
+		const amountToApprove = discountedLtaiAmount * 1.1;
 
 		setIsApproving(true);
 		try {
@@ -116,7 +117,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 	};
 
 	const handleProcessPayment = async () => {
-		if (!account || !ltaiPrice || !ltaiAmount) return;
+		if (!account || !ltaiPrice || !discountedLtaiAmount) return;
 
 		setIsProcessing(true);
 		try {
@@ -137,7 +138,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 					client: thirdwebClient,
 				},
 				method: "processPayment",
-				params: [BigInt(ltaiAmount * 10 ** 18)],
+				params: [BigInt(discountedLtaiAmount * 10 ** 18)],
 			});
 
 			// Send the transaction
@@ -212,7 +213,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 		);
 	}
 
-	const hasEnoughLTAI = ltaiBalance >= ltaiAmount;
+	const hasEnoughLTAI = ltaiBalance >= discountedLtaiAmount;
 
 	return (
 		<div className="space-y-6">
@@ -228,7 +229,13 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 				<div className="border-t border-border my-2"></div>
 				<div className="flex justify-between font-medium">
 					<span>LTAI Required</span>
-					<span>{ltaiAmount.toFixed(2)} LTAI</span>
+					<div className="flex flex-col items-end">
+						<span className="line-through text-muted-foreground text-sm">{originalLtaiAmount.toFixed(2)} LTAI</span>
+						<div className="flex items-center">
+							<span className="text-green-600 mr-1 text-sm">20% OFF</span>
+							<span className="font-bold">{discountedLtaiAmount.toFixed(2)} LTAI</span>
+						</div>
+					</div>
 				</div>
 				<div className="flex justify-between mt-2 text-xs">
 					<span>Your LTAI Balance</span>

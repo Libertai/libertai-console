@@ -29,12 +29,17 @@ export function useLTAIPrice() {
 		staleTime: 60 * 1000, // 1 minute
 	});
 
-	const getRequiredLTAI = (usdAmount: number): number => {
+	const getRequiredLTAI = (usdAmount: number, applyDiscount = true): number => {
 		if (!priceQuery.data) return 0;
 		const ltaiPrice = priceQuery.data;
 
 		if (!ltaiPrice || ltaiPrice <= 0) return 0;
-		return usdAmount / ltaiPrice;
+		
+		// Calculate the base amount
+		const baseAmount = usdAmount / ltaiPrice;
+		
+		// Apply 20% discount if requested
+		return applyDiscount ? baseAmount * 0.8 : baseAmount;
 	};
 
 	return {
