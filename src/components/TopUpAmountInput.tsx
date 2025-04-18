@@ -14,7 +14,7 @@ interface TopUpAmountInputProps {
 	onSelectAmount: () => void;
 }
 
-export function TopUpAmountInput({ pricingTiers, onSelectAmount }: Readonly<TopUpAmountInputProps>) {
+export function TopUpAmountInput({ onSelectAmount }: Readonly<TopUpAmountInputProps>) {
 	const [amount, setAmount] = useQueryState("amount", {
 		defaultValue: "",
 		parse: (value) => (value !== "" ? value : ""),
@@ -66,17 +66,17 @@ export function TopUpAmountInput({ pricingTiers, onSelectAmount }: Readonly<TopU
 		onSelectAmount();
 	};
 
-	const handleSelectTier = (price: number) => {
-		setAmount(price.toString());
-		setError("");
-	};
+	// const handleSelectTier = (price: number) => {
+	// 	setAmount(price.toString());
+	// 	setError("");
+	// };
 
 	// Usage estimate data
-	const usageEstimates = [
-		{ id: "apiCalls", label: "API calls:", multiplier: 20 },
-		{ id: "basicQueries", label: "Basic queries:", multiplier: 80 },
-		{ id: "advancedQueries", label: "Advanced queries:", multiplier: 40 },
-	];
+	// const usageEstimates = [
+	// 	{ id: "apiCalls", label: "API calls:", multiplier: 20 },
+	// 	{ id: "basicQueries", label: "Basic queries:", multiplier: 80 },
+	// 	{ id: "advancedQueries", label: "Advanced queries:", multiplier: 40 },
+	// ];
 
 	return (
 		<div className="space-y-6">
@@ -109,70 +109,70 @@ export function TopUpAmountInput({ pricingTiers, onSelectAmount }: Readonly<TopU
 						Top Up
 					</Button>
 
-					<div className="bg-card/50 p-3 rounded-lg mt-3 border border-border">
-						<p className="text-sm font-medium mb-2">Usage Estimates:</p>
-						{amount !== "" && Number(amount) >= 1 ? (
-							<div className="space-y-1 text-sm">
-								{usageEstimates.map((estimate) => (
-									<div key={estimate.id} className="flex justify-between">
-										<span className="text-muted-foreground">{estimate.label}</span>
-										<span className="font-medium">
-											~{Math.round(Number(amount) * estimate.multiplier).toLocaleString()}
-										</span>
-									</div>
-								))}
-							</div>
-						) : (
-							<p className="text-sm text-muted-foreground">Enter an amount to see usage estimates</p>
-						)}
-					</div>
+					{/*<div className="bg-card/50 p-3 rounded-lg mt-3 border border-border">*/}
+					{/*	<p className="text-sm font-medium mb-2">Usage Estimates:</p>*/}
+					{/*	{amount !== "" && Number(amount) >= 1 ? (*/}
+					{/*		<div className="space-y-1 text-sm">*/}
+					{/*			{usageEstimates.map((estimate) => (*/}
+					{/*				<div key={estimate.id} className="flex justify-between">*/}
+					{/*					<span className="text-muted-foreground">{estimate.label}</span>*/}
+					{/*					<span className="font-medium">*/}
+					{/*						~{Math.round(Number(amount) * estimate.multiplier).toLocaleString()}*/}
+					{/*					</span>*/}
+					{/*				</div>*/}
+					{/*			))}*/}
+					{/*		</div>*/}
+					{/*	) : (*/}
+					{/*		<p className="text-sm text-muted-foreground">Enter an amount to see usage estimates</p>*/}
+					{/*	)}*/}
+					{/*</div>*/}
 				</div>
 			</div>
 
-			<div className="space-y-4">
-				<h3 className="text-lg font-medium">Or select a plan</h3>
+			{/*<div className="space-y-4">*/}
+			{/*	<h3 className="text-lg font-medium">Or select a plan</h3>*/}
 
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-					{pricingTiers.map((tier) => (
-						<div
-							key={tier.id}
-							className={`relative bg-card/50 backdrop-blur-sm rounded-xl border ${
-								amount === tier.price.toString() ? "border-primary ring-2 ring-primary/20" : "border-border"
-							} hover:border-primary transition-all`}
-						>
-							{tier.popular && (
-								<div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground text-xs py-1 px-3 rounded-full">
-									Popular
-								</div>
-							)}
+			{/*	<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">*/}
+			{/*		{pricingTiers.map((tier) => (*/}
+			{/*			<div*/}
+			{/*				key={tier.id}*/}
+			{/*				className={`relative bg-card/50 backdrop-blur-sm rounded-xl border ${*/}
+			{/*					amount === tier.price.toString() ? "border-primary ring-2 ring-primary/20" : "border-border"*/}
+			{/*				} hover:border-primary transition-all`}*/}
+			{/*			>*/}
+			{/*				{tier.popular && (*/}
+			{/*					<div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground text-xs py-1 px-3 rounded-full">*/}
+			{/*						Popular*/}
+			{/*					</div>*/}
+			{/*				)}*/}
 
-							<div className="p-5">
-								<div className="flex justify-between items-center mb-3">
-									<h4 className="font-medium">{tier.name}</h4>
-									<span className="text-xl font-bold">${tier.price}</span>
-								</div>
+			{/*				<div className="p-5">*/}
+			{/*					<div className="flex justify-between items-center mb-3">*/}
+			{/*						<h4 className="font-medium">{tier.name}</h4>*/}
+			{/*						<span className="text-xl font-bold">${tier.price}</span>*/}
+			{/*					</div>*/}
 
-								<div className="space-y-2 text-sm mb-4">
-									{usageEstimates.map((estimate) => (
-										<div key={estimate.id} className="flex justify-between">
-											<span className="text-muted-foreground">{estimate.label}</span>
-											<span className="font-medium">~{tier.price * estimate.multiplier}</span>
-										</div>
-									))}
-								</div>
+			{/*					<div className="space-y-2 text-sm mb-4">*/}
+			{/*						{usageEstimates.map((estimate) => (*/}
+			{/*							<div key={estimate.id} className="flex justify-between">*/}
+			{/*								<span className="text-muted-foreground">{estimate.label}</span>*/}
+			{/*								<span className="font-medium">~{tier.price * estimate.multiplier}</span>*/}
+			{/*							</div>*/}
+			{/*						))}*/}
+			{/*					</div>*/}
 
-								<Button
-									onClick={() => handleSelectTier(tier.price)}
-									variant={amount === tier.price.toString() ? "default" : "outline"}
-									className="w-full mt-2"
-								>
-									Select
-								</Button>
-							</div>
-						</div>
-					))}
-				</div>
-			</div>
+			{/*					<Button*/}
+			{/*						onClick={() => handleSelectTier(tier.price)}*/}
+			{/*						variant={amount === tier.price.toString() ? "default" : "outline"}*/}
+			{/*						className="w-full mt-2"*/}
+			{/*					>*/}
+			{/*						Select*/}
+			{/*					</Button>*/}
+			{/*				</div>*/}
+			{/*			</div>*/}
+			{/*		))}*/}
+			{/*	</div>*/}
+			{/*</div>*/}
 		</div>
 	);
 }
