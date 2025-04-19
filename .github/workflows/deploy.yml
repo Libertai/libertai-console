@@ -35,9 +35,9 @@ jobs:
         run: rm .env
 
       - name: Deploy with Aleph
-        uses: aleph-im/web3-hosting-action@v0.1.4
+        uses: aleph-im/web3-hosting-action@v0.1.5
         with:
           path: 'dist'
           private-key: ${{ secrets.ALEPH_CLOUD_LTAI_CONSOLE_PROD }}
           domain: console.libertai.io
-          retention_days: 7
+          retention_days: 1
