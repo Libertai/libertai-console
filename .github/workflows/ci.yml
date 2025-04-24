@@ -38,8 +38,6 @@ jobs:
         run: |
           echo "VITE_THIRDWEB_CLIENT_ID=${{ secrets.THIRDWEB_CLIENT_ID }}" >> .env
           echo "VITE_LTAI_INFERENCE_API_URL=${{ secrets.LTAI_INFERENCE_API_URL }}" >> .env
-          echo "VITE_LTAI_AGENTS_API_URL=${{ secrets.LTAI_AGENTS_API_URL }}" >> .env
-          echo "VITE_LTAI_AUTH_API_URL=${{ secrets.LTAI_AUTH_API_URL }}" >> .env
           echo "VITE_SOLANA_RPC=${{ secrets.SOLANA_RPC }}" >> .env
           echo "VITE_PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS=${{ secrets.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS }}" >> .env
       - name: Build project
