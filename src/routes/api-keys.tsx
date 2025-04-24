@@ -26,6 +26,7 @@ function ApiKeys() {
 	const [showEditModal, setShowEditModal] = useState(false);
 	const [newGeneratedKey, setNewGeneratedKey] = useState<string | null>(null);
 	const [showKey, setShowKey] = useState(false);
+	const [showCopiedTooltip, setShowCopiedTooltip] = useState(false);
 
 	// Current key being edited
 	const [currentKey, setCurrentKey] = useState<ApiKey | null>(null);
@@ -219,19 +220,39 @@ function ApiKeys() {
 					<div className="space-y-4 text-card-foreground">
 						<p>To use LibertAI's LLM inference API, make requests using your API key:</p>
 
-						<div className="bg-secondary/50 p-4 rounded-md border border-border/50">
-							<pre className="text-sm font-mono overflow-x-auto whitespace-pre-wrap">{`curl -X POST https://api.libertai.io/v1/chat/completions \\
+						<div className="bg-secondary/50 p-4 rounded-md border border-border/50 relative">
+							<pre
+								id="code-example"
+								className="text-sm font-mono overflow-x-auto whitespace-pre-wrap"
+							>{`curl -X POST https://api.libertai.io/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -d '{
-    "model": "hermes-3-8b",
-     "messages": [
+    "model": "hermes-3-8b-tee",
+    "messages": [
       {
         "role": "user",
         "content": "Hello!"
       }
     ]
   }'`}</pre>
+							<Button
+								variant="outline"
+								size="icon"
+								className="absolute top-2 right-2"
+								onClick={() => {
+									navigator.clipboard.writeText(document.querySelector("#code-example")?.textContent || "");
+									setShowCopiedTooltip(true);
+									setTimeout(() => setShowCopiedTooltip(false), 1000);
+								}}
+							>
+								<Copy className="h-4 w-4" />
+							</Button>
+							{showCopiedTooltip && (
+								<div className="absolute top-2 right-12 bg-primary text-primary-foreground px-2 py-1 rounded text-xs">
+									Copied!
+								</div>
+							)}
 						</div>
 
 						<p className="text-sm">
