@@ -45,7 +45,6 @@ export function useCredits() {
 		},
 		onSuccess: (data) => {
 			queryClient.setQueryData(["credits", account?.address], data);
-			toast.success("Credits balance updated");
 		},
 		onError: (error) => {
 			toast.error("Failed to update credits balance", {

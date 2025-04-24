@@ -10,6 +10,7 @@ import env from "@/config/env";
 import { useLTAIPrice } from "@/hooks/use-ltai-price";
 import { eth_getTransactionReceipt, getRpcClient, prepareContractCall, sendTransaction } from "thirdweb";
 import { Skeleton } from "@/components/ui/skeleton";
+import { parseUnits } from "viem";
 
 interface LTAIPaymentFormProps {
 	usdAmount: number;
@@ -138,7 +139,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 					client: thirdwebClient,
 				},
 				method: "processPayment",
-				params: [BigInt(discountedLtaiAmount * 10 ** 18)],
+				params: [parseUnits(discountedLtaiAmount.toString(), 18)],
 			});
 
 			// Send the transaction
