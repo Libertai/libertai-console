@@ -166,7 +166,12 @@ function Dashboard() {
 												fontSize: "0.875rem",
 												boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
 											}}
-											formatter={(value) => [`$${value}`, "Credits used"]}
+											formatter={(value) => [
+												`$${value.toLocaleString(undefined, {
+													maximumFractionDigits: 4,
+												})}`,
+												"Credits used",
+											]}
 											labelStyle={{ marginBottom: "5px", fontWeight: "bold" }}
 										/>
 										<Area

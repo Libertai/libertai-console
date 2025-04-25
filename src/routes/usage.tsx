@@ -171,7 +171,9 @@ function Usage() {
 						{isLoading ? (
 							<Skeleton className="h-10 w-32" />
 						) : (
-							<p className="text-3xl font-bold">{`$${totalCost.toLocaleString()}`}</p>
+							<p className="text-3xl font-bold">{`$${totalCost.toLocaleString(undefined, {
+								maximumFractionDigits: 2,
+							})}`}</p>
 						)}
 					</div>
 				</div>
@@ -306,7 +308,12 @@ function Usage() {
 												<td className="px-4 py-3 text-sm font-medium">{model.name}</td>
 												<td className="px-4 py-3 text-sm text-right">{model.calls}</td>
 												<td className="px-4 py-3 text-sm text-right">{model.total_tokens}</td>
-												<td className="px-4 py-3 text-sm text-right">${model.cost}</td>
+												<td className="px-4 py-3 text-sm text-right">
+													$
+													{model.cost.toLocaleString(undefined, {
+														maximumFractionDigits: 4,
+													})}
+												</td>
 											</tr>
 										))}
 									</tbody>
@@ -346,7 +353,12 @@ function Usage() {
 												<td className="px-4 py-3 text-sm font-medium">{key.name}</td>
 												<td className="px-4 py-3 text-sm text-right">{key.calls}</td>
 												<td className="px-4 py-3 text-sm text-right">{key.total_tokens}</td>
-												<td className="px-4 py-3 text-sm text-right">${key.cost}</td>
+												<td className="px-4 py-3 text-sm text-right">
+													$
+													{key.cost.toLocaleString(undefined, {
+														maximumFractionDigits: 4,
+													})}
+												</td>
 											</tr>
 										))}
 									</tbody>
