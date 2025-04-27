@@ -34,10 +34,10 @@ export function useLTAIPrice() {
 		const ltaiPrice = priceQuery.data;
 
 		if (!ltaiPrice || ltaiPrice <= 0) return 0;
-		
+
 		// Calculate the base amount
 		const baseAmount = usdAmount / ltaiPrice;
-		
+
 		// Apply 20% discount if requested
 		return applyDiscount ? baseAmount * 0.8 : baseAmount;
 	};

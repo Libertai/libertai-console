@@ -55,7 +55,9 @@ export function useCredits() {
 
 	return {
 		credits: creditsQuery.data?.balance ?? 0,
-		formattedCredits: creditsQuery.data ? creditsQuery.data.balance.toFixed(2) : "0",
+		formattedCredits: creditsQuery.data
+			? creditsQuery.data.balance.toLocaleString(undefined, { maximumFractionDigits: 4 })
+			: "0",
 		isLoading: creditsQuery.isLoading,
 		isError: creditsQuery.isError,
 		error: creditsQuery.error,

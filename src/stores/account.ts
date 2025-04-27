@@ -93,6 +93,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			return 0;
 		}
 
+		// TODO: replace with wagmi or other direct public RPC call to avoid charging + rate limit of thirdweb
 		const balance = await getBalance({
 			contract: { address: LTAI_BASE_ADDRESS, client: thirdwebClient, chain: base },
 			address: state.account.address,

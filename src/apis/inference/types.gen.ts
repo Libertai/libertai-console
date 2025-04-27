@@ -58,6 +58,24 @@ export type CreditBalanceResponse = {
     balance: number;
 };
 
+export type CreditTransactionProvider = 'libertai' | 'thirdweb' | 'voucher';
+
+export type CreditTransactionResponse = {
+    id: string;
+    transaction_hash: string | null;
+    amount: number;
+    amount_left: number;
+    provider: CreditTransactionProvider;
+    created_at: string;
+    expired_at: string | null;
+    is_active: boolean;
+};
+
+export type CreditTransactionsResponse = {
+    address: string;
+    transactions: Array<CreditTransactionResponse>;
+};
+
 /**
  * Input and output tokens for a single day.
  */
@@ -78,7 +96,8 @@ export type DashboardStats = {
 };
 
 export type ExpiredCreditTransaction = {
-    transaction_hash: string;
+    id: string;
+    transaction_hash: string | null;
     address: string;
     expired_at: string | null;
 };
@@ -158,6 +177,29 @@ export type ValidationError = {
     loc: Array<string | number>;
     msg: string;
     type: string;
+};
+
+export type VoucherAddCreditsRequest = {
+    address: string;
+    amount: number;
+    expired_at?: string | null;
+    password: string;
+};
+
+export type VoucherChangeExpireRequest = {
+    voucher_id: string;
+    expired_at: string | null;
+    password: string;
+};
+
+export type VoucherCreditsResponse = {
+    id: string;
+    address: string;
+    amount: number;
+    amount_left: number;
+    expired_at: string | null;
+    created_at: string;
+    is_active: boolean;
 };
 
 export type GetAuthMessageAuthMessagePostData = {
@@ -318,6 +360,109 @@ export type GetUserBalanceCreditsBalanceGetResponses = {
 };
 
 export type GetUserBalanceCreditsBalanceGetResponse = GetUserBalanceCreditsBalanceGetResponses[keyof GetUserBalanceCreditsBalanceGetResponses];
+
+export type GetTransactionHistoryCreditsTransactionsGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/credits/transactions';
+};
+
+export type GetTransactionHistoryCreditsTransactionsGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetTransactionHistoryCreditsTransactionsGetError = GetTransactionHistoryCreditsTransactionsGetErrors[keyof GetTransactionHistoryCreditsTransactionsGetErrors];
+
+export type GetTransactionHistoryCreditsTransactionsGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: CreditTransactionsResponse;
+};
+
+export type GetTransactionHistoryCreditsTransactionsGetResponse = GetTransactionHistoryCreditsTransactionsGetResponses[keyof GetTransactionHistoryCreditsTransactionsGetResponses];
+
+export type GetVouchersCreditsVouchersGetData = {
+    body?: never;
+    path?: never;
+    query: {
+        address: string;
+        password: string;
+    };
+    url: '/credits/vouchers';
+};
+
+export type GetVouchersCreditsVouchersGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetVouchersCreditsVouchersGetError = GetVouchersCreditsVouchersGetErrors[keyof GetVouchersCreditsVouchersGetErrors];
+
+export type GetVouchersCreditsVouchersGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: Array<VoucherCreditsResponse>;
+};
+
+export type GetVouchersCreditsVouchersGetResponse = GetVouchersCreditsVouchersGetResponses[keyof GetVouchersCreditsVouchersGetResponses];
+
+export type AddVoucherCreditsCreditsVouchersPostData = {
+    body: VoucherAddCreditsRequest;
+    path?: never;
+    query?: never;
+    url: '/credits/vouchers';
+};
+
+export type AddVoucherCreditsCreditsVouchersPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type AddVoucherCreditsCreditsVouchersPostError = AddVoucherCreditsCreditsVouchersPostErrors[keyof AddVoucherCreditsCreditsVouchersPostErrors];
+
+export type AddVoucherCreditsCreditsVouchersPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: boolean;
+};
+
+export type AddVoucherCreditsCreditsVouchersPostResponse = AddVoucherCreditsCreditsVouchersPostResponses[keyof AddVoucherCreditsCreditsVouchersPostResponses];
+
+export type ChangeVoucherExpirationCreditsVoucherExpirationPostData = {
+    body: VoucherChangeExpireRequest;
+    path?: never;
+    query?: never;
+    url: '/credits/voucher/expiration';
+};
+
+export type ChangeVoucherExpirationCreditsVoucherExpirationPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ChangeVoucherExpirationCreditsVoucherExpirationPostError = ChangeVoucherExpirationCreditsVoucherExpirationPostErrors[keyof ChangeVoucherExpirationCreditsVoucherExpirationPostErrors];
+
+export type ChangeVoucherExpirationCreditsVoucherExpirationPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: boolean;
+};
+
+export type ChangeVoucherExpirationCreditsVoucherExpirationPostResponse = ChangeVoucherExpirationCreditsVoucherExpirationPostResponses[keyof ChangeVoucherExpirationCreditsVoucherExpirationPostResponses];
 
 export type GetApiKeysApiKeysGetData = {
     body?: never;
