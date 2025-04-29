@@ -14,14 +14,15 @@ function setInitialTheme() {
 	// Check for theme in localStorage
 	const storedTheme = localStorage.getItem("libertai-ui-theme");
 
-	// Set theme based on stored preference or system preference
-	if (
-		storedTheme === "dark" ||
-		(storedTheme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches)
-	) {
-		document.documentElement.classList.add("dark");
-	} else {
+	// Determine theme: stored preference → system preference → default to dark
+	if (storedTheme === "light") {
 		document.documentElement.classList.add("light");
+	} else if (storedTheme === "dark") {
+		document.documentElement.classList.add("dark");
+	} else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+		document.documentElement.classList.add("light");
+	} else {
+		document.documentElement.classList.add("dark");
 	}
 }
 

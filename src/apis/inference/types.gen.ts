@@ -69,7 +69,10 @@ export type CreditTransactionResponse = {
     created_at: string;
     expired_at: string | null;
     is_active: boolean;
+    status: CreditTransactionStatus;
 };
+
+export type CreditTransactionStatus = 'pending' | 'completed';
 
 export type CreditTransactionsResponse = {
     address: string;

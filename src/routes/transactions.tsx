@@ -4,7 +4,7 @@ import { CreditTransactionResponse } from "@/apis/inference";
 import { useTransactions } from "@/hooks/data/use-transactions";
 import { Skeleton } from "@/components/ui/skeleton";
 import dayjs from "dayjs";
-import { Receipt } from "lucide-react";
+import { AlertCircle, Receipt } from "lucide-react";
 
 export const Route = createFileRoute("/transactions")({
 	component: Transactions,
@@ -58,6 +58,9 @@ function Transactions() {
 		};
 	};
 
+	// Check if there are any pending transactions
+	const hasPendingTransactions = transactions.some((transaction) => transaction.status !== "completed");
+
 	return (
 		<div className="container mx-auto px-4 py-8">
 			<div className="flex flex-col space-y-8">
@@ -65,6 +68,24 @@ function Transactions() {
 					<h1 className="text-3xl font-bold">Transaction History</h1>
 					<p className="text-muted-foreground mt-1">View your credit transaction history and details</p>
 				</div>
+
+				{/* Pending Transaction Alert */}
+				{hasPendingTransactions && (
+					<div className="flex items-center gap-3 p-4 border border-amber-400/30 rounded-lg bg-amber-950/20 text-amber-400">
+						<AlertCircle className="h-5 w-5 flex-shrink-0" />
+						<div>
+							<p className="text-sm font-medium">You have pending transactions</p>
+							<p className="text-xs text-amber-400/80">
+								Your transaction is being processed and credits will be available soon. If it is not confirmed
+								automatically after a few minutes, please reach out to us on{" "}
+								<a href="https://t.me/libertai" className="text-primary hover:underline" target="_blank">
+									Telegram
+								</a>
+								.
+							</p>
+						</div>
+					</div>
+				)}
 
 				{/* Transactions List */}
 				<div className="bg-card/50 backdrop-blur-sm rounded-xl border border-border overflow-hidden">
@@ -133,6 +154,11 @@ function Transactions() {
 													<span className={`px-2 py-1 rounded-full text-xs font-medium ${status.className}`}>
 														{status.label}
 													</span>
+													{transaction.status !== "completed" && (
+														<span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-amber-900/30 text-amber-400">
+															Pending
+														</span>
+													)}
 												</td>
 											</tr>
 										);
