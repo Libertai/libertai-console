@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-	ALEPH_API_URL: z.string().url().optional(),
 	LTAI_INFERENCE_API_URL: z.string().url(),
 	SOLANA_RPC: z.string().url(),
 	LTAI_BASE_ADDRESS: z.string().startsWith("0x").optional().default("0xF8B1b47AA748F5C7b5D0e80C726a843913EB573a"),
@@ -13,7 +12,6 @@ const envSchema = z.object({
 });
 
 const env = envSchema.parse({
-	ALEPH_API_URL: import.meta.env.VITE_ALEPH_API_URL,
 	LTAI_INFERENCE_API_URL: import.meta.env.VITE_LTAI_INFERENCE_API_URL,
 	SOLANA_RPC: import.meta.env.VITE_SOLANA_RPC,
 	LTAI_BASE_ADDRESS: import.meta.env.VITE_LTAI_BASE_ADDRESS,

@@ -29,9 +29,6 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Remove env file
-        run: rm .env
-
       - name: Deploy with Aleph
         uses: aleph-im/web3-hosting-action@v0.1.5
         with:
