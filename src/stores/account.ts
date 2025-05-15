@@ -9,7 +9,6 @@ import {
 } from "@/apis/inference/sdk.gen";
 import { toast } from "sonner";
 import { ethers } from "ethers";
-import { number } from "zod";
 
 const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
 
