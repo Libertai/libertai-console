@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { Account } from "thirdweb/wallets";
 import env from "@/config/env.ts";
-import { getBalance } from "thirdweb/extensions/erc20";
-import { thirdwebClient } from "@/config/thirdweb.ts";
 import { base } from "thirdweb/chains";
 import {
 	checkAuthStatusAuthStatusGet,
@@ -10,6 +8,8 @@ import {
 	loginWithWalletAuthLoginPost,
 } from "@/apis/inference/sdk.gen";
 import { toast } from "sonner";
+import { ethers } from "ethers";
+import { number } from "zod";
 
 const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
 
@@ -53,6 +53,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			state.onDisconnect();
 			return;
 		}
+
 		if (state.account !== null && state.account.address === newAccount.address) {
 			// Account already connected with the same address
 			return;
@@ -88,18 +89,44 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	},
 	getLTAIBalance: async (): Promise<number> => {
 		const state = get();
+    let balance: string = "0";
+    const hexBalanceOfFunction = "0x70a08231";
 
 		if (state.account === null) {
 			return 0;
 		}
 
-		// TODO: replace with wagmi or other direct public RPC call to avoid charging + rate limit of thirdweb
-		const balance = await getBalance({
-			contract: { address: LTAI_BASE_ADDRESS, client: thirdwebClient, chain: base },
-			address: state.account.address,
-		});
+    const address = state.account.address.startsWith("0x") ? state.account.address.slice(2) : state.account.address;
+    const paddedAddress = address.padStart(64, "0");
+    const body = {
+        "jsonrpc":"2.0",
+        "method":"eth_call",
+        "params": [
+            {
+                "to": LTAI_BASE_ADDRESS,
+                "data": `${hexBalanceOfFunction}${paddedAddress}`
+            },
+            "latest"
+        ],
+        "id": base.id
+    }
 
-		return Number(balance.displayValue);
+    try {
+      const response = await fetch("https://mainnet.base.org", {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      const json = await response.json();
+      const weiBalance = ethers.getBigInt(json.result);
+      balance = ethers.formatEther(weiBalance);
+    } catch (error) {
+        console.error("Error fetching balance:", error);
+    }
+    return Number(balance);
 	},
 	getAPICredits: async (): Promise<number> => {
 		// This would typically come from the API after authentication
