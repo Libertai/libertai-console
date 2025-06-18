@@ -22,14 +22,16 @@ type AccountStoreState = {
 	isAuthenticated: boolean;
 	isAuthenticating: boolean;
 	lastTransactionHash: string | null;
+	isInitialLoad: boolean;
 
 	onAccountChange: (newAccount: Account | undefined) => Promise<void>;
 	getLTAIBalance: () => Promise<number>;
 	getAPICredits: () => Promise<number>;
 	onDisconnect: () => void;
-	authenticate: (account: Account) => Promise<boolean>;
+	authenticate: (account: Account, showErrors?: boolean) => Promise<boolean>;
 	checkAuthStatus: (accountAddress: string) => Promise<boolean>;
 	setLastTransactionHash: (hash: string | null) => void;
+	setInitialLoadComplete: () => void;
 };
 
 export const useAccountStore = create<AccountStoreState>((set, get) => ({
@@ -39,10 +41,10 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	formattedLTAIBalance: () => get().ltaiBalance.toFixed(0),
 	formattedAPICredits: () => get().apiCredits.toFixed(0),
 	account: null,
-	jwtToken: null,
 	isAuthenticated: false,
 	isAuthenticating: false,
 	lastTransactionHash: null,
+	isInitialLoad: true,
 
 	onAccountChange: async (newAccount: Account | undefined) => {
 		const state = get();
@@ -63,28 +65,57 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			return;
 		}
 
+		// Set the account first so UI shows connected state
+		set({ account: newAccount });
+
 		// First check if we're already authenticated with this wallet
 		set({ isAuthenticating: true });
-		const isAlreadyAuthenticated = await state.checkAuthStatus(newAccount.address);
+		
+		try {
+			const isAlreadyAuthenticated = await state.checkAuthStatus(newAccount.address);
 
-		let authSuccess = isAlreadyAuthenticated;
-		if (!isAlreadyAuthenticated) {
-			// Need to authenticate with a signature
-			authSuccess = await state.authenticate(newAccount);
+			let authSuccess = isAlreadyAuthenticated;
+			if (!isAlreadyAuthenticated) {
+				// Only try to authenticate if this isn't an initial page load reconnection
+				// or if user manually clicked connect
+				const shouldShowErrors = !state.isInitialLoad;
+				authSuccess = await state.authenticate(newAccount, shouldShowErrors);
+			}
+
+			set({ 
+				isAuthenticating: false, 
+				isAuthenticated: authSuccess 
+			});
+
+			// Get LTAI token balance from blockchain regardless of auth status
+			const ltaiBalance = await state.getLTAIBalance();
+			set({ ltaiBalance: ltaiBalance });
+
+			// Mark initial load as complete
+			if (state.isInitialLoad) {
+				set({ isInitialLoad: false });
+			}
+
+		} catch (error) {
+			console.error("Account change error:", error);
+			set({ 
+				isAuthenticating: false,
+				isAuthenticated: false 
+			});
+			
+			// Still get balance even if auth fails
+			try {
+				const ltaiBalance = await state.getLTAIBalance();
+				set({ ltaiBalance: ltaiBalance });
+			} catch (balanceError) {
+				console.error("Balance fetch error:", balanceError);
+			}
+
+			// Mark initial load as complete even on error
+			if (state.isInitialLoad) {
+				set({ isInitialLoad: false });
+			}
 		}
-
-		set({ isAuthenticating: false });
-
-		if (!authSuccess) {
-			set({ account: null, isAuthenticated: false });
-			return;
-		}
-
-		set({ account: newAccount, isAuthenticated: true });
-
-		// Get LTAI token balance from blockchain
-		const ltaiBalance = await state.getLTAIBalance();
-		set({ ltaiBalance: ltaiBalance });
 	},
 	getLTAIBalance: async (): Promise<number> => {
 		const state = get();
@@ -142,7 +173,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			return false;
 		}
 	},
-	authenticate: async (account: Account): Promise<boolean> => {
+	authenticate: async (account: Account, showErrors: boolean = true): Promise<boolean> => {
 		const state = get();
 
 		try {
@@ -153,15 +184,28 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 				},
 			});
 
-			if (!messageResponse.data) {
-				toast.error("Authentication failed", {
-					description: "Could not get message to sign",
-				});
+			if (!messageResponse.data?.message) {
+				console.error("No message received from server");
+				if (showErrors) {
+					toast.error("Authentication failed", {
+						description: "Could not get message to sign",
+					});
+				}
 				return false;
 			}
 
 			// Sign the message
 			const signature = await account.signMessage({ message: messageResponse.data.message });
+
+			if (!signature) {
+				console.error("No signature generated");
+				if (showErrors) {
+					toast.error("Authentication failed", {
+						description: "Could not sign message",
+					});
+				}
+				return false;
+			}
 
 			// Login with the signature
 			const loginResponse = await loginWithWalletAuthLoginPost({
@@ -181,16 +225,23 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 
 				return true;
 			} else {
-				toast.error("Authentication failed", {
-					description: "Invalid response from server",
-				});
+				console.error("No access token received");
+				if (showErrors) {
+					toast.error("Authentication failed", {
+						description: "Invalid response from server",
+					});
+				}
 				return false;
 			}
 		} catch (error) {
 			console.error("Authentication error:", error);
-			toast.error("Authentication failed", {
-				description: error instanceof Error ? error.message : "Unknown error",
-			});
+			
+			// Only show toast if we should show errors
+			if (showErrors) {
+				toast.error("Authentication failed", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+			}
 			return false;
 		}
 	},
@@ -202,10 +253,15 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			ltaiBalance: 0,
 			apiCredits: 0,
 			lastTransactionHash: null,
+			isInitialLoad: true,
 		});
 	},
 
 	setLastTransactionHash: (hash: string | null) => {
 		set({ lastTransactionHash: hash });
+	},
+
+	setInitialLoadComplete: () => {
+		set({ isInitialLoad: false });
 	},
 }));

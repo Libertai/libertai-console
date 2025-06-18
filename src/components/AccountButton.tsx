@@ -6,25 +6,45 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Coins, LogOut } from "lucide-react";
-import { useEffect } from "react";
+import { Coins, LogOut, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { thirdwebClient } from "@/config/thirdweb";
 import { ConnectButton, useActiveAccount, useActiveWallet, useDisconnect } from "thirdweb/react";
 import { base } from "thirdweb/chains";
 import { useAccountStore } from "@/stores/account";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import "@solana/wallet-adapter-react-ui/styles.css";
 
 export default function AccountButton() {
 	const account = useActiveAccount();
-	const wallet = useActiveWallet();
+	const evmWallet = useActiveWallet();
+	const solanaWallet = useWallet();
 	const { disconnect } = useDisconnect();
 	const onAccountChange = useAccountStore((state) => state.onAccountChange);
 	const formattedLtaiBalance = useAccountStore((state) => state.formattedLTAIBalance());
+	const isAuthenticating = useAccountStore((state) => state.isAuthenticating);
+	const storeAccount = useAccountStore((state) => state.account);
+	const [isInitializing, setIsInitializing] = useState(true);
+
+	// Only show loading if there's actually a connected wallet AND we're authenticating
+	const shouldShowEvmLoading = isAuthenticating && account && evmWallet;
+	const shouldShowSolanaLoading = isAuthenticating && solanaWallet.wallet;
 
 	useEffect(() => {
 		onAccountChange(account).then();
 	}, [account, onAccountChange]);
 
-	wallet?.subscribe("accountChanged", (account) => {
+	// Handle initialization state - use a timeout to allow thirdweb to auto-reconnect
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setIsInitializing(false);
+		}, 1000); // Give thirdweb 1 second to auto-reconnect
+
+		return () => clearTimeout(timer);
+	}, []);
+
+	evmWallet?.subscribe("accountChanged", (account) => {
 		onAccountChange(account).then();
 	});
 
@@ -34,13 +54,95 @@ export default function AccountButton() {
 		return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 	};
 
-	if (account !== undefined && wallet !== undefined) {
+	// Show loading state while initializing
+	if (isInitializing) {
+		return (
+			<Button variant="outline" disabled className="flex items-center gap-2 px-3 h-9 border-border">
+				<Loader2 className="h-4 w-4 animate-spin" />
+				Connecting...
+			</Button>
+		);
+	}
+
+	if (solanaWallet.wallet !== null) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="flex items-center gap-2 px-3 h-9 border-border">
+						<span className="flex items-center gap-2">
+							{shouldShowSolanaLoading ? (
+								<>
+									<span className="hidden md:flex items-center text-muted-foreground text-xs">
+										<Loader2 className="h-3 w-3 mr-1 animate-spin" />
+										Loading...
+									</span>
+									<span className="h-4 w-px bg-border hidden md:block"></span>
+								</>
+							) : formattedLtaiBalance !== "0" ? (
+								<>
+									<span className="hidden md:flex items-center text-muted-foreground text-xs">
+										<Coins className="h-3 w-3 mr-1 text-primary" />
+										{formattedLtaiBalance} LTAI
+									</span>
+									<span className="h-4 w-px bg-border hidden md:block"></span>
+								</>
+							) : (
+								<></>
+							)}
+     
+							<span className="text-sm">{formatAddress(solanaWallet.publicKey?.toString())}</span>
+						</span>
+					</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="min-w-[220px]">
+					<div className="px-2 py-2 border-b border-border">
+						<p className="text-xs text-muted-foreground">Connected as</p>
+						<p className="font-medium truncate">{formatAddress(solanaWallet.publicKey?.toString())}</p>
+					</div>
+    
+					<div className="px-2 py-2">
+						<p className="text-xs text-muted-foreground">Balance</p>
+						<p className="font-medium flex items-center">
+							{shouldShowSolanaLoading ? (
+								<>
+									<Loader2 className="h-3 w-3 mr-1 animate-spin" />
+									Loading...
+								</>
+							) : (
+								<>
+									<Coins className="h-3 w-3 mr-1 text-primary" />
+									{formattedLtaiBalance} LTAI
+								</>
+							)}
+						</p>
+					</div>
+					<DropdownMenuSeparator />
+					<div className="">
+					<DropdownMenuItem onClick={() => solanaWallet.disconnect()} className="cursor-pointer gap-2 text-destructive">
+						<LogOut className="h-4 w-4" />
+						Disconnect
+					</DropdownMenuItem>
+					</div>
+				</DropdownMenuContent>
+      </DropdownMenu>
+    )
+	}
+
+	if (account !== undefined && evmWallet !== undefined) {
 		return (
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="outline" className="flex items-center gap-2 px-3 h-9 border-border">
 						<span className="flex items-center gap-2">
-							{formattedLtaiBalance !== "0" ? (
+							{shouldShowEvmLoading ? (
+								<>
+									<span className="hidden md:flex items-center text-muted-foreground text-xs">
+										<Loader2 className="h-3 w-3 mr-1 animate-spin" />
+										Loading...
+									</span>
+									<span className="h-4 w-px bg-border hidden md:block"></span>
+								</>
+							) : formattedLtaiBalance !== "0" ? (
 								<>
 									<span className="hidden md:flex items-center text-muted-foreground text-xs">
 										<Coins className="h-3 w-3 mr-1 text-primary" />
@@ -65,12 +167,21 @@ export default function AccountButton() {
 					<div className="px-2 py-2">
 						<p className="text-xs text-muted-foreground">Balance</p>
 						<p className="font-medium flex items-center">
-							<Coins className="h-3 w-3 mr-1 text-primary" />
-							{formattedLtaiBalance} LTAI
+							{shouldShowEvmLoading ? (
+								<>
+									<Loader2 className="h-3 w-3 mr-1 animate-spin" />
+									Loading...
+								</>
+							) : (
+								<>
+									<Coins className="h-3 w-3 mr-1 text-primary" />
+									{formattedLtaiBalance} LTAI
+								</>
+							)}
 						</p>
 					</div>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem onClick={() => disconnect(wallet)} className="cursor-pointer gap-2 text-destructive">
+					<DropdownMenuItem onClick={() => disconnect(evmWallet)} className="cursor-pointer gap-2 text-destructive">
 						<LogOut className="h-4 w-4" />
 						Disconnect
 					</DropdownMenuItem>
@@ -80,13 +191,49 @@ export default function AccountButton() {
 	}
 
 	return (
-		<ConnectButton
-			client={thirdwebClient}
-			chain={base}
-			connectButton={{
-				className:
-					"!bg-primary !hover:bg-primary/90 !text-primary-foreground !shadow-sm !h-9 !px-4 !py-2 !rounded-md !text-sm !font-medium !transition-colors !focus-visible:outline-none !focus-visible:ring-1 !focus-visible:ring-ring !disabled:pointer-events-none !disabled:opacity-50",
-			}}
-		/>
+		<div className="relative">
+			{/* Hidden components for auto-connection */}
+			<div className="absolute opacity-0 pointer-events-none -z-10">
+				<ConnectButton
+					client={thirdwebClient}
+					chain={base}
+					connectButton={{
+						label: "EVM & Social login",
+					}}
+				/>
+				<WalletMultiButton />
+			</div>
+			
+			{/* Visible dropdown UI */}
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<Button variant="outline" className="flex items-center gap-2 px-3 h-9 border-border">
+						Connect Wallet
+					</Button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end" className="min-w-[220px]">
+					<div className="p-2">
+						<ConnectButton
+							client={thirdwebClient}
+							chain={base}
+							connectButton={{
+								label: "EVM & Social login",
+								className:
+								"!w-full !bg-primary !hover:bg-primary/90 !text-primary-foreground !shadow-sm !h-9 !px-4 !py-2 !rounded-md !text-sm !font-medium !transition-colors !focus-visible:outline-none !focus-visible:ring-1 !focus-visible:ring-ring !disabled:pointer-events-none !disabled:opacity-50",
+							}}
+						/>
+					</div>
+					<DropdownMenuSeparator />
+					<div className="p-2">
+						<WalletMultiButton style={{
+							width: '100%',
+							height: '36px',
+							borderRadius: '8px',
+							fontSize: '14px'
+						}}/>
+					</div>
+				</DropdownMenuContent>
+			</DropdownMenu>
+		</div>
 	);
 }
