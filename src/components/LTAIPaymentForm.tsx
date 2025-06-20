@@ -50,7 +50,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 
 	const account = useAccountStore((state) => state.account);
 	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
-	const getLTAIBalance = useAccountStore((state) => state.getLTAIBalance);
+	const getBaseLTAIBalance = useAccountStore((state) => state.getBaseLTAIBalance);
 	const setLastTransactionHash = useAccountStore((state) => state.setLastTransactionHash);
 
 	const { price: ltaiPrice, isLoading, getRequiredLTAI } = useLTAIPrice();
@@ -99,7 +99,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 				setIsApproved(true);
 
 				// After approval, update the LTAI balance
-				await getLTAIBalance();
+				await getBaseLTAIBalance();
 			} catch (confirmError) {
 				console.error("Approval confirmation error:", confirmError);
 				toast.error("Approval confirmation failed", {
@@ -164,7 +164,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 				});
 
 				// After successful payment, update the LTAI balance and call the success handler
-				await getLTAIBalance();
+				await getBaseLTAIBalance();
 				onPaymentSuccess();
 			} catch (confirmError) {
 				console.error("Payment confirmation error:", confirmError);
