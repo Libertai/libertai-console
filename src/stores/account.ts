@@ -25,7 +25,7 @@ type AccountStoreState = {
 	isInitialLoad: boolean;
 
 	onAccountChange: (newAccount: Account | undefined) => Promise<void>;
-	getLTAIBalance: () => Promise<number>;
+	getBaseLTAIBalance: () => Promise<number>;
 	getAPICredits: () => Promise<number>;
 	onDisconnect: () => void;
 	authenticate: (account: Account, showErrors?: boolean) => Promise<boolean>;
@@ -88,7 +88,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			});
 
 			// Get LTAI token balance from blockchain regardless of auth status
-			const ltaiBalance = await state.getLTAIBalance();
+			const ltaiBalance = await state.getBaseLTAIBalance();
 			set({ ltaiBalance: ltaiBalance });
 
 			// Mark initial load as complete
@@ -105,7 +105,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			
 			// Still get balance even if auth fails
 			try {
-				const ltaiBalance = await state.getLTAIBalance();
+				const ltaiBalance = await state.getBaseLTAIBalance();
 				set({ ltaiBalance: ltaiBalance });
 			} catch (balanceError) {
 				console.error("Balance fetch error:", balanceError);
@@ -117,7 +117,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			}
 		}
 	},
-	getLTAIBalance: async (): Promise<number> => {
+	getBaseLTAIBalance: async (): Promise<number> => {
 		const state = get();
     let balance: string = "0";
     const hexBalanceOfFunction = "0x70a08231";
