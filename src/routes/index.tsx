@@ -10,7 +10,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-	const account = useAccountStore((state) => state.account);
+	const baseAccount = useAccountStore((state) => state.baseAccount);
+	const solanaAccount = useAccountStore((state) => state.solanaAccount);
+	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
 	const { formattedCredits } = useCredits();
 	const navigate = useNavigate();
 

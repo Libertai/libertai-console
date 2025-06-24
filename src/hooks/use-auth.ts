@@ -5,7 +5,9 @@ import { useAccountStore } from "@/stores/account.ts";
 
 export function useRequireAuth() {
 	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
-	const account = useAccountStore((state) => state.account);
+	const baseAccount = useAccountStore((state) => state.baseAccount);
+	const solanaAccount = useAccountStore((state) => state.solanaAccount);
+	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -16,7 +18,7 @@ export function useRequireAuth() {
 			});
 			navigate({ to: "/" });
 		}
-	}, [isAuthenticated, account, navigate]);
+	}, [isAuthenticated, account, navigate, solanaAccount, baseAccount]);
 
 	return { isAuthenticated };
 }

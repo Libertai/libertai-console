@@ -5,11 +5,14 @@ import { toast } from "sonner";
 
 export function useCredits() {
 	const queryClient = useQueryClient();
-	const account = useAccountStore((state) => state.account);
+	const baseAccount = useAccountStore((state) => state.baseAccount);
+	const solanaAccount = useAccountStore((state) => state.solanaAccount);
+	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
+	const accountAddress = baseAccount?.address || solanaAccount?.publicKey?.toString();
 
 	// Query for credits balance
 	const creditsQuery = useQuery({
-		queryKey: ["credits", account?.address],
+		queryKey: ["credits", accountAddress],
 		queryFn: async () => {
 			if (!account) {
 				return { balance: 0 };
@@ -44,7 +47,7 @@ export function useCredits() {
 			return response.data;
 		},
 		onSuccess: (data) => {
-			queryClient.setQueryData(["credits", account?.address], data);
+			queryClient.setQueryData(["credits", accountAddress], data);
 		},
 		onError: (error) => {
 			toast.error("Failed to update credits balance", {

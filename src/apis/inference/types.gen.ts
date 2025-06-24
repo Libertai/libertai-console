@@ -32,6 +32,7 @@ export type ApiKeyUpdate = {
 export type AuthLoginRequest = {
     address: string;
     signature: string;
+    chain: string;
 };
 
 export type AuthLoginResponse = {
@@ -58,7 +59,7 @@ export type CreditBalanceResponse = {
     balance: number;
 };
 
-export type CreditTransactionProvider = 'libertai' | 'thirdweb' | 'voucher';
+export type CreditTransactionProvider = 'libertai' | 'thirdweb' | 'voucher' | 'solana';
 
 export type CreditTransactionResponse = {
     id: string;
@@ -72,11 +73,17 @@ export type CreditTransactionResponse = {
     status: CreditTransactionStatus;
 };
 
-export type CreditTransactionStatus = 'pending' | 'completed';
+export type CreditTransactionStatus = 'pending' | 'completed' | 'error';
 
 export type CreditTransactionsResponse = {
     address: string;
     transactions: Array<CreditTransactionResponse>;
+};
+
+export type CreditsUsage = {
+    credits_used: number;
+    used_at: string;
+    model_name: string;
 };
 
 /**
@@ -121,6 +128,22 @@ export type FullApiKey = {
     full_key: string;
 };
 
+/**
+ * Api usage statistics for a date range.
+ */
+export type GlobalApiStats = {
+    total_calls: number;
+    api_usage: Array<ModelApiUsage>;
+};
+
+/**
+ * Credit usage statistics for a date range.
+ */
+export type GlobalCreditsStats = {
+    total_credits_used: number;
+    credits_usage: Array<CreditsUsage>;
+};
+
 export type HttpValidationError = {
     detail?: Array<ValidationError>;
 };
@@ -131,6 +154,11 @@ export type InferenceCallData = {
     output_tokens: number;
     cached_tokens?: number;
     model_name: string;
+};
+
+export type ModelApiUsage = {
+    model_name: string;
+    used_at: string;
 };
 
 export type ThirdwebWebhookPayload = {
@@ -280,21 +308,64 @@ export type CheckAuthStatusAuthStatusGetResponses = {
 
 export type CheckAuthStatusAuthStatusGetResponse = CheckAuthStatusAuthStatusGetResponses[keyof CheckAuthStatusAuthStatusGetResponses];
 
-export type ProcessLtaiTransactionsCreditsLtaiProcessPostData = {
+export type ProcessBaseLtaiTransactionsCreditsLtaiBaseProcessPostData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/credits/ltai/process';
+    url: '/credits/ltai/base/process';
 };
 
-export type ProcessLtaiTransactionsCreditsLtaiProcessPostResponses = {
+export type ProcessBaseLtaiTransactionsCreditsLtaiBaseProcessPostResponses = {
     /**
      * Successful Response
      */
     200: Array<string>;
 };
 
-export type ProcessLtaiTransactionsCreditsLtaiProcessPostResponse = ProcessLtaiTransactionsCreditsLtaiProcessPostResponses[keyof ProcessLtaiTransactionsCreditsLtaiProcessPostResponses];
+export type ProcessBaseLtaiTransactionsCreditsLtaiBaseProcessPostResponse = ProcessBaseLtaiTransactionsCreditsLtaiBaseProcessPostResponses[keyof ProcessBaseLtaiTransactionsCreditsLtaiBaseProcessPostResponses];
+
+export type ProcessSolanaLtaiTransactionsCreditsLtaiSolanaProcessPostData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/credits/ltai/solana/process';
+};
+
+export type ProcessSolanaLtaiTransactionsCreditsLtaiSolanaProcessPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: Array<string>;
+};
+
+export type ProcessSolanaLtaiTransactionsCreditsLtaiSolanaProcessPostResponse = ProcessSolanaLtaiTransactionsCreditsLtaiSolanaProcessPostResponses[keyof ProcessSolanaLtaiTransactionsCreditsLtaiSolanaProcessPostResponses];
+
+export type GetSolanaLtaiBalanceCreditsLtaiSolanaBalanceGetData = {
+    body?: never;
+    path?: never;
+    query: {
+        address: string;
+    };
+    url: '/credits/ltai/solana/balance';
+};
+
+export type GetSolanaLtaiBalanceCreditsLtaiSolanaBalanceGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetSolanaLtaiBalanceCreditsLtaiSolanaBalanceGetError = GetSolanaLtaiBalanceCreditsLtaiSolanaBalanceGetErrors[keyof GetSolanaLtaiBalanceCreditsLtaiSolanaBalanceGetErrors];
+
+export type GetSolanaLtaiBalanceCreditsLtaiSolanaBalanceGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: number;
+};
+
+export type GetSolanaLtaiBalanceCreditsLtaiSolanaBalanceGetResponse = GetSolanaLtaiBalanceCreditsLtaiSolanaBalanceGetResponses[keyof GetSolanaLtaiBalanceCreditsLtaiSolanaBalanceGetResponses];
 
 export type ThirdwebWebhookCreditsThirdwebWebhookPostData = {
     body: ThirdwebWebhookPayload;
@@ -681,6 +752,74 @@ export type GetUsageStatsStatsUsageGetResponses = {
 };
 
 export type GetUsageStatsStatsUsageGetResponse = GetUsageStatsStatsUsageGetResponses[keyof GetUsageStatsStatsUsageGetResponses];
+
+export type GetCreditsStatsStatsGlobalCreditsGetData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Start date in format YYYY-MM-DD
+         */
+        start_date: string;
+        /**
+         * End date in format YYYY-MM-DD
+         */
+        end_date: string;
+    };
+    url: '/stats/global/credits';
+};
+
+export type GetCreditsStatsStatsGlobalCreditsGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetCreditsStatsStatsGlobalCreditsGetError = GetCreditsStatsStatsGlobalCreditsGetErrors[keyof GetCreditsStatsStatsGlobalCreditsGetErrors];
+
+export type GetCreditsStatsStatsGlobalCreditsGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: GlobalCreditsStats;
+};
+
+export type GetCreditsStatsStatsGlobalCreditsGetResponse = GetCreditsStatsStatsGlobalCreditsGetResponses[keyof GetCreditsStatsStatsGlobalCreditsGetResponses];
+
+export type GetApiStatsStatsGlobalApiGetData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Start date in format YYYY-MM-DD
+         */
+        start_date: string;
+        /**
+         * End date in format YYYY-MM-DD
+         */
+        end_date: string;
+    };
+    url: '/stats/global/api';
+};
+
+export type GetApiStatsStatsGlobalApiGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetApiStatsStatsGlobalApiGetError = GetApiStatsStatsGlobalApiGetErrors[keyof GetApiStatsStatsGlobalApiGetErrors];
+
+export type GetApiStatsStatsGlobalApiGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: GlobalApiStats;
+};
+
+export type GetApiStatsStatsGlobalApiGetResponse = GetApiStatsStatsGlobalApiGetResponses[keyof GetApiStatsStatsGlobalApiGetResponses];
 
 export type ClientOptions = {
     baseURL: 'http://localhost:8000' | (string & {});

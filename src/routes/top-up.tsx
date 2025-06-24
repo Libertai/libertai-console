@@ -30,7 +30,9 @@ type PricingTier = {
 function TopUp() {
 	const isAutoConnecting = useIsAutoConnecting();
 
-	const account = useAccountStore((state) => state.account);
+	const baseAccount = useAccountStore((state) => state.baseAccount);
+	const solanaAccount = useAccountStore((state) => state.solanaAccount);
+	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
 	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
 	const lastTransactionHash = useAccountStore((state) => state.lastTransactionHash);
 	const setLastTransactionHash = useAccountStore((state) => state.setLastTransactionHash);
@@ -38,7 +40,6 @@ function TopUp() {
 	const { formattedCredits } = useCredits();
 	const navigate = useNavigate();
 
-	// Use nuqs for URL state
 	const [stage, setStage] = useQueryState("stage", {
 		defaultValue: "select",
 		parse: (value): "select" | "payment" | "success" => {
@@ -246,7 +247,7 @@ function TopUp() {
 													handlePaymentSuccess();
 												},
 												purchaseData: {
-													userAddress: account?.address,
+													userAddress: baseAccount?.address,
 												},
 												paymentInfo: {
 													chain: base,

@@ -4,6 +4,7 @@ import { ThemeProvider } from "./ThemeProvider";
 import { Toaster } from "./ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NuqsAdapter } from "nuqs/adapters/react";
+import { SolanaProvider } from "./SolanaProvider";
 
 type ProvidersProps = {
 	children: ReactNode;
@@ -23,7 +24,11 @@ const Providers = ({ children }: ProvidersProps) => {
 		<NuqsAdapter>
 			<ThemeProvider defaultTheme="system" storageKey="libertai-ui-theme">
 				<QueryClientProvider client={queryClient}>
-					<ThirdwebProvider>{children}</ThirdwebProvider>
+				<SolanaProvider>
+				  <ThirdwebProvider>
+				    {children}
+					</ThirdwebProvider>
+				</SolanaProvider>
 					<Toaster richColors />
 				</QueryClientProvider>
 			</ThemeProvider>
