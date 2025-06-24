@@ -3,11 +3,14 @@ import { getDashboardStatsStatsDashboardGet, getUsageStatsStatsUsageGet } from "
 import { useAccountStore } from "@/stores/account.ts";
 
 export function useStats() {
-	const account = useAccountStore((state) => state.account);
+	const baseAccount = useAccountStore((state) => state.baseAccount);
+	const solanaAccount = useAccountStore((state) => state.solanaAccount);
+	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
+	const accountAddress = baseAccount?.address || solanaAccount?.publicKey?.toString();
 
 	// Query for dashboard statistics
 	const statsQuery = useQuery({
-		queryKey: ["dashboardStats", account?.address],
+		queryKey: ["dashboardStats", accountAddress],
 		queryFn: async () => {
 			const response = await getDashboardStatsStatsDashboardGet();
 
@@ -40,11 +43,14 @@ export function useStats() {
 }
 
 export function useUsageStats(startDate: string, endDate: string) {
-	const account = useAccountStore((state) => state.account);
+	const baseAccount = useAccountStore((state) => state.baseAccount);
+	const solanaAccount = useAccountStore((state) => state.solanaAccount);
+	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
+	const accountAddress = baseAccount?.address || solanaAccount?.publicKey?.toString();
 
 	// Query for detailed usage statistics
 	const usageQuery = useQuery({
-		queryKey: ["usageStats", account?.address, startDate, endDate],
+		queryKey: ["usageStats", accountAddress, startDate, endDate],
 		queryFn: async () => {
 			const response = await getUsageStatsStatsUsageGet({
 				query: {

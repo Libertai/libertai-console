@@ -22,9 +22,10 @@ export default function AccountButton() {
 	const solanaWallet = useWallet();
 	const { disconnect } = useDisconnect();
 	const onAccountChange = useAccountStore((state) => state.onAccountChange);
+	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
 	const formattedLtaiBalance = useAccountStore((state) => state.formattedLTAIBalance());
 	const isAuthenticating = useAccountStore((state) => state.isAuthenticating);
-	const storeAccount = useAccountStore((state) => state.account);
+	
 	const [isInitializing, setIsInitializing] = useState(true);
 
 	// Only show loading if there's actually a connected wallet AND we're authenticating
@@ -32,20 +33,20 @@ export default function AccountButton() {
 	const shouldShowSolanaLoading = isAuthenticating && solanaWallet.wallet;
 
 	useEffect(() => {
-		onAccountChange(account).then();
-	}, [account, onAccountChange]);
+		onAccountChange(account, solanaWallet).then();
+	}, [account, solanaWallet, onAccountChange, evmWallet]);
 
-	// Handle initialization state - use a timeout to allow thirdweb to auto-reconnect
+
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setIsInitializing(false);
-		}, 1000); // Give thirdweb 1 second to auto-reconnect
+		}, 1000);
 
 		return () => clearTimeout(timer);
 	}, []);
 
 	evmWallet?.subscribe("accountChanged", (account) => {
-		onAccountChange(account).then();
+		onAccountChange(account, solanaWallet).then();
 	});
 
 	// Format address to shorten it (e.g., 0x1234...5678)
@@ -78,7 +79,7 @@ export default function AccountButton() {
 									</span>
 									<span className="h-4 w-px bg-border hidden md:block"></span>
 								</>
-							) : formattedLtaiBalance !== "0" ? (
+							) : ltaiBalance >= 0 ? (
 								<>
 									<span className="hidden md:flex items-center text-muted-foreground text-xs">
 										<Coins className="h-3 w-3 mr-1 text-primary" />
@@ -142,7 +143,7 @@ export default function AccountButton() {
 									</span>
 									<span className="h-4 w-px bg-border hidden md:block"></span>
 								</>
-							) : formattedLtaiBalance !== "0" ? (
+							) : ltaiBalance >= 0 ? (
 								<>
 									<span className="hidden md:flex items-center text-muted-foreground text-xs">
 										<Coins className="h-3 w-3 mr-1 text-primary" />
