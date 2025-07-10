@@ -6,12 +6,13 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Coins, LogOut } from "lucide-react";
+import { Coins, LogOut, Copy } from "lucide-react";
 import { useEffect } from "react";
 import { thirdwebClient } from "@/config/thirdweb";
 import { ConnectButton, useActiveAccount, useActiveWallet, useDisconnect } from "thirdweb/react";
 import { base } from "thirdweb/chains";
 import { useAccountStore } from "@/stores/account";
+import { toast } from "sonner";
 
 export default function AccountButton() {
 	const account = useActiveAccount();
@@ -32,6 +33,13 @@ export default function AccountButton() {
 	const formatAddress = (address: string | undefined) => {
 		if (!address) return "";
 		return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+	};
+
+	const handleCopyAddress = () => {
+		if (account?.address) {
+			navigator.clipboard.writeText(account.address);
+			toast.success("Address copied to clipboard");
+		}
 	};
 
 	if (account !== undefined && wallet !== undefined) {
@@ -59,7 +67,17 @@ export default function AccountButton() {
 				<DropdownMenuContent align="end" className="min-w-[220px]">
 					<div className="px-2 py-2 border-b border-border">
 						<p className="text-xs text-muted-foreground">Connected as</p>
-						<p className="font-medium truncate">{formatAddress(account.address)}</p>
+						<div className="flex items-center justify-between">
+							<p className="font-medium truncate">{formatAddress(account.address)}</p>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={handleCopyAddress}
+								className="h-6 w-6 p-0 hover:bg-muted"
+							>
+								<Copy className="h-3 w-3" />
+							</Button>
+						</div>
 					</div>
 
 					<div className="px-2 py-2">
