@@ -11,27 +11,6 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
-			buffer: 'buffer',
 		},
 	},
-	define: {
-		global: 'globalThis',
-		'process.env': {},
-	},
-	optimizeDeps: {
-		include: ['buffer']
-	},
-	build: {
-		rollupOptions: {
-			external: [],
-			output: {
-				globals: {
-					buffer: 'Buffer'
-				}
-			}
-		}
-	},
-	server: {
-    allowedHosts: ["aleph-rpc.testnet.network"]
-	}
 });
