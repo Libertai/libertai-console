@@ -14,6 +14,7 @@ import { Route as TransactionsRouteImport } from './routes/transactions'
 import { Route as TopUpRouteImport } from './routes/top-up'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
+import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as IndexRouteImport } from './routes/index'
 
 const UsageRoute = UsageRouteImport.update({
@@ -41,6 +42,11 @@ const ApiKeysRoute = ApiKeysRouteImport.update({
   path: '/api-keys',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentsRoute = AgentsRouteImport.update({
+  id: '/agents',
+  path: '/agents',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,6 +55,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agents': typeof AgentsRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/top-up': typeof TopUpRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agents': typeof AgentsRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/top-up': typeof TopUpRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agents': typeof AgentsRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/top-up': typeof TopUpRoute
@@ -76,16 +85,25 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agents'
     | '/api-keys'
     | '/dashboard'
     | '/top-up'
     | '/transactions'
     | '/usage'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api-keys' | '/dashboard' | '/top-up' | '/transactions' | '/usage'
+  to:
+    | '/'
+    | '/agents'
+    | '/api-keys'
+    | '/dashboard'
+    | '/top-up'
+    | '/transactions'
+    | '/usage'
   id:
     | '__root__'
     | '/'
+    | '/agents'
     | '/api-keys'
     | '/dashboard'
     | '/top-up'
@@ -95,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgentsRoute: typeof AgentsRoute
   ApiKeysRoute: typeof ApiKeysRoute
   DashboardRoute: typeof DashboardRoute
   TopUpRoute: typeof TopUpRoute
@@ -139,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiKeysRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agents': {
+      id: '/agents'
+      path: '/agents'
+      fullPath: '/agents'
+      preLoaderRoute: typeof AgentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -151,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgentsRoute: AgentsRoute,
   ApiKeysRoute: ApiKeysRoute,
   DashboardRoute: DashboardRoute,
   TopUpRoute: TopUpRoute,
