@@ -30,7 +30,7 @@ jobs:
         run: npm run build
 
       - name: Deploy with Aleph
-        uses: aleph-im/web3-hosting-action@v1.1.2
+        uses: aleph-im/web3-hosting-action@f806db167505f19b3fe62d79f29ff33b309e5f36
         with:
           path: 'dist'
           private-key: ${{ secrets.ALEPH_CLOUD_LTAI_CONSOLE_PROD }}
