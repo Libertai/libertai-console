@@ -2,8 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	listAgentsAgentsGet,
 	createAgentAgentsPost,
-	deleteAgentAgentsAgentIdDelete,
-	resubscribeAgentAgentsAgentIdResubscribePost,
+	cancelSubscriptionSubscriptionsSubscriptionIdDelete,
 } from "@/apis/inference";
 import { useAccountStore } from "@/stores/account.ts";
 import { toast } from "sonner";
@@ -63,65 +62,34 @@ export function useAgents() {
 		},
 	});
 
-	// Mutation to delete an agent
-	const deleteAgentMutation = useMutation({
-		mutationFn: async (agentId: string) => {
+	// Mutation to cancel subscription
+	const cancelSubscriptionMutation = useMutation({
+		mutationFn: async (subscriptionId: string) => {
 			if (!account) {
 				throw new Error("No account available");
 			}
 
-			const response = await deleteAgentAgentsAgentIdDelete({
-				path: { agent_id: agentId },
+			const response = await cancelSubscriptionSubscriptionsSubscriptionIdDelete({
+				path: { subscription_id: subscriptionId },
 			});
 
 			if (response.error) {
-				throw new Error(response.error.detail ? response.error.detail.toString() : "Unknown error deleting agent");
+				throw new Error(response.error.detail ? response.error.detail.toString() : "Unknown error cancelling subscription");
 			}
 
-			return agentId;
+			return subscriptionId;
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["agents", account?.address] });
-			toast.success("Agent deleted successfully");
+			toast.success("Subscription cancelled successfully");
 		},
 		onError: (error) => {
-			toast.error("Failed to delete agent", {
+			toast.error("Failed to cancel subscription", {
 				description: error instanceof Error ? error.message : "Unknown error occurred",
 			});
 		},
 	});
 
-	// Mutation to resubscribe to an agent
-	const resubscribeAgentMutation = useMutation({
-		mutationFn: async ({ agentId, months }: { agentId: string; months?: number }) => {
-			if (!account) {
-				throw new Error("No account available");
-			}
-
-			const response = await resubscribeAgentAgentsAgentIdResubscribePost({
-				path: { agent_id: agentId },
-				body: { subscription_months: months },
-			});
-
-			if (response.error) {
-				throw new Error(
-					response.error.detail ? response.error.detail.toString() : "Unknown error resubscribing to agent",
-				);
-			}
-
-			return response.data;
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["agents", account?.address] });
-			queryClient.invalidateQueries({ queryKey: ["credits", account?.address] }); // Also refresh credits
-			toast.success("Agent resubscribed successfully");
-		},
-		onError: (error) => {
-			toast.error("Failed to resubscribe to agent", {
-				description: error instanceof Error ? error.message : "Unknown error occurred",
-			});
-		},
-	});
 
 	const refreshAgents = () => {
 		return queryClient.invalidateQueries({ queryKey: ["agents", account?.address] });
@@ -134,10 +102,8 @@ export function useAgents() {
 		error: agentsQuery.error,
 		createAgent: createAgentMutation.mutate,
 		isCreating: createAgentMutation.isPending,
-		deleteAgent: deleteAgentMutation.mutate,
-		isDeleting: deleteAgentMutation.isPending,
-		resubscribeAgent: resubscribeAgentMutation.mutate,
-		isResubscribing: resubscribeAgentMutation.isPending,
+		cancelSubscription: cancelSubscriptionMutation.mutate,
+		isCancelling: cancelSubscriptionMutation.isPending,
 		refreshAgents,
 	};
 }

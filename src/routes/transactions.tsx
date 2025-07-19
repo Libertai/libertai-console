@@ -25,8 +25,10 @@ function Transactions() {
 	// Format the transaction type/provider to be more user-friendly
 	const formatProvider = (provider: string): string => {
 		switch (provider) {
-			case "libertai":
-				return "LibertAI";
+			case "base":
+				return "LibertAI (Base)";
+			case "solana":
+				return "LibertAI (Solana)";
 			case "thirdweb":
 				return "Thirdweb";
 			case "voucher":
@@ -178,7 +180,7 @@ function Transactions() {
 						<p>Your transaction history shows all credit purchases:</p>
 						<ul className="list-disc list-inside space-y-2 ml-4 text-sm">
 							<li>
-								<span className="font-medium">LibertAI</span> - Credits purchased directly with $LTAI
+								<span className="font-medium">LibertAI (Base/Solana)</span> - Credits purchased with $LTAI on Base or Solana networks
 							</li>
 							<li>
 								<span className="font-medium">Thirdweb</span> - Credits purchased using cryptocurrency via Thirdweb

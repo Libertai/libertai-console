@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, X } from "lucide-react";
 
-interface DeleteAgentModalProps {
+interface CancelSubscriptionModalProps {
 	onConfirm: () => void;
 	onCancel: () => void;
 	isLoading?: boolean;
@@ -9,20 +9,20 @@ interface DeleteAgentModalProps {
 	paidUntil: string;
 }
 
-export function DeleteAgentModal({
+export function CancelSubscriptionModal({
 	onConfirm,
 	onCancel,
 	isLoading = false,
 	agentName,
 	paidUntil,
-}: Readonly<DeleteAgentModalProps>) {
+}: Readonly<CancelSubscriptionModalProps>) {
 	return (
 		<div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
 			<div className="bg-card rounded-xl border border-border p-6 max-w-md w-full">
 				<div className="flex justify-between items-center mb-6">
 					<div className="flex items-center gap-3">
 						<AlertTriangle className="h-5 w-5 text-destructive" />
-						<h2 className="text-xl font-semibold">Delete Agent</h2>
+						<h2 className="text-xl font-semibold">Cancel Subscription</h2>
 					</div>
 					<Button variant="ghost" size="icon" onClick={onCancel} disabled={isLoading}>
 						<X className="h-4 w-4" />
@@ -31,7 +31,7 @@ export function DeleteAgentModal({
 
 				<div className="space-y-4">
 					<p className="text-foreground">
-						Are you sure you want to delete <span className="font-semibold">{agentName}</span>?
+						Are you sure you want to cancel the subscription for <span className="font-semibold">{agentName}</span>?
 					</p>
 
 					<div className="bg-destructive/10 dark:bg-destructive/20 p-4 rounded-lg border border-destructive/20 flex gap-3">
@@ -53,7 +53,7 @@ export function DeleteAgentModal({
 							Cancel
 						</Button>
 						<Button onClick={onConfirm} disabled={isLoading} variant="destructive">
-							{isLoading ? "Deleting..." : "Delete Agent"}
+							{isLoading ? "Cancelling..." : "Cancel Subscription"}
 						</Button>
 					</div>
 				</div>

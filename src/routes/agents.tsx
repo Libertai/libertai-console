@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Bot, Copy, HardDrive, Info, MoreVertical, PlusCircle, RefreshCw, Terminal, Trash2, X } from "lucide-react";
+import { Bot, Copy, HardDrive, Info, MoreVertical, PlusCircle, Terminal, Trash2, X } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { useAgents } from "@/hooks/data/use-agents";
@@ -8,7 +8,7 @@ import { useCredits } from "@/hooks/data/use-credits";
 import dayjs from "dayjs";
 import { toast } from "sonner";
 import { AgentForm } from "@/components/AgentForm";
-import { DeleteAgentModal } from "@/components/DeleteAgentModal";
+import { CancelSubscriptionModal } from "@/components/CancelSubscriptionModal";
 import { CreateAgentRequest } from "@/apis/inference/types.gen";
 import {
 	DropdownMenu,
@@ -24,12 +24,15 @@ export const Route = createFileRoute("/agents")({
 
 function AgentsPage() {
 	const { isAuthenticated } = useRequireAuth();
-	const { agents, isLoading, createAgent, deleteAgent, resubscribeAgent, isCreating, isDeleting, isResubscribing } =
-		useAgents();
+	const { agents, isLoading, createAgent, cancelSubscription, isCreating, isCancelling } = useAgents();
 	const { credits, refreshCredits } = useCredits();
 
 	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [agentToDelete, setAgentToDelete] = useState<{ id: string; name: string; paidUntil: string } | null>(null);
+	const [agentToCancel, setAgentToCancel] = useState<{
+		subscriptionId: string;
+		name: string;
+		paidUntil: string;
+	} | null>(null);
 
 	const MONTHLY_COST = 10; // $10 monthly cost
 
@@ -46,34 +49,22 @@ function AgentsPage() {
 			return;
 		}
 
-		await createAgent(formData);
+		createAgent(formData);
 		setShowCreateModal(false);
 
 		// Refresh credits to show the updated balance
 		refreshCredits();
 	};
 
-	const handleDeleteAgent = (agentId: string, agentName: string, paidUntil: string) => {
-		setAgentToDelete({ id: agentId, name: agentName, paidUntil });
+	const handleCancelSubscription = (subscriptionId: string, agentName: string, paidUntil: string) => {
+		setAgentToCancel({ subscriptionId, name: agentName, paidUntil });
 	};
 
-	const confirmDeleteAgent = async () => {
-		if (agentToDelete) {
-			await deleteAgent(agentToDelete.id);
-			setAgentToDelete(null);
+	const confirmCancelSubscription = async () => {
+		if (agentToCancel) {
+			cancelSubscription(agentToCancel.subscriptionId);
+			setAgentToCancel(null);
 		}
-	};
-
-	const handleResubscribe = async (agentId: string) => {
-		if (credits < MONTHLY_COST) {
-			toast.error("Insufficient credits", {
-				description: `You need at least $${MONTHLY_COST} in your account to resubscribe to this agent.`,
-			});
-			return;
-		}
-
-		await resubscribeAgent({ agentId, months: 1 });
-		refreshCredits();
 	};
 
 	return (
@@ -113,8 +104,12 @@ function AgentsPage() {
 										<div className="flex items-center gap-2">
 											<Bot className="h-5 w-5 text-primary" />
 											<h3 className="text-lg font-medium">{agent.name}</h3>
-											{agent.is_active ? (
+											{agent.subscription_status === "active" ? (
 												<span className="px-2 py-1 text-xs rounded-full bg-green-500/10 text-green-500">Active</span>
+											) : agent.subscription_status === "cancelled" ? (
+												<span className="px-2 py-1 text-xs rounded-full bg-yellow-500/10 text-yellow-500">
+													Cancelled
+												</span>
 											) : (
 												<span className="px-2 py-1 text-xs rounded-full bg-red-500/10 text-red-500">Inactive</span>
 											)}
@@ -127,15 +122,6 @@ function AgentsPage() {
 												</Button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
-												{!agent.is_active && (
-													<DropdownMenuItem
-														onClick={() => handleResubscribe(agent.id)}
-														disabled={isResubscribing || credits < MONTHLY_COST}
-													>
-														<RefreshCw className="h-4 w-4 mr-2" />
-														Resubscribe
-													</DropdownMenuItem>
-												)}
 												<DropdownMenuItem disabled>
 													<HardDrive className="h-4 w-4 mr-2" />
 													Recreate Instance
@@ -143,12 +129,17 @@ function AgentsPage() {
 												<DropdownMenuSeparator />
 												<DropdownMenuItem
 													variant="destructive"
+													disabled={agent.subscription_status !== "active"}
 													onClick={() =>
-														handleDeleteAgent(agent.id, agent.name, dayjs(agent.paid_until).format("MMM D, YYYY"))
+														handleCancelSubscription(
+															agent.subscription_id!,
+															agent.name,
+															dayjs(agent.paid_until).format("MMM D, YYYY"),
+														)
 													}
 												>
 													<Trash2 className="h-4 w-4 mr-2" />
-													Delete
+													Cancel Subscription
 												</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>
@@ -167,7 +158,16 @@ function AgentsPage() {
 										<div className="space-y-2">
 											<div className="flex items-start gap-2">
 												<Terminal className="h-4 w-4 text-muted-foreground mt-0.5" />
-												{agent.instance_ip ? (
+												{agent.instance_hash === null ? (
+													<div>
+														<p className="text-sm font-medium">Instance:</p>
+														<div className="flex items-center mt-1">
+															<div className="flex items-center text-muted-foreground">
+																<span className="text-xs">No instance (subscription inactive)</span>
+															</div>
+														</div>
+													</div>
+												) : agent.instance_ip ? (
 													<div>
 														<p className="text-sm font-medium">SSH Connection:</p>
 														<div className="mt-1 flex items-center">
@@ -176,8 +176,8 @@ function AgentsPage() {
 																size="icon"
 																variant="ghost"
 																className="h-6 w-6 ml-1"
-																onClick={() => {
-																	navigator.clipboard.writeText(`ssh root@${agent.instance_ip}`);
+																onClick={async () => {
+																	await navigator.clipboard.writeText(`ssh root@${agent.instance_ip}`);
 																	toast.success("SSH command copied to clipboard");
 																}}
 															>
@@ -252,14 +252,14 @@ function AgentsPage() {
 				</div>
 			)}
 
-			{/* Delete Agent Modal */}
-			{agentToDelete && (
-				<DeleteAgentModal
-					onConfirm={confirmDeleteAgent}
-					onCancel={() => setAgentToDelete(null)}
-					isLoading={isDeleting}
-					agentName={agentToDelete.name}
-					paidUntil={agentToDelete.paidUntil}
+			{/* Cancel Subscription Modal */}
+			{agentToCancel && (
+				<CancelSubscriptionModal
+					onConfirm={confirmCancelSubscription}
+					onCancel={() => setAgentToCancel(null)}
+					isLoading={isCancelling}
+					agentName={agentToCancel.name}
+					paidUntil={agentToCancel.paidUntil}
 				/>
 			)}
 		</div>
