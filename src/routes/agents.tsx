@@ -213,8 +213,21 @@ function AgentsPage() {
 					</div>
 					<div className="space-y-4 text-card-foreground">
 						<p>
-							LibertAI Agents are AI-powered assistants that run in a dedicated decentralized instance. Each agent costs
-							${MONTHLY_COST} per month, which will be automatically deducted from your credit balance.
+							LibertAI Agents are AI-powered assistants that leverage our confidential AI inference and run in dedicated
+							decentralized instances powered by{" "}
+							<a href="https://aleph.cloud" className="text-primary hover:underline" target="_blank">
+								Aleph Cloud
+							</a>
+							.
+							<br />
+							Each agent costs ${MONTHLY_COST} per month, which will be automatically deducted from your credit balance.
+							<br />
+							<br />
+							Check{" "}
+							<a href="https://docs.libertai.io/agen ts" className="text-primary hover:underline" target="_blank">
+								our documentation
+							</a>{" "}
+							for more details on how to create and manage your agents.
 						</p>
 						<div className="bg-primary/5 dark:bg-primary/10 p-4 rounded-lg border border-primary/20 mt-4">
 							<p className="text-sm text-foreground">
