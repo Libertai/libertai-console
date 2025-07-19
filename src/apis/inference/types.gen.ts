@@ -2,7 +2,7 @@
 
 export type AgentResponse = {
     id: string;
-    instance_hash: string;
+    instance_hash: string | null;
     name: string;
     user_address: string;
     created_at: string;
@@ -11,7 +11,7 @@ export type AgentResponse = {
     renew_history: Array<{
         [key: string]: unknown;
     }>;
-    is_active?: boolean;
+    subscription_status: SubscriptionStatus;
     subscription_id?: string | null;
 };
 
@@ -79,7 +79,7 @@ export type CreditBalanceResponse = {
     balance: number;
 };
 
-export type CreditTransactionProvider = 'libertai' | 'thirdweb' | 'voucher' | 'solana';
+export type CreditTransactionProvider = 'base' | 'thirdweb' | 'voucher' | 'solana';
 
 export type CreditTransactionResponse = {
     id: string;
@@ -150,13 +150,13 @@ export type FullApiKey = {
 
 export type GetAgentResponse = {
     id: string;
-    instance_hash: string;
+    instance_hash: string | null;
     name: string;
     user_address: string;
     monthly_cost: number;
     paid_until: string;
     instance_ip?: string | null;
-    is_active?: boolean;
+    subscription_status: SubscriptionStatus;
     subscription_id?: string | null;
 };
 
@@ -193,21 +193,7 @@ export type ModelApiUsage = {
     used_at: string;
 };
 
-/**
- * Request to resubscribe a deactivated agent
- */
-export type ResubscribeAgentRequest = {
-    subscription_months?: number;
-};
-
-/**
- * Response for agent resubscription
- */
-export type ResubscribeAgentResponse = {
-    success: boolean;
-    paid_until?: string | null;
-    error?: string | null;
-};
+export type SubscriptionStatus = 'active' | 'cancelled' | 'inactive';
 
 export type ThirdwebWebhookPayload = {
     data: {
@@ -715,6 +701,108 @@ export type GetAdminAllApiKeysApiKeysAdminListGetResponses = {
 
 export type GetAdminAllApiKeysApiKeysAdminListGetResponse = GetAdminAllApiKeysApiKeysAdminListGetResponses[keyof GetAdminAllApiKeysApiKeysAdminListGetResponses];
 
+export type CancelSubscriptionSubscriptionsSubscriptionIdDeleteData = {
+    body?: never;
+    path: {
+        subscription_id: string;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription_id}';
+};
+
+export type CancelSubscriptionSubscriptionsSubscriptionIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CancelSubscriptionSubscriptionsSubscriptionIdDeleteError = CancelSubscriptionSubscriptionsSubscriptionIdDeleteErrors[keyof CancelSubscriptionSubscriptionsSubscriptionIdDeleteErrors];
+
+export type CancelSubscriptionSubscriptionsSubscriptionIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type ListAgentsAgentsGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/agents/';
+};
+
+export type ListAgentsAgentsGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ListAgentsAgentsGetError = ListAgentsAgentsGetErrors[keyof ListAgentsAgentsGetErrors];
+
+export type ListAgentsAgentsGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: Array<GetAgentResponse>;
+};
+
+export type ListAgentsAgentsGetResponse = ListAgentsAgentsGetResponses[keyof ListAgentsAgentsGetResponses];
+
+export type CreateAgentAgentsPostData = {
+    body: CreateAgentRequest;
+    path?: never;
+    query?: never;
+    url: '/agents/';
+};
+
+export type CreateAgentAgentsPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateAgentAgentsPostError = CreateAgentAgentsPostErrors[keyof CreateAgentAgentsPostErrors];
+
+export type CreateAgentAgentsPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: AgentResponse;
+};
+
+export type CreateAgentAgentsPostResponse = CreateAgentAgentsPostResponses[keyof CreateAgentAgentsPostResponses];
+
+export type GetAgentPublicInfoAgentsAgentIdGetData = {
+    body?: never;
+    path: {
+        agent_id: string;
+    };
+    query?: never;
+    url: '/agents/{agent_id}';
+};
+
+export type GetAgentPublicInfoAgentsAgentIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetAgentPublicInfoAgentsAgentIdGetError = GetAgentPublicInfoAgentsAgentIdGetErrors[keyof GetAgentPublicInfoAgentsAgentIdGetErrors];
+
+export type GetAgentPublicInfoAgentsAgentIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: GetAgentResponse;
+};
+
+export type GetAgentPublicInfoAgentsAgentIdGetResponse = GetAgentPublicInfoAgentsAgentIdGetResponses[keyof GetAgentPublicInfoAgentsAgentIdGetResponses];
+
 export type GetDashboardStatsStatsDashboardGetData = {
     body?: never;
     path?: never;
@@ -841,135 +929,6 @@ export type GetApiStatsStatsGlobalApiGetResponses = {
 };
 
 export type GetApiStatsStatsGlobalApiGetResponse = GetApiStatsStatsGlobalApiGetResponses[keyof GetApiStatsStatsGlobalApiGetResponses];
-
-export type ListAgentsAgentsGetData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/agents/';
-};
-
-export type ListAgentsAgentsGetErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type ListAgentsAgentsGetError = ListAgentsAgentsGetErrors[keyof ListAgentsAgentsGetErrors];
-
-export type ListAgentsAgentsGetResponses = {
-    /**
-     * Successful Response
-     */
-    200: Array<GetAgentResponse>;
-};
-
-export type ListAgentsAgentsGetResponse = ListAgentsAgentsGetResponses[keyof ListAgentsAgentsGetResponses];
-
-export type CreateAgentAgentsPostData = {
-    body: CreateAgentRequest;
-    path?: never;
-    query?: never;
-    url: '/agents/';
-};
-
-export type CreateAgentAgentsPostErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type CreateAgentAgentsPostError = CreateAgentAgentsPostErrors[keyof CreateAgentAgentsPostErrors];
-
-export type CreateAgentAgentsPostResponses = {
-    /**
-     * Successful Response
-     */
-    200: AgentResponse;
-};
-
-export type CreateAgentAgentsPostResponse = CreateAgentAgentsPostResponses[keyof CreateAgentAgentsPostResponses];
-
-export type DeleteAgentAgentsAgentIdDeleteData = {
-    body?: never;
-    path: {
-        agent_id: string;
-    };
-    query?: never;
-    url: '/agents/{agent_id}';
-};
-
-export type DeleteAgentAgentsAgentIdDeleteErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type DeleteAgentAgentsAgentIdDeleteError = DeleteAgentAgentsAgentIdDeleteErrors[keyof DeleteAgentAgentsAgentIdDeleteErrors];
-
-export type DeleteAgentAgentsAgentIdDeleteResponses = {
-    /**
-     * Successful Response
-     */
-    200: unknown;
-};
-
-export type GetAgentPublicInfoAgentsAgentIdGetData = {
-    body?: never;
-    path: {
-        agent_id: string;
-    };
-    query?: never;
-    url: '/agents/{agent_id}';
-};
-
-export type GetAgentPublicInfoAgentsAgentIdGetErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type GetAgentPublicInfoAgentsAgentIdGetError = GetAgentPublicInfoAgentsAgentIdGetErrors[keyof GetAgentPublicInfoAgentsAgentIdGetErrors];
-
-export type GetAgentPublicInfoAgentsAgentIdGetResponses = {
-    /**
-     * Successful Response
-     */
-    200: GetAgentResponse;
-};
-
-export type GetAgentPublicInfoAgentsAgentIdGetResponse = GetAgentPublicInfoAgentsAgentIdGetResponses[keyof GetAgentPublicInfoAgentsAgentIdGetResponses];
-
-export type ResubscribeAgentAgentsAgentIdResubscribePostData = {
-    body: ResubscribeAgentRequest;
-    path: {
-        agent_id: string;
-    };
-    query?: never;
-    url: '/agents/{agent_id}/resubscribe';
-};
-
-export type ResubscribeAgentAgentsAgentIdResubscribePostErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type ResubscribeAgentAgentsAgentIdResubscribePostError = ResubscribeAgentAgentsAgentIdResubscribePostErrors[keyof ResubscribeAgentAgentsAgentIdResubscribePostErrors];
-
-export type ResubscribeAgentAgentsAgentIdResubscribePostResponses = {
-    /**
-     * Successful Response
-     */
-    200: ResubscribeAgentResponse;
-};
-
-export type ResubscribeAgentAgentsAgentIdResubscribePostResponse = ResubscribeAgentAgentsAgentIdResubscribePostResponses[keyof ResubscribeAgentAgentsAgentIdResubscribePostResponses];
 
 export type ClientOptions = {
     baseURL: 'http://localhost:8000' | (string & {});
