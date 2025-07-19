@@ -224,7 +224,7 @@ function AgentsPage() {
 							<br />
 							<br />
 							Check{" "}
-							<a href="https://docs.libertai.io/agen ts" className="text-primary hover:underline" target="_blank">
+							<a href="https://docs.libertai.io/agents" className="text-primary hover:underline" target="_blank">
 								our documentation
 							</a>{" "}
 							for more details on how to create and manage your agents.
