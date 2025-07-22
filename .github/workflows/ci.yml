@@ -15,7 +15,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache-dependency-path: 'package-lock.json'
       - name: Install dependencies
-        run: npm ci --force
+        run: npm ci
       - name: Run ESLint
         run: npm run lint
 
@@ -33,7 +33,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache-dependency-path: 'package-lock.json'
       - name: Install dependencies
-        run: npm ci --force
+        run: npm ci
       - name: Create .env file
         run: |
           echo "VITE_THIRDWEB_CLIENT_ID=${{ secrets.THIRDWEB_CLIENT_ID }}" >> .env
@@ -45,6 +45,6 @@ jobs:
 
       - name: Deploy preview on Aleph
         if: ${{ github.event_name == 'pull_request' }}
-        uses: aleph-im/web3-hosting-action@v1.0.0
+        uses: aleph-im/web3-hosting-action@f806db167505f19b3fe62d79f29ff33b309e5f36
         with:
           path: 'dist'
