@@ -16,6 +16,7 @@ import { Route as TransactionsImport } from './routes/transactions'
 import { Route as TopUpImport } from './routes/top-up'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as ApiKeysImport } from './routes/api-keys'
+import { Route as AgentsImport } from './routes/agents'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -50,6 +51,12 @@ const ApiKeysRoute = ApiKeysImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AgentsRoute = AgentsImport.update({
+  id: '/agents',
+  path: '/agents',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -65,6 +72,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/agents': {
+      id: '/agents'
+      path: '/agents'
+      fullPath: '/agents'
+      preLoaderRoute: typeof AgentsImport
       parentRoute: typeof rootRoute
     }
     '/api-keys': {
@@ -109,6 +123,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agents': typeof AgentsRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/top-up': typeof TopUpRoute
@@ -118,6 +133,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agents': typeof AgentsRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/top-up': typeof TopUpRoute
@@ -128,6 +144,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/agents': typeof AgentsRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/top-up': typeof TopUpRoute
@@ -139,16 +156,25 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agents'
     | '/api-keys'
     | '/dashboard'
     | '/top-up'
     | '/transactions'
     | '/usage'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api-keys' | '/dashboard' | '/top-up' | '/transactions' | '/usage'
+  to:
+    | '/'
+    | '/agents'
+    | '/api-keys'
+    | '/dashboard'
+    | '/top-up'
+    | '/transactions'
+    | '/usage'
   id:
     | '__root__'
     | '/'
+    | '/agents'
     | '/api-keys'
     | '/dashboard'
     | '/top-up'
@@ -159,6 +185,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgentsRoute: typeof AgentsRoute
   ApiKeysRoute: typeof ApiKeysRoute
   DashboardRoute: typeof DashboardRoute
   TopUpRoute: typeof TopUpRoute
@@ -168,6 +195,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgentsRoute: AgentsRoute,
   ApiKeysRoute: ApiKeysRoute,
   DashboardRoute: DashboardRoute,
   TopUpRoute: TopUpRoute,
@@ -186,6 +214,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/agents",
         "/api-keys",
         "/dashboard",
         "/top-up",
@@ -195,6 +224,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/agents": {
+      "filePath": "agents.tsx"
     },
     "/api-keys": {
       "filePath": "api-keys.tsx"

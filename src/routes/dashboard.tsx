@@ -155,7 +155,7 @@ function Dashboard() {
 											tick={{ fontSize: 12 }}
 											tickLine={false}
 											axisLine={{ stroke: "var(--border)" }}
-											domain={[0, "dataMax + 5"]}
+											domain={[0, "dataMax"]}
 											tickFormatter={(value) => `$${value}`}
 										/>
 										<Tooltip
