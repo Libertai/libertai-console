@@ -4,7 +4,7 @@ const envSchema = z.object({
 	LTAI_INFERENCE_API_URL: z.string().url(),
 	SOLANA_RPC: z.string().url(),
 	LTAI_BASE_ADDRESS: z.string().startsWith("0x").optional().default("0xF8B1b47AA748F5C7b5D0e80C726a843913EB573a"),
-	LTAI_SOLANA_ADDRESS: z.string().optional().default("mntpN8z1d29f3MWhMD7VqZFpeYmbD88MgwS3Bkz8y7u"),
+	LTAI_SOLANA_ADDRESS: z.string().optional().default("3onmcmVmxyuhKyprEw4LyfdpqTPW6fRA7JQhopbiph5k"),
 	LTAI_PUBLISHER_ADDRESS: z.string().startsWith("0x").optional().default("0xCBFc3EeC41CBBfCAcc50337d712890C47a14ba99"),
 	THIRDWEB_CLIENT_ID: z.string(),
 	USDC_BASE_ADDRESS: z.string().startsWith("0x").optional().default("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"),

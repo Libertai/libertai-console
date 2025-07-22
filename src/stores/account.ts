@@ -4,7 +4,7 @@ import env from "@/config/env.ts";
 import { base } from "thirdweb/chains";
 import {
 	checkAuthStatusAuthStatusGet,
-	getAuthMessageAuthMessagePost, getSolanaLtaiBalanceCreditsLtaiSolanaBalanceGet,
+	getAuthMessageAuthMessagePost,
 	loginWithWalletAuthLoginPost
 } from "@/apis/inference/sdk.gen";
 import { toast } from "sonner";
@@ -186,12 +186,36 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		} else if (state.solanaAccount && state.solanaAccount.publicKey) {
 
 			try {
-				const messageResponse = await getSolanaLtaiBalanceCreditsLtaiSolanaBalanceGet({
-					query: {
-						address: state.solanaAccount.publicKey.toString(),
-					}
-				});
-				balance = String(messageResponse.data ? messageResponse.data : 0);
+			const body = {
+			  "jsonrpc":"2.0",
+			  "id": 1,
+			  "method": "getTokenAccountsByOwner",
+			  "params": [
+			    state.solanaAccount.publicKey.toString(),
+					 {
+				    "mint": "3onmcmVmxyuhKyprEw4LyfdpqTPW6fRA7JQhopbiph5k",
+				  },
+				  {
+				    "encoding": "jsonParsed",
+				  }
+			  ],
+			}
+			
+			const response = await fetch("https://aleph-develope-7c29.devnet.rpcpool.com/7b269a08-2088-4059-8bea-3768482c28c4", {
+				method: "POST",
+				body: JSON.stringify(body),
+				headers: {
+					"Content-Type": "application/json"
+				}
+			});
+			const json = await response.json();
+      let ltaiBalance = 0.0;
+
+      json.result.value.forEach((value: any) => {
+        ltaiBalance += value.account.data.parsed.info.tokenAmount.uiAmount;
+      })
+      balance = String(ltaiBalance)
+
 			} catch (error) {
 				console.error("Error fetching Solana balance:", error);
 			}

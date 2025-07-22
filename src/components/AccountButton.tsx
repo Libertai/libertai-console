@@ -220,18 +220,30 @@ export default function AccountButton() {
 							connectButton={{
 								label: "EVM & Social login",
 								className:
-								"!w-full !bg-primary !hover:bg-primary/90 !text-primary-foreground !shadow-sm !h-9 !px-4 !py-2 !rounded-md !text-sm !font-medium !transition-colors !focus-visible:outline-none !focus-visible:ring-1 !focus-visible:ring-ring !disabled:pointer-events-none !disabled:opacity-50",
+									"!w-full !bg-primary !hover:bg-primary/90 !text-primary-foreground !shadow-sm !h-9 !px-4 !py-2 !rounded-md !text-sm !font-medium !transition-colors !focus-visible:outline-none !focus-visible:ring-1 !focus-visible:ring-ring !disabled:pointer-events-none !disabled:opacity-50",
 							}}
 						/>
 					</div>
 					<DropdownMenuSeparator />
 					<div className="p-2">
-						<WalletMultiButton style={{
-							width: '100%',
-							height: '36px',
-							borderRadius: '8px',
-							fontSize: '14px'
-						}}/>
+						<WalletMultiButton
+							style={{
+								width: '195px',
+								height: '36px',
+								borderRadius: '8px',
+								fontSize: '14px',
+								fontWeight: 500,
+								fontFamily: 'inherit',
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+								backgroundColor: '#512da8',
+								color: '#ffffff',
+								boxShadow: 'none',
+								transition: 'none',
+								backgroundImage: 'none',
+							}}
+						/>
 					</div>
 				</DropdownMenuContent>
 			</DropdownMenu>

@@ -1,18 +1,18 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useAccountStore } from "@/stores/account";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, ChevronRight, CreditCard, HelpCircle, Zap } from "lucide-react";
-import { useRequireAuth } from "@/hooks/use-auth";
-import { useEffect } from "react";
-import { thirdwebClient } from "@/config/thirdweb.ts";
-import { PayEmbed, useIsAutoConnecting } from "thirdweb/react";
-import { base } from "thirdweb/chains";
-import env from "@/config/env.ts";
-import { TopUpAmountInput } from "@/components/TopUpAmountInput";
-import { useCredits } from "@/hooks/data/use-credits";
-import { PaymentMethod, PaymentMethodSelector } from "@/components/PaymentMethodSelector";
 import { LTAIPaymentForm } from "@/components/LTAIPaymentForm";
+import { PaymentMethod, PaymentMethodSelector } from "@/components/PaymentMethodSelector";
+import { TopUpAmountInput } from "@/components/TopUpAmountInput";
+import { Button } from "@/components/ui/button";
+import env from "@/config/env.ts";
+import { thirdwebClient } from "@/config/thirdweb.ts";
+import { useCredits } from "@/hooks/data/use-credits";
+import { useRequireAuth } from "@/hooks/use-auth";
+import { useAccountStore } from "@/stores/account";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { CheckCircle, ChevronRight, CreditCard, HelpCircle, Zap } from "lucide-react";
 import { useQueryState } from "nuqs";
+import { useEffect } from "react";
+import { base } from "thirdweb/chains";
+import { PayEmbed, useIsAutoConnecting } from "thirdweb/react";
 
 export const Route = createFileRoute("/top-up")({
 	component: TopUp,
@@ -30,9 +30,8 @@ type PricingTier = {
 function TopUp() {
 	const isAutoConnecting = useIsAutoConnecting();
 
+	const solanaAccount = useAccountStore((state) => state.solanaAccount)
 	const baseAccount = useAccountStore((state) => state.baseAccount);
-	const solanaAccount = useAccountStore((state) => state.solanaAccount);
-	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
 	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
 	const lastTransactionHash = useAccountStore((state) => state.lastTransactionHash);
 	const setLastTransactionHash = useAccountStore((state) => state.setLastTransactionHash);
@@ -293,7 +292,7 @@ function TopUp() {
 								<span className="text-muted-foreground">Transaction Hash:</span>
 								{lastTransactionHash ? (
 									<a
-										href={`https://basescan.org/tx/${useAccountStore.getState().lastTransactionHash}`}
+										href={`https://${solanaAccount && solanaAccount.publicKey ? "explorer.solana.com" : "basescan.org"}/tx/${useAccountStore.getState().lastTransactionHash}`}
 										target="_blank"
 										className="font-medium text-primary hover:underline overflow-hidden text-ellipsis"
 									>
