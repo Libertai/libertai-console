@@ -7,18 +7,20 @@ export function useRequireAuth() {
 	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
 	const baseAccount = useAccountStore((state) => state.baseAccount);
 	const solanaAccount = useAccountStore((state) => state.solanaAccount);
+	const isInitialLoad = useAccountStore((state) => state.isInitialLoad);
 	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (!isAuthenticated || !account) {
+		// Don't show toast during initial load to prevent premature authentication warnings
+		if (!isInitialLoad && (!isAuthenticated || !account)) {
 			toast.error("Authentication Required", {
 				description: "Please connect your wallet & sign the message to access this page",
 				duration: 5000,
 			});
 			navigate({ to: "/" });
 		}
-	}, [isAuthenticated, account, navigate, solanaAccount, baseAccount]);
+	}, [isAuthenticated, account, navigate, isInitialLoad]);
 
 	return { isAuthenticated };
 }
