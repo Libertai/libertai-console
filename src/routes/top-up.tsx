@@ -52,7 +52,7 @@ function TopUp() {
 		serialize: (value) => (value !== undefined ? value.toString() : ""),
 	});
 	const [method, setMethod] = useQueryState("method", {
-		defaultValue: "crypto",
+		defaultValue: "ltai",
 		parse: (value): PaymentMethod => {
 			if (value === "ltai") return "ltai";
 			return "crypto";
