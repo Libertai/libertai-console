@@ -3,6 +3,7 @@ import {
 	listAgentsAgentsGet,
 	createAgentAgentsPost,
 	cancelSubscriptionSubscriptionsSubscriptionIdDelete,
+	reallocateAgentAgentsAgentIdReallocatePost,
 } from "@/apis/inference";
 import { useAccountStore } from "@/stores/account.ts";
 import { toast } from "sonner";
@@ -90,6 +91,35 @@ export function useAgents() {
 		},
 	});
 
+	// Mutation to reallocate agent
+	const reallocateAgentMutation = useMutation({
+		mutationFn: async (agentId: string) => {
+			if (!account) {
+				throw new Error("No account available");
+			}
+
+			const response = await reallocateAgentAgentsAgentIdReallocatePost({
+				path: { agent_id: agentId },
+			});
+
+			if (response.error) {
+				throw new Error(response.error.detail ? response.error.detail.toString() : "Unknown error reallocating agent");
+			}
+
+			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["agents", account?.address] });
+			toast.success("Agent instance reallocated successfully", {
+				description: "Your agent is being moved to a new instance. This may take a few minutes.",
+			});
+		},
+		onError: (error) => {
+			toast.error("Failed to reallocate agent", {
+				description: error instanceof Error ? error.message : "Unknown error occurred",
+			});
+		},
+	});
 
 	const refreshAgents = () => {
 		return queryClient.invalidateQueries({ queryKey: ["agents", address] });
@@ -104,6 +134,8 @@ export function useAgents() {
 		isCreating: createAgentMutation.isPending,
 		cancelSubscription: cancelSubscriptionMutation.mutate,
 		isCancelling: cancelSubscriptionMutation.isPending,
+		reallocateAgent: reallocateAgentMutation.mutate,
+		isReallocating: reallocateAgentMutation.isPending,
 		refreshAgents,
 	};
 }

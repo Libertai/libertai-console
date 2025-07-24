@@ -804,6 +804,33 @@ export type GetAgentPublicInfoAgentsAgentIdGetResponses = {
 
 export type GetAgentPublicInfoAgentsAgentIdGetResponse = GetAgentPublicInfoAgentsAgentIdGetResponses[keyof GetAgentPublicInfoAgentsAgentIdGetResponses];
 
+export type ReallocateAgentAgentsAgentIdReallocatePostData = {
+    body?: never;
+    path: {
+        agent_id: string;
+    };
+    query?: never;
+    url: '/agents/{agent_id}/reallocate';
+};
+
+export type ReallocateAgentAgentsAgentIdReallocatePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ReallocateAgentAgentsAgentIdReallocatePostError = ReallocateAgentAgentsAgentIdReallocatePostErrors[keyof ReallocateAgentAgentsAgentIdReallocatePostErrors];
+
+export type ReallocateAgentAgentsAgentIdReallocatePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: GetAgentResponse;
+};
+
+export type ReallocateAgentAgentsAgentIdReallocatePostResponse = ReallocateAgentAgentsAgentIdReallocatePostResponses[keyof ReallocateAgentAgentsAgentIdReallocatePostResponses];
+
 export type GetDashboardStatsStatsDashboardGetData = {
     body?: never;
     path?: never;
