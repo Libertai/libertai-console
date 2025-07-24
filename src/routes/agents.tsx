@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Bot, Copy, HardDrive, Info, MoreVertical, PlusCircle, Terminal, Trash2, X } from "lucide-react";
+import { Bot, Copy, Info, MoreVertical, PlusCircle, RefreshCw, Terminal, Trash2, X } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { useAgents } from "@/hooks/data/use-agents";
@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import { toast } from "sonner";
 import { AgentForm } from "@/components/AgentForm";
 import { CancelSubscriptionModal } from "@/components/CancelSubscriptionModal";
+import { ReallocateAgentModal } from "@/components/ReallocateAgentModal";
 import { CreateAgentRequest } from "@/apis/inference/types.gen";
 import {
 	DropdownMenu,
@@ -24,7 +25,16 @@ export const Route = createFileRoute("/agents")({
 
 function AgentsPage() {
 	const { isAuthenticated } = useRequireAuth();
-	const { agents, isLoading, createAgent, cancelSubscription, isCreating, isCancelling } = useAgents();
+	const {
+		agents,
+		isLoading,
+		createAgent,
+		cancelSubscription,
+		reallocateAgent,
+		isCreating,
+		isCancelling,
+		isReallocating,
+	} = useAgents();
 	const { credits, refreshCredits } = useCredits();
 
 	const [showCreateModal, setShowCreateModal] = useState(false);
@@ -32,6 +42,10 @@ function AgentsPage() {
 		subscriptionId: string;
 		name: string;
 		paidUntil: string;
+	} | null>(null);
+	const [agentToReallocate, setAgentToReallocate] = useState<{
+		id: string;
+		name: string;
 	} | null>(null);
 
 	const MONTHLY_COST = 10; // $10 monthly cost
@@ -64,6 +78,17 @@ function AgentsPage() {
 		if (agentToCancel) {
 			cancelSubscription(agentToCancel.subscriptionId);
 			setAgentToCancel(null);
+		}
+	};
+
+	const handleReallocateAgent = (agentId: string, agentName: string) => {
+		setAgentToReallocate({ id: agentId, name: agentName });
+	};
+
+	const confirmReallocateAgent = async () => {
+		if (agentToReallocate) {
+			reallocateAgent(agentToReallocate.id);
+			setAgentToReallocate(null);
 		}
 	};
 
@@ -122,9 +147,12 @@ function AgentsPage() {
 												</Button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
-												<DropdownMenuItem disabled>
-													<HardDrive className="h-4 w-4 mr-2" />
-													Recreate Instance
+												<DropdownMenuItem
+													disabled={agent.subscription_status !== "active" || isReallocating}
+													onClick={() => handleReallocateAgent(agent.id, agent.name)}
+												>
+													<RefreshCw className={`h-4 w-4 mr-2 ${isReallocating ? "animate-spin" : ""}`} />
+													{isReallocating ? "Reallocating..." : "Reallocate Instance"}
 												</DropdownMenuItem>
 												<DropdownMenuSeparator />
 												<DropdownMenuItem
@@ -273,6 +301,16 @@ function AgentsPage() {
 					isLoading={isCancelling}
 					agentName={agentToCancel.name}
 					paidUntil={agentToCancel.paidUntil}
+				/>
+			)}
+
+			{/* Reallocate Agent Modal */}
+			{agentToReallocate && (
+				<ReallocateAgentModal
+					onConfirm={confirmReallocateAgent}
+					onCancel={() => setAgentToReallocate(null)}
+					isLoading={isReallocating}
+					agentName={agentToReallocate.name}
 				/>
 			)}
 		</div>
