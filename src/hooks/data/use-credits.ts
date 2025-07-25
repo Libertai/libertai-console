@@ -5,16 +5,13 @@ import { toast } from "sonner";
 
 export function useCredits() {
 	const queryClient = useQueryClient();
-	const baseAccount = useAccountStore((state) => state.baseAccount);
-	const solanaAccount = useAccountStore((state) => state.solanaAccount);
-	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
-	const accountAddress = baseAccount?.address || solanaAccount?.publicKey?.toString();
+	const address = useAccountStore((state) => state.address);
 
 	// Query for credits balance
 	const creditsQuery = useQuery({
-		queryKey: ["credits", accountAddress],
+		queryKey: ["credits", address],
 		queryFn: async () => {
-			if (!account) {
+			if (!address) {
 				return { balance: 0 };
 			}
 
@@ -26,7 +23,7 @@ export function useCredits() {
 
 			return response.data;
 		},
-		enabled: !!account, // Only run the query when account exists
+		enabled: !!address, // Only run the query when address exists
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		refetchOnWindowFocus: false,
 	});
@@ -34,8 +31,8 @@ export function useCredits() {
 	// Mutation to refresh balance
 	const refreshCreditsMutation = useMutation({
 		mutationFn: async () => {
-			if (!account) {
-				throw new Error("No account available");
+			if (!address) {
+				throw new Error("No address available");
 			}
 
 			const response = await getUserBalanceCreditsBalanceGet();
@@ -47,7 +44,7 @@ export function useCredits() {
 			return response.data;
 		},
 		onSuccess: (data) => {
-			queryClient.setQueryData(["credits", accountAddress], data);
+			queryClient.setQueryData(["credits", address], data);
 		},
 		onError: (error) => {
 			toast.error("Failed to update credits balance", {

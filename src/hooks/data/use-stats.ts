@@ -3,14 +3,11 @@ import { getDashboardStatsStatsDashboardGet, getUsageStatsStatsUsageGet } from "
 import { useAccountStore } from "@/stores/account.ts";
 
 export function useStats() {
-	const baseAccount = useAccountStore((state) => state.baseAccount);
-	const solanaAccount = useAccountStore((state) => state.solanaAccount);
-	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
-	const accountAddress = baseAccount?.address || solanaAccount?.publicKey?.toString();
+	const address = useAccountStore((state) => state.address);
 
 	// Query for dashboard statistics
 	const statsQuery = useQuery({
-		queryKey: ["dashboardStats", accountAddress],
+		queryKey: ["dashboardStats", address],
 		queryFn: async () => {
 			const response = await getDashboardStatsStatsDashboardGet();
 
@@ -22,7 +19,7 @@ export function useStats() {
 
 			return response.data;
 		},
-		enabled: !!account, // Only run the query when account exists
+		enabled: !!address, // Only run the query when address exists
 	});
 
 	// Transform monthly_usage data for chart
@@ -43,14 +40,11 @@ export function useStats() {
 }
 
 export function useUsageStats(startDate: string, endDate: string) {
-	const baseAccount = useAccountStore((state) => state.baseAccount);
-	const solanaAccount = useAccountStore((state) => state.solanaAccount);
-	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
-	const accountAddress = baseAccount?.address || solanaAccount?.publicKey?.toString();
+	const address = useAccountStore((state) => state.address);
 
 	// Query for detailed usage statistics
 	const usageQuery = useQuery({
-		queryKey: ["usageStats", accountAddress, startDate, endDate],
+		queryKey: ["usageStats", address, startDate, endDate],
 		queryFn: async () => {
 			const response = await getUsageStatsStatsUsageGet({
 				query: {
@@ -67,7 +61,7 @@ export function useUsageStats(startDate: string, endDate: string) {
 
 			return response.data;
 		},
-		enabled: !!account && !!startDate && !!endDate, // Only run when account and dates exist
+		enabled: !!address && !!startDate && !!endDate, // Only run when address and dates exist
 	});
 
 	// Transform daily_usage data for chart

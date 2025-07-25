@@ -3,16 +3,13 @@ import { getTransactionHistoryCreditsTransactionsGet } from "@/apis/inference";
 import { useAccountStore } from "@/stores/account";
 
 export function useTransactions() {
-	const baseAccount = useAccountStore((state) => state.baseAccount);
-	const solanaAccount = useAccountStore((state) => state.solanaAccount);
-	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
-	const accountAddress = baseAccount?.address || solanaAccount?.publicKey?.toString();
+	const address = useAccountStore((state) => state.address);
 
 	// Query for transaction history
 	const transactionsQuery = useQuery({
-		queryKey: ["transactions", accountAddress],
+		queryKey: ["transactions", address],
 		queryFn: async () => {
-			if (!account) {
+			if (!address) {
 				return { address: "", transactions: [] };
 			}
 
@@ -26,7 +23,7 @@ export function useTransactions() {
 
 			return response.data;
 		},
-		enabled: !!account, // Only run the query when account exists
+		enabled: !!address, // Only run the query when address exists
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		refetchOnWindowFocus: false,
 	});

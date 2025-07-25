@@ -5,10 +5,8 @@ import { useAccountStore } from "@/stores/account.ts";
 
 export function useRequireAuth() {
 	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
-	const baseAccount = useAccountStore((state) => state.baseAccount);
-	const solanaAccount = useAccountStore((state) => state.solanaAccount);
+	const address = useAccountStore((state) => state.address);
 	const isInitialLoad = useAccountStore((state) => state.isInitialLoad);
-	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
 	const navigate = useNavigate();
 	const [hasWaited, setHasWaited] = useState(false);
 
@@ -25,7 +23,7 @@ export function useRequireAuth() {
 
 	useEffect(() => {
 		// Only redirect if not on initial load OR we've waited for auth to complete
-		if ((hasWaited || !isInitialLoad) && (!isAuthenticated || !account)) {
+		if ((hasWaited || !isInitialLoad) && (!isAuthenticated || !address)) {
 			if (!isInitialLoad) {
 				toast.error("Authentication Required", {
 					description: "Please connect your wallet & sign the message to access this page",
@@ -34,7 +32,7 @@ export function useRequireAuth() {
 			}
 			navigate({ to: "/" });
 		}
-	}, [isAuthenticated, account, navigate, isInitialLoad, hasWaited]);
+	}, [isAuthenticated, address, navigate, isInitialLoad, hasWaited]);
 
 	return { isAuthenticated };
 }

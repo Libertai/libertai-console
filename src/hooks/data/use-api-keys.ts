@@ -30,16 +30,13 @@ const extractFastAPIError = (error?: ValidationError[] | string | undefined): st
 
 export function useApiKeys() {
 	const queryClient = useQueryClient();
-	const baseAccount = useAccountStore((state) => state.baseAccount);
-	const solanaAccount = useAccountStore((state) => state.solanaAccount);
-	const account = baseAccount || (solanaAccount?.publicKey ? solanaAccount : null);
-	const accountAddress = baseAccount?.address || solanaAccount?.publicKey?.toString();
+	const address = useAccountStore((state) => state.address);
 
 	// Query for fetching API keys
 	const query = useQuery({
-		queryKey: ["apiKeys", accountAddress],
+		queryKey: ["apiKeys", address],
 		queryFn: async () => {
-			if (!account) {
+			if (!address) {
 				return { keys: [] };
 			}
 
@@ -51,14 +48,14 @@ export function useApiKeys() {
 
 			return response.data;
 		},
-		enabled: !!account, // Only run the query when account exists
+		enabled: !!address, // Only run the query when address exists
 	});
 
 	// Mutation for creating a new API key
 	const createMutation = useMutation({
 		mutationFn: async (keyData: ApiKeyCreate) => {
-			if (!account) {
-				throw new Error("No account available");
+			if (!address) {
+				throw new Error("No address available");
 			}
 
 			const response = await createApiKeyApiKeysPost({
@@ -73,7 +70,7 @@ export function useApiKeys() {
 		},
 		onSuccess: async () => {
 			toast.success("API key created successfully");
-			await queryClient.invalidateQueries({ queryKey: ["apiKeys", accountAddress] });
+			await queryClient.invalidateQueries({ queryKey: ["apiKeys", address] });
 		},
 		onError: (error) => {
 			toast.error("Failed to create API key", {
@@ -114,7 +111,7 @@ export function useApiKeys() {
 		},
 		onSuccess: async () => {
 			toast.success("API key updated successfully");
-			await queryClient.invalidateQueries({ queryKey: ["apiKeys", accountAddress] });
+			await queryClient.invalidateQueries({ queryKey: ["apiKeys", address] });
 		},
 		onError: (error) => {
 			toast.error("Failed to update API key", {
@@ -140,7 +137,7 @@ export function useApiKeys() {
 		},
 		onSuccess: async () => {
 			toast.success("API key disabled successfully");
-			await queryClient.invalidateQueries({ queryKey: ["apiKeys", accountAddress] });
+			await queryClient.invalidateQueries({ queryKey: ["apiKeys", address] });
 		},
 		onError: (error) => {
 			toast.error("Failed to delete API key", {

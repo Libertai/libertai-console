@@ -26,6 +26,9 @@ type AccountStoreState = {
 	isAuthenticating: boolean;
 	lastTransactionHash: string | null;
 	isInitialLoad: boolean;
+	address: string | null;
+	isSolana: () => boolean;
+	isBase: () => boolean;
 	onAccountChange: (newBaseAccount: Account | undefined, newSolanaAccount: WalletContextState | undefined) => Promise<void>;
 	getLTAIBalance: () => Promise<number>;
 	getAPICredits: () => Promise<number>;
@@ -48,6 +51,15 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	isAuthenticating: false,
 	lastTransactionHash: null,
 	isInitialLoad: true,
+	address: null,
+	isSolana: () => {
+		const state = get();
+		return state.solanaAccount !== null && state.solanaAccount.publicKey !== null;
+	},
+	isBase: () => {
+		const state = get();
+		return state.baseAccount !== null;
+	},
 
 	onAccountChange: async (newBaseAccount: Account | undefined, newSolanaAccount: WalletContextState | undefined) => {
 		const state = get();
@@ -82,11 +94,17 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 
 		// Set the account first so UI shows connected state
 		if (newBaseAccount !== undefined) {
-			set({ baseAccount: newBaseAccount });
-			set({ solanaAccount: null });
+			set({ 
+				baseAccount: newBaseAccount, 
+				solanaAccount: null,
+				address: newBaseAccount.address
+			});
 		} else if (newSolanaAccount !== undefined && newSolanaAccount.publicKey) {
-			set({ solanaAccount: newSolanaAccount });
-			set({ baseAccount: null });
+			set({ 
+				solanaAccount: newSolanaAccount, 
+				baseAccount: null,
+				address: newSolanaAccount.publicKey.toString()
+			});
 		}
 
 
@@ -193,15 +211,15 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			  "params": [
 			    state.solanaAccount.publicKey.toString(),
 					 {
-				    "mint": "3onmcmVmxyuhKyprEw4LyfdpqTPW6fRA7JQhopbiph5k",
+				    "mint": env.LTAI_SOLANA_ADDRESS,
 				  },
 				  {
 				    "encoding": "jsonParsed",
 				  }
 			  ],
 			}
-			
-			const response = await fetch("https://aleph-develope-7c29.devnet.rpcpool.com/7b269a08-2088-4059-8bea-3768482c28c4", {
+
+			const response = await fetch(env.SOLANA_RPC, {
 				method: "POST",
 				body: JSON.stringify(body),
 				headers: {
@@ -398,6 +416,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			apiCredits: 0,
 			lastTransactionHash: null,
 			isInitialLoad: true,
+			address: null,
 		});
 	},
 

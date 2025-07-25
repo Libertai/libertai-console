@@ -30,7 +30,9 @@ type PricingTier = {
 function TopUp() {
 	const isAutoConnecting = useIsAutoConnecting();
 
-	const solanaAccount = useAccountStore((state) => state.solanaAccount)
+	const address = useAccountStore((state) => state.address);
+	const isBase = useAccountStore((state) => state.isBase());
+	const isSolana = useAccountStore((state) => state.isSolana());
 	const baseAccount = useAccountStore((state) => state.baseAccount);
 	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
 	const lastTransactionHash = useAccountStore((state) => state.lastTransactionHash);
@@ -292,7 +294,7 @@ function TopUp() {
 								<span className="text-muted-foreground">Transaction Hash:</span>
 								{lastTransactionHash ? (
 									<a
-										href={`https://${solanaAccount && solanaAccount.publicKey ? "explorer.solana.com" : "basescan.org"}/tx/${useAccountStore.getState().lastTransactionHash}`}
+										href={`https://${isSolana ? "explorer.solana.com" : "basescan.org"}/tx/${useAccountStore.getState().lastTransactionHash}`}
 										target="_blank"
 										className="font-medium text-primary hover:underline overflow-hidden text-ellipsis"
 									>
