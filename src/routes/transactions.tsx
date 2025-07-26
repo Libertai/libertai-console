@@ -33,8 +33,6 @@ function Transactions() {
 				return "Thirdweb";
 			case "voucher":
 				return "Voucher";
-			case "solana":
-				return "Solana";
 			default:
 				return provider;
 		}
@@ -190,10 +188,6 @@ function Transactions() {
 							</li>
 							<li>
 								<span className="font-medium">Voucher</span> - Credits received from vouchers or promotional codes
-							</li>
-							<li>
-								<span className="font-medium">Solana</span> - Credits purchased directly with $LTAI on the solana
-								blockchain
 							</li>
 						</ul>
 						<p className="text-sm mt-4">

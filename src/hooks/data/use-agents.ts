@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-	listAgentsAgentsGet,
-	createAgentAgentsPost,
 	cancelSubscriptionSubscriptionsSubscriptionIdDelete,
+	createAgentAgentsPost,
+	listAgentsAgentsGet,
 	reallocateAgentAgentsAgentIdReallocatePost,
 } from "@/apis/inference";
 import { useAccountStore } from "@/stores/account.ts";
@@ -96,8 +96,8 @@ export function useAgents() {
 	// Mutation to reallocate agent
 	const reallocateAgentMutation = useMutation({
 		mutationFn: async (agentId: string) => {
-			if (!account) {
-				throw new Error("No account available");
+			if (!address) {
+				throw new Error("No address available");
 			}
 
 			const response = await reallocateAgentAgentsAgentIdReallocatePost({
@@ -111,7 +111,7 @@ export function useAgents() {
 			return response.data;
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["agents", account?.address] });
+			queryClient.invalidateQueries({ queryKey: ["agents", address] });
 			toast.success("Agent instance reallocated successfully", {
 				description: "Your agent is being moved to a new instance. This may take a few minutes.",
 			});
