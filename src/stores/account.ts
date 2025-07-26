@@ -132,13 +132,10 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 				isAuthenticated: authSuccess,
 			});
 
-			// Get LTAI token balance from blockchain regardless of auth status
-			const ltaiBalance = await state.getLTAIBalance();
-			set({ ltaiBalance: ltaiBalance });
-
-			// Mark initial load as complete
-			if (state.isInitialLoad) {
-				set({ isInitialLoad: false });
+			if (authSuccess) {
+				// Get LTAI token balance from blockchain
+				const ltaiBalance = await state.getLTAIBalance();
+				set({ ltaiBalance: ltaiBalance });
 			}
 		} catch (error) {
 			console.error("Account change error:", error);
@@ -146,16 +143,8 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 				isAuthenticating: false,
 				isAuthenticated: false,
 			});
-
-			// Still get balance even if auth fails
-			try {
-				const ltaiBalance = await state.getLTAIBalance();
-				set({ ltaiBalance: ltaiBalance });
-			} catch (balanceError) {
-				console.error("Balance fetch error:", balanceError);
-			}
-
-			// Mark initial load as complete even on error
+		} finally {
+			// Mark initial load as complete no matter what
 			if (state.isInitialLoad) {
 				set({ isInitialLoad: false });
 			}
