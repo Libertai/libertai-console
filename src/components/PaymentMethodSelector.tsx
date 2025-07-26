@@ -18,20 +18,20 @@ export function PaymentMethodSelector({
 	// Payment method options
 	const paymentOptions = [
 		{
-			id: "crypto",
-			method: "crypto",
-			icon: <CreditCard className="h-5 w-5 text-primary" />,
-			title: "Pay with crypto",
-			description: "Use USDC, ETH & more",
-			disabled: false,
-		},
-		{
 			id: "ltai",
 			method: "ltai",
 			icon: <Coins className="h-5 w-5 text-primary" />,
 			title: "Pay with LTAI",
 			description: hasLTAI ? "Use your LTAI tokens" : "No LTAI tokens available",
 			disabled: !hasLTAI,
+		},
+		{
+			id: "crypto",
+			method: "crypto",
+			icon: <CreditCard className="h-5 w-5 text-primary" />,
+			title: "Pay with crypto",
+			description: "Use USDC, ETH & more",
+			disabled: false,
 		},
 	];
 

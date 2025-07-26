@@ -45,6 +45,7 @@ export type ApiKeyUpdate = {
 };
 
 export type AuthLoginRequest = {
+    chain: LibertaiChain;
     address: string;
     signature: string;
 };
@@ -56,6 +57,7 @@ export type AuthLoginResponse = {
 };
 
 export type AuthMessageRequest = {
+    chain: LibertaiChain;
     address: string;
 };
 
@@ -188,6 +190,8 @@ export type InferenceCallData = {
     model_name: string;
 };
 
+export type LibertaiChain = 'base' | 'solana';
+
 export type ModelApiUsage = {
     model_name: string;
     used_at: string;
@@ -245,6 +249,7 @@ export type ValidationError = {
 };
 
 export type VoucherAddCreditsRequest = {
+    chain: LibertaiChain;
     address: string;
     amount: number;
     expired_at?: string | null;
@@ -471,6 +476,7 @@ export type GetVouchersCreditsVouchersGetData = {
     body?: never;
     path?: never;
     query: {
+        chain: LibertaiChain;
         address: string;
         password: string;
     };
