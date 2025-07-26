@@ -26,7 +26,7 @@ export default function AccountButton() {
 	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
 	const formattedLtaiBalance = useAccountStore((state) => state.formattedLTAIBalance());
 	const isAuthenticating = useAccountStore((state) => state.isAuthenticating);
-	
+
 	const [isInitializing, setIsInitializing] = useState(true);
 
 	// Only show loading if there's actually a connected wallet AND we're authenticating
@@ -36,7 +36,6 @@ export default function AccountButton() {
 	useEffect(() => {
 		onAccountChange(account, solanaWallet).then();
 	}, [account, solanaWallet, onAccountChange, evmWallet]);
-
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -65,24 +64,24 @@ export default function AccountButton() {
 			</Button>
 		);
 	}
-	
+
 	const handleCopyAddress = () => {
-			if (account?.address) {
-				navigator.clipboard?.writeText(account.address);
-				toast.success("Address copied to clipboard");
-			}
-			console.log()
-			if (solanaWallet && solanaWallet.publicKey) {
-			  navigator.clipboard?.writeText(solanaWallet.publicKey.toString());
-				toast.success("Address copied to clipboard");
-			}
-		};
+		if (account?.address) {
+			navigator.clipboard?.writeText(account.address);
+			toast.success("Address copied to clipboard");
+		}
+		console.log();
+		if (solanaWallet && solanaWallet.publicKey) {
+			navigator.clipboard?.writeText(solanaWallet.publicKey.toString());
+			toast.success("Address copied to clipboard");
+		}
+	};
 
 	if (solanaWallet.wallet !== null) {
-    return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="flex items-center gap-2 px-3 h-9 border-border">
+		return (
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<Button variant="outline" className="flex items-center gap-2 px-3 h-9 border-border">
 						<span className="flex items-center gap-2">
 							{shouldShowSolanaLoading ? (
 								<>
@@ -103,27 +102,22 @@ export default function AccountButton() {
 							) : (
 								<></>
 							)}
-     
+
 							<span className="text-sm">{formatAddress(solanaWallet.publicKey?.toString())}</span>
 						</span>
 					</Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="min-w-[220px]">
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end" className="min-w-[220px]">
 					<div className="px-2 py-2 border-b border-border">
 						<p className="text-xs text-muted-foreground">Connected as</p>
 						<div className="flex items-center justify-between">
 							<p className="font-medium truncate">{formatAddress(solanaWallet.publicKey?.toString())}</p>
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={handleCopyAddress}
-								className="h-6 w-6 p-0 hover:bg-muted"
-							>
+							<Button variant="ghost" size="sm" onClick={handleCopyAddress} className="h-6 w-6 p-0 hover:bg-muted">
 								<Copy className="h-3 w-3" />
 							</Button>
 						</div>
 					</div>
-    
+
 					<div className="px-2 py-2">
 						<p className="text-xs text-muted-foreground">Balance</p>
 						<p className="font-medium flex items-center">
@@ -142,14 +136,17 @@ export default function AccountButton() {
 					</div>
 					<DropdownMenuSeparator />
 					<div className="">
-					<DropdownMenuItem onClick={() => solanaWallet.disconnect()} className="cursor-pointer gap-2 text-destructive">
-						<LogOut className="h-4 w-4" />
-						Disconnect
-					</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={() => solanaWallet.disconnect()}
+							className="cursor-pointer gap-2 text-destructive"
+						>
+							<LogOut className="h-4 w-4" />
+							Disconnect
+						</DropdownMenuItem>
 					</div>
 				</DropdownMenuContent>
-      </DropdownMenu>
-    )
+			</DropdownMenu>
+		);
 	}
 
 	if (account !== undefined && evmWallet !== undefined) {
@@ -187,12 +184,7 @@ export default function AccountButton() {
 						<p className="text-xs text-muted-foreground">Connected as</p>
 						<div className="flex items-center justify-between">
 							<p className="font-medium truncate">{formatAddress(account.address)}</p>
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={handleCopyAddress}
-								className="h-6 w-6 p-0 hover:bg-muted"
-							>
+							<Button variant="ghost" size="sm" onClick={handleCopyAddress} className="h-6 w-6 p-0 hover:bg-muted">
 								<Copy className="h-3 w-3" />
 							</Button>
 						</div>
@@ -237,7 +229,7 @@ export default function AccountButton() {
 				/>
 				<WalletMultiButton />
 			</div>
-			
+
 			{/* Visible dropdown UI */}
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
@@ -261,20 +253,20 @@ export default function AccountButton() {
 					<div className="p-2">
 						<WalletMultiButton
 							style={{
-								width: '195px',
-								height: '36px',
-								borderRadius: '8px',
-								fontSize: '14px',
+								width: "195px",
+								height: "36px",
+								borderRadius: "8px",
+								fontSize: "14px",
 								fontWeight: 500,
-								fontFamily: 'inherit',
-								display: 'flex',
-								justifyContent: 'center',
-								alignItems: 'center',
-								backgroundColor: '#512da8',
-								color: '#ffffff',
-								boxShadow: 'none',
-								transition: 'none',
-								backgroundImage: 'none',
+								fontFamily: "inherit",
+								display: "flex",
+								justifyContent: "center",
+								alignItems: "center",
+								backgroundColor: "#512da8",
+								color: "#ffffff",
+								boxShadow: "none",
+								transition: "none",
+								backgroundImage: "none",
 							}}
 						/>
 					</div>

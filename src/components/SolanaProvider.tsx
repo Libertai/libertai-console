@@ -8,18 +8,18 @@ import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 interface SolanaProviderProps {
-  children: ReactNode;
+	children: ReactNode;
 }
 
 export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
-  const network = WalletAdapterNetwork.Mainnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+	const network = WalletAdapterNetwork.Mainnet;
+	const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
-  return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={[]} autoConnect>
-        <WalletModalProvider>{children}</WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-  );
+	return (
+		<ConnectionProvider endpoint={endpoint}>
+			<WalletProvider wallets={[]} autoConnect>
+				<WalletModalProvider>{children}</WalletModalProvider>
+			</WalletProvider>
+		</ConnectionProvider>
+	);
 };

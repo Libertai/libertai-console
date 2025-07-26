@@ -182,7 +182,8 @@ function Transactions() {
 						<p>Your transaction history shows all credit purchases:</p>
 						<ul className="list-disc list-inside space-y-2 ml-4 text-sm">
 							<li>
-								<span className="font-medium">LibertAI (Base/Solana)</span> - Credits purchased with $LTAI on Base or Solana networks
+								<span className="font-medium">LibertAI (Base/Solana)</span> - Credits purchased with $LTAI on Base or
+								Solana networks
 							</li>
 							<li>
 								<span className="font-medium">Thirdweb</span> - Credits purchased using cryptocurrency via Thirdweb
@@ -191,7 +192,8 @@ function Transactions() {
 								<span className="font-medium">Voucher</span> - Credits received from vouchers or promotional codes
 							</li>
 							<li>
-								<span className="font-medium">Solana</span> - Credits purchased directly with $LTAI on the solana blockchain
+								<span className="font-medium">Solana</span> - Credits purchased directly with $LTAI on the solana
+								blockchain
 							</li>
 						</ul>
 						<p className="text-sm mt-4">

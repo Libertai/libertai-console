@@ -75,7 +75,9 @@ export function useAgents() {
 			});
 
 			if (response.error) {
-				throw new Error(response.error.detail ? response.error.detail.toString() : "Unknown error cancelling subscription");
+				throw new Error(
+					response.error.detail ? response.error.detail.toString() : "Unknown error cancelling subscription",
+				);
 			}
 
 			return subscriptionId;

@@ -24,11 +24,9 @@ const Providers = ({ children }: ProvidersProps) => {
 		<NuqsAdapter>
 			<ThemeProvider defaultTheme="system" storageKey="libertai-ui-theme">
 				<QueryClientProvider client={queryClient}>
-				<SolanaProvider>
-				  <ThirdwebProvider>
-				    {children}
-					</ThirdwebProvider>
-				</SolanaProvider>
+					<SolanaProvider>
+						<ThirdwebProvider>{children}</ThirdwebProvider>
+					</SolanaProvider>
 					<Toaster richColors />
 				</QueryClientProvider>
 			</ThemeProvider>

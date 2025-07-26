@@ -16,7 +16,7 @@ export function useRequireAuth() {
 			const timer = setTimeout(() => {
 				setHasWaited(true);
 			}, 1000); // Wait 1 second for auth to complete
-			
+
 			return () => clearTimeout(timer);
 		}
 	}, [isInitialLoad, hasWaited]);
