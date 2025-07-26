@@ -122,7 +122,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		set({ isAuthenticating: true });
 
 		try {
-			const adr = newSolanaAccount?.publicKey?.toString() || newBaseAccount?.address || "";
+			const adr = newSolanaAccount?.publicKey?.toString() ?? newBaseAccount?.address ?? "";
 			const isAlreadyAuthenticated = await state.checkAuthStatus(adr);
 
 			let authSuccess = isAlreadyAuthenticated;
