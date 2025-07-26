@@ -6,7 +6,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Coins, LogOut, Loader2, Copy } from "lucide-react";
+import { Coins, Copy, Loader2, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { thirdwebClient } from "@/config/thirdweb";
 import { ConnectButton, useActiveAccount, useActiveWallet, useDisconnect } from "thirdweb/react";
@@ -220,13 +220,7 @@ export default function AccountButton() {
 		<div className="relative">
 			{/* Hidden components for auto-connection */}
 			<div className="absolute opacity-0 pointer-events-none -z-10">
-				<ConnectButton
-					client={thirdwebClient}
-					chain={base}
-					connectButton={{
-						label: "EVM & Social login",
-					}}
-				/>
+				<ConnectButton client={thirdwebClient} chain={base} />
 				<WalletMultiButton />
 			</div>
 
