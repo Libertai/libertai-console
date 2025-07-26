@@ -11,13 +11,13 @@ import { CreateAgentRequest } from "@/apis/inference/types.gen";
 
 export function useAgents() {
 	const queryClient = useQueryClient();
-	const address = useAccountStore((state) => state.address);
+	const account = useAccountStore((state) => state.account);
 
 	// Query for list of agents
 	const agentsQuery = useQuery({
-		queryKey: ["agents", address],
+		queryKey: ["agents", account?.address],
 		queryFn: async () => {
-			if (!address) {
+			if (!account) {
 				return [];
 			}
 
@@ -29,7 +29,7 @@ export function useAgents() {
 
 			return response.data || [];
 		},
-		enabled: !!address, // Only run the query when address exists
+		enabled: !!account, // Only run the query when account exists
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		refetchOnWindowFocus: false,
 	});
@@ -37,8 +37,8 @@ export function useAgents() {
 	// Mutation to create a new agent
 	const createAgentMutation = useMutation({
 		mutationFn: async (agentData: CreateAgentRequest) => {
-			if (!address) {
-				throw new Error("No address available");
+			if (!account) {
+				throw new Error("No account available");
 			}
 
 			const response = await createAgentAgentsPost({
@@ -52,8 +52,8 @@ export function useAgents() {
 			return response.data;
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["agents", address] });
-			queryClient.invalidateQueries({ queryKey: ["credits", address] }); // Refresh credits after subscription
+			queryClient.invalidateQueries({ queryKey: ["agents", account?.address] });
+			queryClient.invalidateQueries({ queryKey: ["credits", account?.address] }); // Refresh credits after subscription
 			toast.success("Agent created successfully");
 		},
 		onError: (error) => {
@@ -66,8 +66,8 @@ export function useAgents() {
 	// Mutation to cancel subscription
 	const cancelSubscriptionMutation = useMutation({
 		mutationFn: async (subscriptionId: string) => {
-			if (!address) {
-				throw new Error("No address available");
+			if (!account) {
+				throw new Error("No account available");
 			}
 
 			const response = await cancelSubscriptionSubscriptionsSubscriptionIdDelete({
@@ -83,7 +83,7 @@ export function useAgents() {
 			return subscriptionId;
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["agents", address] });
+			queryClient.invalidateQueries({ queryKey: ["agents", account?.address] });
 			toast.success("Subscription cancelled successfully");
 		},
 		onError: (error) => {
@@ -96,8 +96,8 @@ export function useAgents() {
 	// Mutation to reallocate agent
 	const reallocateAgentMutation = useMutation({
 		mutationFn: async (agentId: string) => {
-			if (!address) {
-				throw new Error("No address available");
+			if (!account) {
+				throw new Error("No account available");
 			}
 
 			const response = await reallocateAgentAgentsAgentIdReallocatePost({
@@ -111,7 +111,7 @@ export function useAgents() {
 			return response.data;
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["agents", address] });
+			queryClient.invalidateQueries({ queryKey: ["agents", account?.address] });
 			toast.success("Agent instance reallocated successfully", {
 				description: "Your agent is being moved to a new instance. This may take a few minutes.",
 			});
@@ -124,7 +124,7 @@ export function useAgents() {
 	});
 
 	const refreshAgents = () => {
-		return queryClient.invalidateQueries({ queryKey: ["agents", address] });
+		return queryClient.invalidateQueries({ queryKey: ["agents", account?.address] });
 	};
 
 	return {

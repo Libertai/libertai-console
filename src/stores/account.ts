@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Account } from "thirdweb/wallets";
+import { Account as ThirdwebAccount } from "thirdweb/wallets";
 import env from "@/config/env.ts";
 import { base } from "thirdweb/chains";
 import {
@@ -9,36 +9,44 @@ import {
 } from "@/apis/inference/sdk.gen";
 import { toast } from "sonner";
 import { ethers } from "ethers";
-import { WalletContextState } from "@solana/wallet-adapter-react";
+import { WalletContextState as SolanaWalletContextState } from "@solana/wallet-adapter-react";
 import { Buffer } from "buffer";
 
 const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
 
+type ConnectedAccount = {
+	address: string;
+} & (
+	| {
+			chain: "base";
+			provider: ThirdwebAccount;
+	  }
+	| {
+			chain: "solana";
+			provider: SolanaWalletContextState;
+	  }
+);
+
 type AccountStoreState = {
-	alephStorage: null;
 	ltaiBalance: number;
 	apiCredits: number;
 	formattedLTAIBalance: () => string;
 	formattedAPICredits: () => string;
-	baseAccount: Account | null;
-	solanaAccount: WalletContextState | null;
+	account: ConnectedAccount | null;
 	isAuthenticated: boolean;
 	isAuthenticating: boolean;
 	lastTransactionHash: string | null;
 	isInitialLoad: boolean;
-	address: string | null;
-	isSolana: () => boolean;
-	isBase: () => boolean;
 	onAccountChange: (
-		newBaseAccount: Account | undefined,
-		newSolanaAccount: WalletContextState | undefined,
+		newBaseAccount: ThirdwebAccount | undefined,
+		newSolanaAccount: SolanaWalletContextState | undefined,
 	) => Promise<void>;
 	getLTAIBalance: () => Promise<number>;
 	getAPICredits: () => Promise<number>;
 	onDisconnect: () => void;
 	authenticate: (
-		baseAccount: Account | undefined,
-		solanaAccount: WalletContextState | undefined,
+		baseAccount: ThirdwebAccount | undefined,
+		solanaAccount: SolanaWalletContextState | undefined,
 		showErrors?: boolean,
 	) => Promise<boolean>;
 	checkAuthStatus: (accountAddress: string) => Promise<boolean>;
@@ -47,7 +55,6 @@ type AccountStoreState = {
 };
 
 export const useAccountStore = create<AccountStoreState>((set, get) => ({
-	alephStorage: null,
 	ltaiBalance: 0,
 	apiCredits: 0,
 	formattedLTAIBalance: () => get().ltaiBalance.toFixed(0),
@@ -58,17 +65,12 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	isAuthenticating: false,
 	lastTransactionHash: null,
 	isInitialLoad: true,
-	address: null,
-	isSolana: () => {
-		const state = get();
-		return state.solanaAccount?.publicKey !== null;
-	},
-	isBase: () => {
-		const state = get();
-		return state.baseAccount !== null;
-	},
+	account: null,
 
-	onAccountChange: async (newBaseAccount: Account | undefined, newSolanaAccount: WalletContextState | undefined) => {
+	onAccountChange: async (
+		newBaseAccount: ThirdwebAccount | undefined,
+		newSolanaAccount: SolanaWalletContextState | undefined,
+	) => {
 		const state = get();
 
 		// Check if both accounts are undefined/null - this indicates disconnection
@@ -78,21 +80,17 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			return;
 		}
 
-		// Check if base account is already connected with the same address
-		if (
-			state.baseAccount !== null &&
-			newBaseAccount !== undefined &&
-			state.baseAccount.address === newBaseAccount.address
-		) {
-			// Account already connected with the same address
+		// Check if a Base account is already connected with the same address
+		if (state.account !== null && newBaseAccount !== undefined && state.account.address === newBaseAccount.address) {
+			// Base account already connected with the same address
 			return;
 		}
 
-		// Check if solana account is already connected with the same address
+		// Check if a Solana account is already connected with the same address
 		if (
-			state.solanaAccount !== null &&
+			state.account !== null &&
 			newSolanaAccount?.publicKey &&
-			state.solanaAccount.publicKey?.toString() === newSolanaAccount.publicKey.toString()
+			state.account.address === newSolanaAccount.publicKey.toString()
 		) {
 			// Solana account already connected with the same address
 			return;
@@ -106,15 +104,11 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		// Set the account first so UI shows connected state
 		if (newBaseAccount !== undefined) {
 			set({
-				baseAccount: newBaseAccount,
-				solanaAccount: null,
-				address: newBaseAccount.address,
+				account: { address: newBaseAccount.address, chain: "base", provider: newBaseAccount },
 			});
 		} else if (newSolanaAccount?.publicKey) {
 			set({
-				solanaAccount: newSolanaAccount,
-				baseAccount: null,
-				address: newSolanaAccount.publicKey.toString(),
+				account: { address: newSolanaAccount.publicKey.toString(), chain: "solana", provider: newSolanaAccount },
 			});
 		}
 
@@ -122,8 +116,8 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		set({ isAuthenticating: true });
 
 		try {
-			const adr = newSolanaAccount?.publicKey?.toString() ?? newBaseAccount?.address ?? "";
-			const isAlreadyAuthenticated = await state.checkAuthStatus(adr);
+			const address = newSolanaAccount?.publicKey?.toString() ?? newBaseAccount?.address ?? "";
+			const isAlreadyAuthenticated = await state.checkAuthStatus(address);
 
 			let authSuccess = isAlreadyAuthenticated;
 			if (!isAlreadyAuthenticated) {
@@ -170,17 +164,15 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	getLTAIBalance: async (): Promise<number> => {
 		const state = get();
 		let balance: string = "0";
-		const hexBalanceOfFunction = "0x70a08231";
 
-		if (state.baseAccount === null && state.solanaAccount === null) {
+		if (state.account === null) {
 			return 0;
 		}
 
-		if (state.baseAccount) {
-			const address = state.baseAccount.address.startsWith("0x")
-				? state.baseAccount.address.slice(2)
-				: state.baseAccount.address;
+		if (state.account.chain === "base") {
+			const address = state.account.address.startsWith("0x") ? state.account.address.slice(2) : state.account.address;
 			const paddedAddress = address.padStart(64, "0");
+			const hexBalanceOfFunction = "0x70a08231";
 			const body = {
 				jsonrpc: "2.0",
 				method: "eth_call",
@@ -209,14 +201,14 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			} catch (error) {
 				console.error("Error fetching balance:", error);
 			}
-		} else if (state.solanaAccount?.publicKey) {
+		} else if (state.account.chain === "solana") {
 			try {
 				const body = {
 					jsonrpc: "2.0",
 					id: 1,
 					method: "getTokenAccountsByOwner",
 					params: [
-						state.solanaAccount.publicKey.toString(),
+						state.account.address,
 						{
 							mint: env.LTAI_SOLANA_ADDRESS,
 						},
@@ -263,173 +255,128 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		}
 	},
 	authenticate: async (
-		baseAccount: Account | undefined,
-		solanaAccount: WalletContextState | undefined,
+		baseAccount: ThirdwebAccount | undefined,
+		solanaAccount: SolanaWalletContextState | undefined,
 		showErrors?: boolean,
 	): Promise<boolean> => {
 		const state = get();
 
+		let address: string;
+		let chain: "base" | "solana";
 		if (baseAccount !== undefined) {
-			try {
-				// Get the message to sign
-				const messageResponse = await getAuthMessageAuthMessagePost({
-					body: {
-						chain: "base",
-						address: baseAccount.address,
-					},
+			address = baseAccount.address;
+			chain = "base";
+		} else if (solanaAccount?.publicKey) {
+			address = solanaAccount.publicKey.toString();
+			chain = "solana";
+		} else {
+			console.error("No account provided for authentication");
+			if (showErrors) {
+				toast.error("Authentication failed", {
+					description: "No wallet connected",
 				});
-
-				if (!messageResponse.data?.message) {
-					console.error("No message received from server");
-					if (showErrors) {
-						toast.error("Authentication failed", {
-							description: "Could not get message to sign",
-						});
-					}
-					return false;
-				}
-
-				// Sign the message
-				const signature = await baseAccount.signMessage({ message: messageResponse.data.message });
-
-				if (!signature) {
-					console.error("No signature generated");
-					if (showErrors) {
-						toast.error("Authentication failed", {
-							description: "Could not sign message",
-						});
-					}
-					return false;
-				}
-
-				// Login with the signature
-				const loginResponse = await loginWithWalletAuthLoginPost({
-					body: {
-						address: baseAccount.address,
-						signature: signature,
-						chain: "base",
-					},
-				});
-
-				if (loginResponse.data?.access_token) {
-					// Store the JWT token
-					set({ isAuthenticated: true });
-
-					// Update API credits
-					const apiCredits = await state.getAPICredits();
-					set({ apiCredits });
-
-					return true;
-				} else {
-					console.error("No access token received");
-					if (showErrors) {
-						toast.error("Authentication failed", {
-							description: "Invalid response from server",
-						});
-					}
-					return false;
-				}
-			} catch (error) {
-				console.error("Authentication error:", error);
-
-				// Only show toast if we should show errors
-				if (showErrors) {
-					toast.error("Authentication failed", {
-						description: error instanceof Error ? error.message : "Unknown error",
-					});
-				}
-				return false;
 			}
-		} else if (solanaAccount?.publicKey && solanaAccount.signMessage) {
-			try {
-				const address = solanaAccount.publicKey.toString();
-
-				// Get the message to sign
-				const messageResponse = await getAuthMessageAuthMessagePost({
-					body: {
-						chain: "solana",
-						address: address,
-					},
-				});
-
-				if (!messageResponse.data?.message) {
-					console.error("No message received from server");
-					if (showErrors) {
-						toast.error("Authentication failed", {
-							description: "Could not get message to sign",
-						});
-					}
-					return false;
-				}
-
-				// Sign the message using Solana wallet
-				const messageBytes = new TextEncoder().encode(messageResponse.data.message);
-				const signature = await solanaAccount.signMessage(messageBytes);
-
-				if (!signature) {
-					console.error("No signature generated");
-					if (showErrors) {
-						toast.error("Authentication failed", {
-							description: "Could not sign message",
-						});
-					}
-					return false;
-				}
-
-				const signatureBase64 = Buffer.from(signature).toString("base64");
-
-				// Login with the signature
-				const loginResponse = await loginWithWalletAuthLoginPost({
-					body: {
-						address: address,
-						signature: signatureBase64,
-						chain: "solana",
-					},
-				});
-
-				if (loginResponse.data?.access_token) {
-					// Store the JWT token
-					set({ isAuthenticated: true });
-
-					// Update API credits
-					const apiCredits = await state.getAPICredits();
-					set({ apiCredits });
-
-					return true;
-				} else {
-					console.error("No access token received");
-					if (showErrors) {
-						toast.error("Authentication failed", {
-							description: "Invalid response from server",
-						});
-					}
-					return false;
-				}
-			} catch (error) {
-				console.error("Solana authentication error:", error);
-
-				// Only show toast if we should show errors
-				if (showErrors) {
-					toast.error("Authentication failed", {
-						description: error instanceof Error ? error.message : "Unknown error",
-					});
-				}
-				return false;
-			}
+			return false;
 		}
-		return false;
+
+		try {
+			// Get the message to sign
+			const messageResponse = await getAuthMessageAuthMessagePost({
+				body: {
+					chain: chain,
+					address: address,
+				},
+			});
+
+			if (!messageResponse.data?.message) {
+				console.error("No message received from server");
+				if (showErrors) {
+					toast.error("Authentication failed", {
+						description: "Could not get message to sign",
+					});
+				}
+				return false;
+			}
+
+			// Sign the message
+			let signature: string | undefined;
+			if (chain === "base" && baseAccount !== undefined) {
+				signature = await baseAccount.signMessage({ message: messageResponse.data.message });
+			} else if (chain === "solana" && solanaAccount?.signMessage !== undefined) {
+				const messageBytes = new TextEncoder().encode(messageResponse.data.message);
+				const raw_signature = await solanaAccount.signMessage(messageBytes);
+
+				if (!raw_signature) {
+					console.error("No signature generated");
+					if (showErrors) {
+						toast.error("Authentication failed", {
+							description: "Could not sign message",
+						});
+					}
+					return false;
+				}
+
+				// Convert signature to base64 for Solana
+				signature = Buffer.from(raw_signature).toString("base64");
+			}
+
+			if (!signature) {
+				console.error("No signature generated");
+				if (showErrors) {
+					toast.error("Authentication failed", {
+						description: "Could not sign message",
+					});
+				}
+				return false;
+			}
+
+			// Login with the signature
+			const loginResponse = await loginWithWalletAuthLoginPost({
+				body: {
+					address: address,
+					signature: signature,
+					chain: chain,
+				},
+			});
+
+			if (loginResponse.data?.access_token) {
+				// Store the JWT token
+				set({ isAuthenticated: true });
+
+				// Update API credits
+				const apiCredits = await state.getAPICredits();
+				set({ apiCredits });
+
+				return true;
+			} else {
+				console.error("No access token received");
+				if (showErrors) {
+					toast.error("Authentication failed", {
+						description: "Invalid response from server",
+					});
+				}
+				return false;
+			}
+		} catch (error) {
+			console.error("Authentication error:", error);
+
+			// Only show toast if we should show errors
+			if (showErrors) {
+				toast.error("Authentication failed", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+			}
+			return false;
+		}
 	},
 	onDisconnect: () => {
 		set({
-			baseAccount: null,
-			solanaAccount: null,
-			alephStorage: null,
 			isAuthenticated: false,
 			ltaiBalance: 0,
 			apiCredits: 0,
 			lastTransactionHash: null,
 			isInitialLoad: true,
-			address: null,
+			account: null,
 		});
 	},
 

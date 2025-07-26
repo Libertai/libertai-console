@@ -3,11 +3,11 @@ import { getDashboardStatsStatsDashboardGet, getUsageStatsStatsUsageGet } from "
 import { useAccountStore } from "@/stores/account.ts";
 
 export function useStats() {
-	const address = useAccountStore((state) => state.address);
+	const account = useAccountStore((state) => state.account);
 
 	// Query for dashboard statistics
 	const statsQuery = useQuery({
-		queryKey: ["dashboardStats", address],
+		queryKey: ["dashboardStats", account?.address],
 		queryFn: async () => {
 			const response = await getDashboardStatsStatsDashboardGet();
 
@@ -19,7 +19,7 @@ export function useStats() {
 
 			return response.data;
 		},
-		enabled: !!address, // Only run the query when address exists
+		enabled: !!account, // Only run the query when account exists
 	});
 
 	// Transform monthly_usage data for chart
@@ -40,11 +40,11 @@ export function useStats() {
 }
 
 export function useUsageStats(startDate: string, endDate: string) {
-	const address = useAccountStore((state) => state.address);
+	const account = useAccountStore((state) => state.account);
 
 	// Query for detailed usage statistics
 	const usageQuery = useQuery({
-		queryKey: ["usageStats", address, startDate, endDate],
+		queryKey: ["usageStats", account?.address, startDate, endDate],
 		queryFn: async () => {
 			const response = await getUsageStatsStatsUsageGet({
 				query: {
@@ -61,7 +61,7 @@ export function useUsageStats(startDate: string, endDate: string) {
 
 			return response.data;
 		},
-		enabled: !!address && !!startDate && !!endDate, // Only run when address and dates exist
+		enabled: !!account && !!startDate && !!endDate, // Only run when account and dates exist
 	});
 
 	// Transform daily_usage data for chart

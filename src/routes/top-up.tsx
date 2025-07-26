@@ -30,10 +30,7 @@ type PricingTier = {
 function TopUp() {
 	const isAutoConnecting = useIsAutoConnecting();
 
-	const address = useAccountStore((state) => state.address);
-	const isBase = useAccountStore((state) => state.isBase());
-	const isSolana = useAccountStore((state) => state.isSolana());
-	const baseAccount = useAccountStore((state) => state.baseAccount);
+	const account = useAccountStore((state) => state.account);
 	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
 	const lastTransactionHash = useAccountStore((state) => state.lastTransactionHash);
 	const setLastTransactionHash = useAccountStore((state) => state.setLastTransactionHash);
@@ -41,6 +38,7 @@ function TopUp() {
 	const { formattedCredits } = useCredits();
 	const navigate = useNavigate();
 
+	// Use nuqs for URL state
 	const [stage, setStage] = useQueryState("stage", {
 		defaultValue: "select",
 		parse: (value): "select" | "payment" | "success" => {
@@ -248,7 +246,7 @@ function TopUp() {
 													handlePaymentSuccess();
 												},
 												purchaseData: {
-													userAddress: baseAccount?.address,
+													userAddress: account?.address,
 												},
 												paymentInfo: {
 													chain: base,
@@ -294,7 +292,7 @@ function TopUp() {
 								<span className="text-muted-foreground">Transaction Hash:</span>
 								{lastTransactionHash ? (
 									<a
-										href={`https://${isSolana ? "explorer.solana.com" : "basescan.org"}/tx/${useAccountStore.getState().lastTransactionHash}`}
+										href={`https://${account?.chain === "solana" ? "explorer.solana.com" : "basescan.org"}/tx/${useAccountStore.getState().lastTransactionHash}`}
 										target="_blank"
 										className="font-medium text-primary hover:underline overflow-hidden text-ellipsis"
 									>

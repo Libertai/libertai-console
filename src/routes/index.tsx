@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-	const address = useAccountStore((state) => state.address);
+	const account = useAccountStore((state) => state.account);
 	const { formattedCredits } = useCredits();
 	const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ function Index() {
 					Connect your wallet, create API keys, and build powerful applications with LibertAI's inference capabilities
 				</p>
 
-				{!address ? (
+				{!account ? (
 					<div className="mt-8 flex flex-col items-center space-y-4">
 						<p className="text-muted-foreground">Connect your wallet to get started</p>
 						<div className="flex justify-center mt-4 mb-6">

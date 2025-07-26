@@ -7,9 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Connection,
 	PublicKey,
-	TransactionMessage,
 	SimulateTransactionConfig,
 	Transaction,
+	TransactionMessage,
 	VersionedTransaction,
 } from "@solana/web3.js";
 import { LibertAiPaymentProcessor } from "@/lib/solana/libert_ai_payment_processor";
@@ -22,7 +22,7 @@ import { useLTAIPrice } from "@/hooks/use-ltai-price";
 import { eth_getTransactionReceipt, getRpcClient, prepareContractCall, sendTransaction } from "thirdweb";
 import { parseUnits } from "viem";
 import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { Program, BN } from "@coral-xyz/anchor";
+import { BN, Program } from "@coral-xyz/anchor";
 
 interface LTAIPaymentFormProps {
 	usdAmount: number;
@@ -62,17 +62,14 @@ const waitForTransaction = async (transactionHash: `0x${string}`, maxAttempts = 
 };
 
 export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPaymentFormProps>) {
-	const baseAccount = useAccountStore((state) => state.baseAccount);
-	const solanaAccount = useAccountStore((state) => state.solanaAccount);
-	const isBase = useAccountStore((state) => state.isBase());
-	const isSolana = useAccountStore((state) => state.isSolana());
+	const account = useAccountStore((state) => state.account);
 	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
 	const getLTAIBalance = useAccountStore((state) => state.getLTAIBalance);
 	const setLastTransactionHash = useAccountStore((state) => state.setLastTransactionHash);
 
 	const [isApproving, setIsApproving] = useState(false);
 	const [isProcessing, setIsProcessing] = useState(false);
-	const [isApproved, setIsApproved] = useState(!!isSolana);
+	const [isApproved, setIsApproved] = useState(false);
 
 	const { price: ltaiPrice, isLoading, getRequiredLTAI } = useLTAIPrice();
 	const originalLtaiAmount = getRequiredLTAI(usdAmount, false);
@@ -82,7 +79,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 	const PAYMENT_PROCESSOR_ADDRESS = env.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS as `0x${string}`;
 
 	const handleApprovePayment = async () => {
-		if (!isBase || !baseAccount || !ltaiPrice || !discountedLtaiAmount) return;
+		if (account?.chain !== "base" || !ltaiPrice || !discountedLtaiAmount) return;
 
 		// Approving a bit more than required in case of price fluctuations
 		const amountToApprove = discountedLtaiAmount * 1.1;
@@ -102,7 +99,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 				});
 
 				// Send the transaction and get the hash
-				const { transactionHash } = await sendTransaction({ transaction: tx, account: baseAccount });
+				const { transactionHash } = await sendTransaction({ transaction: tx, account: account.provider });
 
 				// Create a pending toast
 				const toastId = toast.loading("Waiting for approval confirmation...");
@@ -145,10 +142,10 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 	};
 
 	const handleProcessPayment = async () => {
-		if ((!isBase && !isSolana) || !ltaiPrice || !discountedLtaiAmount) return;
+		if (!ltaiPrice || !discountedLtaiAmount) return;
 
 		setIsProcessing(true);
-		if (isBase && baseAccount) {
+		if (account?.chain === "base") {
 			try {
 				// Call the processPayment function using method directly
 				const transaction = prepareContractCall({
@@ -173,7 +170,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 				// Send the transaction
 				const { transactionHash } = await sendTransaction({
 					transaction,
-					account: baseAccount,
+					account: account.provider,
 				});
 
 				// Store the transaction hash for display
@@ -210,12 +207,12 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 			} finally {
 				setIsProcessing(false);
 			}
-		} else if (isSolana && solanaAccount && solanaAccount.publicKey) {
+		} else if (account?.chain === "solana" && account.provider.publicKey !== null) {
 			try {
 				const amount = parseUnits(discountedLtaiAmount.toString(), 9);
 				console.log("Payment amount:", amount.toString());
 
-				const userTokenAccount = await getAssociatedTokenAddress(solanaTokenMint, solanaAccount.publicKey);
+				const userTokenAccount = await getAssociatedTokenAddress(solanaTokenMint, account.provider.publicKey);
 				console.log("User token account:", userTokenAccount.toString());
 
 				// Check if user token account exists
@@ -233,7 +230,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 				const ix = await solanaProgram.methods
 					.processPayment(new BN(amount))
 					.accounts({
-						user: solanaAccount.publicKey,
+						user: account.provider.publicKey,
 						userTokenAccount: userTokenAccount,
 						programTokenAccount: programTokenAccountPDA,
 						tokenMint: solanaTokenMint,
@@ -243,7 +240,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 				const { blockhash } = await solanaConnection.getLatestBlockhash();
 
 				const messageV0 = new TransactionMessage({
-					payerKey: solanaAccount.publicKey,
+					payerKey: account.provider.publicKey,
 					recentBlockhash: blockhash,
 					instructions: [ix],
 				}).compileToV0Message();
@@ -270,8 +267,8 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 				}
 				const tx = new Transaction().add(ix);
 				tx.recentBlockhash = blockhash;
-				tx.feePayer = solanaAccount.publicKey;
-				const sig = await solanaAccount.sendTransaction(tx, solanaConnection, {
+				tx.feePayer = account.provider.publicKey;
+				const sig = await account.provider.sendTransaction(tx, solanaConnection, {
 					skipPreflight: true, // Skip preflight since we already simulated
 					preflightCommitment: "confirmed",
 					maxRetries: 3,
@@ -385,9 +382,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 			)}
 
 			<div className="space-y-4">
-				{isSolana ? (
-					<></>
-				) : (
+				{account?.chain === "base" && (
 					<Button
 						onClick={handleApprovePayment}
 						className="w-full"
@@ -407,7 +402,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 				<Button
 					onClick={handleProcessPayment}
 					className="w-full"
-					disabled={isProcessing || isApproving || !hasEnoughLTAI || (!isApproved && isBase)}
+					disabled={isProcessing || isApproving || !hasEnoughLTAI || (!isApproved && account?.chain === "base")}
 				>
 					{isProcessing ? (
 						<>
@@ -415,7 +410,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 							Processing Payment...
 						</>
 					) : (
-						`${isSolana ? "" : "2. "}Pay with LTAI`
+						`${account?.chain === "solana" ? "" : "2. "}Pay with LTAI`
 					)}
 				</Button>
 			</div>

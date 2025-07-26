@@ -5,7 +5,7 @@ import { useAccountStore } from "@/stores/account.ts";
 
 export function useRequireAuth() {
 	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
-	const address = useAccountStore((state) => state.address);
+	const account = useAccountStore((state) => state.account);
 	const isInitialLoad = useAccountStore((state) => state.isInitialLoad);
 	const navigate = useNavigate();
 	const [hasWaited, setHasWaited] = useState(false);
@@ -23,7 +23,7 @@ export function useRequireAuth() {
 
 	useEffect(() => {
 		// Only redirect if not on initial load OR we've waited for auth to complete
-		if ((hasWaited || !isInitialLoad) && (!isAuthenticated || !address)) {
+		if ((hasWaited || !isInitialLoad) && (!isAuthenticated || !account?.address)) {
 			if (!isInitialLoad) {
 				toast.error("Authentication Required", {
 					description: "Please connect your wallet & sign the message to access this page",
@@ -32,7 +32,7 @@ export function useRequireAuth() {
 			}
 			navigate({ to: "/" });
 		}
-	}, [isAuthenticated, address, navigate, isInitialLoad, hasWaited]);
+	}, [isAuthenticated, account?.address, navigate, isInitialLoad, hasWaited]);
 
 	return { isAuthenticated };
 }
