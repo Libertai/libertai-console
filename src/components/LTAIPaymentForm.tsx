@@ -21,7 +21,7 @@ import { thirdwebClient } from "@/config/thirdweb";
 import { useLTAIPrice } from "@/hooks/use-ltai-price";
 import { eth_getTransactionReceipt, getRpcClient, prepareContractCall, sendTransaction } from "thirdweb";
 import { parseUnits } from "viem";
-import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { getAssociatedTokenAddress, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { BN, Program } from "@coral-xyz/anchor";
 
 interface LTAIPaymentFormProps {
@@ -210,10 +210,13 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 		} else if (account?.chain === "solana" && account.provider.publicKey !== null) {
 			try {
 				const amount = parseUnits(discountedLtaiAmount.toString(), 9);
-				console.log("Payment amount:", amount.toString());
 
-				const userTokenAccount = await getAssociatedTokenAddress(solanaTokenMint, account.provider.publicKey);
-				console.log("User token account:", userTokenAccount.toString());
+				const userTokenAccount = await getAssociatedTokenAddress(
+					solanaTokenMint,
+					account.provider.publicKey,
+					false,
+					TOKEN_2022_PROGRAM_ID,
+				);
 
 				// Check if user token account exists
 				const accountInfo = await solanaConnection.getAccountInfo(userTokenAccount);
@@ -225,7 +228,6 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 					[Buffer.from("program_token_account"), solanaTokenMint.toBuffer()],
 					solanaProgram.programId,
 				);
-				console.log("Program token account PDA:", programTokenAccountPDA.toString());
 
 				const ix = await solanaProgram.methods
 					.processPayment(new BN(amount))
@@ -234,7 +236,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 						userTokenAccount: userTokenAccount,
 						programTokenAccount: programTokenAccountPDA,
 						tokenMint: solanaTokenMint,
-						tokenProgram: TOKEN_PROGRAM_ID,
+						tokenProgram: TOKEN_2022_PROGRAM_ID,
 					})
 					.instruction();
 				const { blockhash } = await solanaConnection.getLatestBlockhash();
@@ -247,15 +249,12 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 
 				const versionedTx = new VersionedTransaction(messageV0);
 
-				console.log("Sending transaction...");
-
 				try {
 					const config: SimulateTransactionConfig = {
 						sigVerify: false,
 						commitment: "confirmed",
 					};
 					const simulation = await solanaConnection.simulateTransaction(versionedTx, config);
-					console.log("Transaction simulation:", simulation);
 					if (simulation.value.err) {
 						throw new Error(`Transaction simulation failed: ${JSON.stringify(simulation.value.err)}`);
 					}

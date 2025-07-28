@@ -7,7 +7,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Coins, Copy, Loader2, LogOut, Mail } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { thirdwebClient } from "@/config/thirdweb";
 import { ConnectButton, useActiveAccount, useActiveWallet, useConnectModal, useDisconnect } from "thirdweb/react";
 import { base } from "thirdweb/chains";
@@ -73,8 +73,6 @@ export default function AccountButton() {
 
 	const { setVisible: setSolanaModalVisible } = useSolanaWalletModal();
 
-	const [isInitializing, setIsInitializing] = useState(true);
-
 	// Only show loading if there's actually a connected wallet AND we're authenticating
 	const shouldShowEvmLoading = isAuthenticating && thirdwebAccount && evmWallet;
 	const shouldShowSolanaLoading = isAuthenticating && solanaWallet.wallet;
@@ -82,14 +80,6 @@ export default function AccountButton() {
 	useEffect(() => {
 		onAccountChange(thirdwebAccount, solanaWallet).then();
 	}, [thirdwebAccount, solanaWallet, onAccountChange, evmWallet]);
-
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setIsInitializing(false);
-		}, 1000);
-
-		return () => clearTimeout(timer);
-	}, []);
 
 	evmWallet?.subscribe("accountChanged", (newAccount) => {
 		onAccountChange(newAccount, solanaWallet).then();
@@ -100,16 +90,6 @@ export default function AccountButton() {
 		if (!address) return "";
 		return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 	};
-
-	// Show loading state while initializing
-	if (isInitializing) {
-		return (
-			<Button variant="outline" disabled className="flex items-center gap-2 px-3 h-9 border-border">
-				<Loader2 className="h-4 w-4 animate-spin" />
-				Connecting...
-			</Button>
-		);
-	}
 
 	const handleCopyAddress = async () => {
 		if (account === null) {

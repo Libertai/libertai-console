@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { ethers } from "ethers";
 import { WalletContextState as SolanaWalletContextState } from "@solana/wallet-adapter-react";
 import { Buffer } from "buffer";
+import { QueryClient } from "@tanstack/react-query";
 
 const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
 
@@ -37,6 +38,8 @@ type AccountStoreState = {
 	isAuthenticating: boolean;
 	lastTransactionHash: string | null;
 	isInitialLoad: boolean;
+	queryClient: QueryClient | null;
+	setQueryClient: (client: QueryClient) => void;
 	onAccountChange: (
 		newBaseAccount: ThirdwebAccount | undefined,
 		newSolanaAccount: SolanaWalletContextState | undefined,
@@ -66,6 +69,11 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	lastTransactionHash: null,
 	isInitialLoad: true,
 	account: null,
+	queryClient: null,
+
+	setQueryClient: (client: QueryClient) => {
+		set({ queryClient: client });
+	},
 
 	onAccountChange: async (
 		newBaseAccount: ThirdwebAccount | undefined,
@@ -133,6 +141,11 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			});
 
 			if (authSuccess) {
+				// Invalidate all queries to refetch with new account
+				if (state.queryClient) {
+					state.queryClient.invalidateQueries();
+				}
+				
 				// Get LTAI token balance from blockchain
 				const ltaiBalance = await state.getLTAIBalance();
 				set({ ltaiBalance: ltaiBalance });
