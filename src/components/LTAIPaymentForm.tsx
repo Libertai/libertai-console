@@ -21,7 +21,7 @@ import { thirdwebClient } from "@/config/thirdweb";
 import { useLTAIPrice } from "@/hooks/use-ltai-price";
 import { eth_getTransactionReceipt, getRpcClient, prepareContractCall, sendTransaction } from "thirdweb";
 import { parseUnits } from "viem";
-import { getAssociatedTokenAddress, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { getAssociatedTokenAddress, TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction } from "@solana/spl-token";
 import { BN, Program } from "@coral-xyz/anchor";
 
 interface LTAIPaymentFormProps {
@@ -46,7 +46,6 @@ const waitForTransaction = async (transactionHash: `0x${string}`, maxAttempts = 
 				hash: transactionHash,
 			});
 
-			// Receipt might be null if transaction is not yet mined
 			if (receipt && receipt.status === "success") {
 				return receipt;
 			}
@@ -210,18 +209,35 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 		} else if (account?.chain === "solana" && account.provider.publicKey !== null) {
 			try {
 				const amount = parseUnits(discountedLtaiAmount.toString(), 9);
+				
+				const mintAccountInfo = await solanaConnection.getAccountInfo(solanaTokenMint);
+				if (!mintAccountInfo) {
+					throw new Error("Token mint account not found");
+				}
+				
+				const tokenProgramId = mintAccountInfo.owner.equals(TOKEN_2022_PROGRAM_ID) 
+					? TOKEN_2022_PROGRAM_ID 
+					: TOKEN_PROGRAM_ID;
 
 				const userTokenAccount = await getAssociatedTokenAddress(
 					solanaTokenMint,
 					account.provider.publicKey,
 					false,
-					TOKEN_2022_PROGRAM_ID,
+					tokenProgramId,
 				);
 
-				// Check if user token account exists
 				const accountInfo = await solanaConnection.getAccountInfo(userTokenAccount);
+
+				const instructions = [];
 				if (!accountInfo) {
-					throw new Error("Associated token account does not exist. Please create it first.");
+					const createTokenAccountIx = createAssociatedTokenAccountInstruction(
+						account.provider.publicKey,
+						userTokenAccount,
+						account.provider.publicKey,
+						solanaTokenMint,
+						tokenProgramId
+					);
+					instructions.push(createTokenAccountIx);
 				}
 
 				const [programTokenAccountPDA] = PublicKey.findProgramAddressSync(
@@ -229,22 +245,25 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 					solanaProgram.programId,
 				);
 
-				const ix = await solanaProgram.methods
+				const paymentIx = await solanaProgram.methods
 					.processPayment(new BN(amount))
 					.accounts({
 						user: account.provider.publicKey,
 						userTokenAccount: userTokenAccount,
 						programTokenAccount: programTokenAccountPDA,
 						tokenMint: solanaTokenMint,
-						tokenProgram: TOKEN_2022_PROGRAM_ID,
+						tokenProgram: tokenProgramId,
 					})
 					.instruction();
+				
+				instructions.push(paymentIx);
+				
 				const { blockhash } = await solanaConnection.getLatestBlockhash();
 
 				const messageV0 = new TransactionMessage({
 					payerKey: account.provider.publicKey,
 					recentBlockhash: blockhash,
-					instructions: [ix],
+					instructions: instructions,
 				}).compileToV0Message();
 
 				const versionedTx = new VersionedTransaction(messageV0);
@@ -264,7 +283,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 						`Transaction simulation failed: ${simError instanceof Error ? simError.message : String(simError)}`,
 					);
 				}
-				const tx = new Transaction().add(ix);
+				const tx = new Transaction().add(...instructions);
 				tx.recentBlockhash = blockhash;
 				tx.feePayer = account.provider.publicKey;
 				const sig = await account.provider.sendTransaction(tx, solanaConnection, {
@@ -273,7 +292,6 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 					maxRetries: 3,
 				});
 
-				// Store the transaction hash for display
 				setLastTransactionHash(sig);
 
 				const toastId = toast.loading("Waiting for payment confirmation...");
@@ -292,7 +310,6 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 						id: toastId,
 					});
 
-					// After successful payment, update the LTAI balance and call the success handler
 					await getLTAIBalance();
 					onPaymentSuccess();
 				} catch (confirmError) {
