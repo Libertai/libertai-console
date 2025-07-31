@@ -1,9 +1,11 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { ThirdwebProvider } from "thirdweb/react";
 import { ThemeProvider } from "./ThemeProvider";
 import { Toaster } from "./ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NuqsAdapter } from "nuqs/adapters/react";
+import { SolanaProvider } from "./SolanaProvider";
+import { useAccountStore } from "@/stores/account";
 
 type ProvidersProps = {
 	children: ReactNode;
@@ -18,12 +20,26 @@ const queryClient = new QueryClient({
 	},
 });
 
+const QueryClientInitializer = ({ children }: { children: ReactNode }) => {
+	const setQueryClient = useAccountStore(state => state.setQueryClient);
+	
+	useEffect(() => {
+		setQueryClient(queryClient);
+	}, [setQueryClient]);
+	
+	return <>{children}</>;
+};
+
 const Providers = ({ children }: ProvidersProps) => {
 	return (
 		<NuqsAdapter>
 			<ThemeProvider defaultTheme="system" storageKey="libertai-ui-theme">
 				<QueryClientProvider client={queryClient}>
-					<ThirdwebProvider>{children}</ThirdwebProvider>
+					<QueryClientInitializer>
+						<SolanaProvider>
+							<ThirdwebProvider>{children}</ThirdwebProvider>
+						</SolanaProvider>
+					</QueryClientInitializer>
 					<Toaster richColors />
 				</QueryClientProvider>
 			</ThemeProvider>

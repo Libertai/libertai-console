@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Account } from "thirdweb/wallets";
+import { Account as ThirdwebAccount } from "thirdweb/wallets";
 import env from "@/config/env.ts";
 import { base } from "thirdweb/chains";
 import {
@@ -9,52 +9,98 @@ import {
 } from "@/apis/inference/sdk.gen";
 import { toast } from "sonner";
 import { ethers } from "ethers";
+import { WalletContextState as SolanaWalletContextState } from "@solana/wallet-adapter-react";
+import { Buffer } from "buffer";
+import { QueryClient } from "@tanstack/react-query";
 
 const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
 
+type ConnectedAccount = {
+	address: string;
+} & (
+	| {
+			chain: "base";
+			provider: ThirdwebAccount;
+	  }
+	| {
+			chain: "solana";
+			provider: SolanaWalletContextState;
+	  }
+);
+
 type AccountStoreState = {
-	alephStorage: null;
 	ltaiBalance: number;
 	apiCredits: number;
 	formattedLTAIBalance: () => string;
 	formattedAPICredits: () => string;
-	account: Account | null;
+	account: ConnectedAccount | null;
 	isAuthenticated: boolean;
 	isAuthenticating: boolean;
 	lastTransactionHash: string | null;
-
-	onAccountChange: (newAccount: Account | undefined) => Promise<void>;
+	isInitialLoad: boolean;
+	queryClient: QueryClient | null;
+	setQueryClient: (client: QueryClient) => void;
+	onAccountChange: (
+		newBaseAccount: ThirdwebAccount | undefined,
+		newSolanaAccount: SolanaWalletContextState | undefined,
+	) => Promise<void>;
 	getLTAIBalance: () => Promise<number>;
 	getAPICredits: () => Promise<number>;
 	onDisconnect: () => void;
-	authenticate: (account: Account) => Promise<boolean>;
+	authenticate: (
+		baseAccount: ThirdwebAccount | undefined,
+		solanaAccount: SolanaWalletContextState | undefined,
+		showErrors?: boolean,
+	) => Promise<boolean>;
 	checkAuthStatus: (accountAddress: string) => Promise<boolean>;
 	setLastTransactionHash: (hash: string | null) => void;
+	setInitialLoadComplete: () => void;
 };
 
 export const useAccountStore = create<AccountStoreState>((set, get) => ({
-	alephStorage: null,
 	ltaiBalance: 0,
 	apiCredits: 0,
 	formattedLTAIBalance: () => get().ltaiBalance.toFixed(0),
 	formattedAPICredits: () => get().apiCredits.toFixed(0),
-	account: null,
-	jwtToken: null,
+	baseAccount: null,
+	solanaAccount: null,
 	isAuthenticated: false,
 	isAuthenticating: false,
 	lastTransactionHash: null,
+	isInitialLoad: true,
+	account: null,
+	queryClient: null,
 
-	onAccountChange: async (newAccount: Account | undefined) => {
+	setQueryClient: (client: QueryClient) => {
+		set({ queryClient: client });
+	},
+
+	onAccountChange: async (
+		newBaseAccount: ThirdwebAccount | undefined,
+		newSolanaAccount: SolanaWalletContextState | undefined,
+	) => {
 		const state = get();
 
-		if (newAccount === undefined) {
+		// Check if both accounts are undefined/null - this indicates disconnection
+		if (newBaseAccount === undefined && (newSolanaAccount === undefined || !newSolanaAccount.publicKey)) {
 			// Potential disconnection
 			state.onDisconnect();
 			return;
 		}
 
-		if (state.account !== null && state.account.address === newAccount.address) {
-			// Account already connected with the same address
+		// Check if a Base account is already connected with the same address
+		if (state.account !== null && newBaseAccount !== undefined && state.account.address === newBaseAccount.address) {
+			// Base account already connected with the same address
+			return;
+		}
+
+		// Check if a Solana account is already connected with the same address
+		if (
+			state.account !== null &&
+			newSolanaAccount?.publicKey &&
+			state.account.address === newSolanaAccount.publicKey.toString()
+		) {
+			// Solana account already connected with the same address
 			return;
 		}
 
@@ -63,69 +109,137 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			return;
 		}
 
+		// Set the account first so UI shows connected state
+		if (newBaseAccount !== undefined) {
+			set({
+				account: { address: newBaseAccount.address, chain: "base", provider: newBaseAccount },
+			});
+		} else if (newSolanaAccount?.publicKey) {
+			set({
+				account: { address: newSolanaAccount.publicKey.toString(), chain: "solana", provider: newSolanaAccount },
+			});
+		}
+
 		// First check if we're already authenticated with this wallet
 		set({ isAuthenticating: true });
-		const isAlreadyAuthenticated = await state.checkAuthStatus(newAccount.address);
 
-		let authSuccess = isAlreadyAuthenticated;
-		if (!isAlreadyAuthenticated) {
-			// Need to authenticate with a signature
-			authSuccess = await state.authenticate(newAccount);
+		try {
+			const address = newSolanaAccount?.publicKey?.toString() ?? newBaseAccount?.address ?? "";
+			const isAlreadyAuthenticated = await state.checkAuthStatus(address);
+
+			let authSuccess = isAlreadyAuthenticated;
+			if (!isAlreadyAuthenticated) {
+				// Only try to authenticate if this isn't an initial page load reconnection
+				// or if user manually clicked connect
+				const shouldShowErrors = !state.isInitialLoad;
+				authSuccess = await state.authenticate(newBaseAccount, newSolanaAccount, shouldShowErrors);
+			}
+
+			set({
+				isAuthenticating: false,
+				isAuthenticated: authSuccess,
+			});
+
+			if (authSuccess) {
+				// Invalidate all queries to refetch with new account
+				if (state.queryClient) {
+					state.queryClient.invalidateQueries();
+				}
+				
+				// Get LTAI token balance from blockchain
+				const ltaiBalance = await state.getLTAIBalance();
+				set({ ltaiBalance: ltaiBalance });
+			}
+		} catch (error) {
+			console.error("Account change error:", error);
+			set({
+				isAuthenticating: false,
+				isAuthenticated: false,
+			});
+		} finally {
+			// Mark initial load as complete no matter what
+			if (state.isInitialLoad) {
+				set({ isInitialLoad: false });
+			}
 		}
-
-		set({ isAuthenticating: false });
-
-		if (!authSuccess) {
-			set({ account: null, isAuthenticated: false });
-			return;
-		}
-
-		set({ account: newAccount, isAuthenticated: true });
-
-		// Get LTAI token balance from blockchain
-		const ltaiBalance = await state.getLTAIBalance();
-		set({ ltaiBalance: ltaiBalance });
 	},
 	getLTAIBalance: async (): Promise<number> => {
 		const state = get();
-    let balance: string = "0";
-    const hexBalanceOfFunction = "0x70a08231";
+		let balance: string = "0";
 
 		if (state.account === null) {
 			return 0;
 		}
 
-    const address = state.account.address.startsWith("0x") ? state.account.address.slice(2) : state.account.address;
-    const paddedAddress = address.padStart(64, "0");
-    const body = {
-        "jsonrpc":"2.0",
-        "method":"eth_call",
-        "params": [
-            {
-                "to": LTAI_BASE_ADDRESS,
-                "data": `${hexBalanceOfFunction}${paddedAddress}`
-            },
-            "latest"
-        ],
-        "id": base.id
-    }
+		if (state.account.chain === "base") {
+			const address = state.account.address.startsWith("0x") ? state.account.address.slice(2) : state.account.address;
+			const paddedAddress = address.padStart(64, "0");
+			const hexBalanceOfFunction = "0x70a08231";
+			const body = {
+				jsonrpc: "2.0",
+				method: "eth_call",
+				params: [
+					{
+						to: LTAI_BASE_ADDRESS,
+						data: `${hexBalanceOfFunction}${paddedAddress}`,
+					},
+					"latest",
+				],
+				id: base.id,
+			};
 
-    try {
-      const response = await fetch("https://mainnet.base.org", {
-        method: "POST",
-        body: JSON.stringify(body),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
+			try {
+				const response = await fetch("https://mainnet.base.org", {
+					method: "POST",
+					body: JSON.stringify(body),
+					headers: {
+						"Content-Type": "application/json",
+					},
+				});
 
-      const json = await response.json();
-      const weiBalance = ethers.getBigInt(json.result);
-      balance = ethers.formatEther(weiBalance);
-    } catch (error) {
-        console.error("Error fetching balance:", error);
-    }
-    return Number(balance);
+				const json = await response.json();
+				const weiBalance = ethers.getBigInt(json.result);
+				balance = ethers.formatEther(weiBalance);
+			} catch (error) {
+				console.error("Error fetching balance:", error);
+			}
+		} else if (state.account.chain === "solana") {
+			try {
+				const body = {
+					jsonrpc: "2.0",
+					id: 1,
+					method: "getTokenAccountsByOwner",
+					params: [
+						state.account.address,
+						{
+							mint: env.LTAI_SOLANA_ADDRESS,
+						},
+						{
+							encoding: "jsonParsed",
+						},
+					],
+				};
+
+				const response = await fetch(env.SOLANA_RPC, {
+					method: "POST",
+					body: JSON.stringify(body),
+					headers: {
+						"Content-Type": "application/json",
+					},
+				});
+				const json = await response.json();
+				let ltaiBalance = 0.0;
+
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				json.result.value.forEach((value: any) => {
+					ltaiBalance += value.account.data.parsed.info.tokenAmount.uiAmount;
+				});
+				balance = String(ltaiBalance);
+			} catch (error) {
+				console.error("Error fetching Solana balance:", error);
+			}
+		}
+		return Number(balance);
 	},
 	getAPICredits: async (): Promise<number> => {
 		// This would typically come from the API after authentication
@@ -142,32 +256,88 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 			return false;
 		}
 	},
-	authenticate: async (account: Account): Promise<boolean> => {
+	authenticate: async (
+		baseAccount: ThirdwebAccount | undefined,
+		solanaAccount: SolanaWalletContextState | undefined,
+		showErrors?: boolean,
+	): Promise<boolean> => {
 		const state = get();
+
+		let address: string;
+		let chain: "base" | "solana";
+		if (baseAccount !== undefined) {
+			address = baseAccount.address;
+			chain = "base";
+		} else if (solanaAccount?.publicKey) {
+			address = solanaAccount.publicKey.toString();
+			chain = "solana";
+		} else {
+			console.error("No account provided for authentication");
+			if (showErrors) {
+				toast.error("Authentication failed", {
+					description: "No wallet connected",
+				});
+			}
+			return false;
+		}
 
 		try {
 			// Get the message to sign
 			const messageResponse = await getAuthMessageAuthMessagePost({
 				body: {
-					address: account.address,
+					chain: chain,
+					address: address,
 				},
 			});
 
-			if (!messageResponse.data) {
-				toast.error("Authentication failed", {
-					description: "Could not get message to sign",
-				});
+			if (!messageResponse.data?.message) {
+				console.error("No message received from server");
+				if (showErrors) {
+					toast.error("Authentication failed", {
+						description: "Could not get message to sign",
+					});
+				}
 				return false;
 			}
 
 			// Sign the message
-			const signature = await account.signMessage({ message: messageResponse.data.message });
+			let signature: string | undefined;
+			if (chain === "base" && baseAccount !== undefined) {
+				signature = await baseAccount.signMessage({ message: messageResponse.data.message });
+			} else if (chain === "solana" && solanaAccount?.signMessage !== undefined) {
+				const messageBytes = new TextEncoder().encode(messageResponse.data.message);
+				const raw_signature = await solanaAccount.signMessage(messageBytes);
+
+				if (!raw_signature) {
+					console.error("No signature generated");
+					if (showErrors) {
+						toast.error("Authentication failed", {
+							description: "Could not sign message",
+						});
+					}
+					return false;
+				}
+
+				// Convert signature to base64 for Solana
+				signature = Buffer.from(raw_signature).toString("base64");
+			}
+
+			if (!signature) {
+				console.error("No signature generated");
+				if (showErrors) {
+					toast.error("Authentication failed", {
+						description: "Could not sign message",
+					});
+				}
+				return false;
+			}
 
 			// Login with the signature
 			const loginResponse = await loginWithWalletAuthLoginPost({
 				body: {
-					address: account.address,
+					address: address,
 					signature: signature,
+					chain: chain,
 				},
 			});
 
@@ -181,31 +351,42 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 
 				return true;
 			} else {
-				toast.error("Authentication failed", {
-					description: "Invalid response from server",
-				});
+				console.error("No access token received");
+				if (showErrors) {
+					toast.error("Authentication failed", {
+						description: "Invalid response from server",
+					});
+				}
 				return false;
 			}
 		} catch (error) {
 			console.error("Authentication error:", error);
-			toast.error("Authentication failed", {
-				description: error instanceof Error ? error.message : "Unknown error",
-			});
+
+			// Only show toast if we should show errors
+			if (showErrors) {
+				toast.error("Authentication failed", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+			}
 			return false;
 		}
 	},
 	onDisconnect: () => {
 		set({
-			account: null,
-			alephStorage: null,
 			isAuthenticated: false,
 			ltaiBalance: 0,
 			apiCredits: 0,
 			lastTransactionHash: null,
+			isInitialLoad: true,
+			account: null,
 		});
 	},
 
 	setLastTransactionHash: (hash: string | null) => {
 		set({ lastTransactionHash: hash });
+	},
+
+	setInitialLoadComplete: () => {
+		set({ isInitialLoad: false });
 	},
 }));

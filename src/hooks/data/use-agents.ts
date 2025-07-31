@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-	listAgentsAgentsGet,
-	createAgentAgentsPost,
 	cancelSubscriptionSubscriptionsSubscriptionIdDelete,
+	createAgentAgentsPost,
+	listAgentsAgentsGet,
 	reallocateAgentAgentsAgentIdReallocatePost,
 } from "@/apis/inference";
 import { useAccountStore } from "@/stores/account.ts";
@@ -75,7 +75,9 @@ export function useAgents() {
 			});
 
 			if (response.error) {
-				throw new Error(response.error.detail ? response.error.detail.toString() : "Unknown error cancelling subscription");
+				throw new Error(
+					response.error.detail ? response.error.detail.toString() : "Unknown error cancelling subscription",
+				);
 			}
 
 			return subscriptionId;
