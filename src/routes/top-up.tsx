@@ -224,6 +224,7 @@ function TopUp() {
 										onSelectMethod={setMethod}
 										selectedMethod={method as PaymentMethod}
 										hasLTAI={hasLTAI}
+                    chain={account?.chain}
 									/>
 								</div>
 							</div>
