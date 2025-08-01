@@ -30,8 +30,10 @@ type ConnectedAccount = {
 
 type AccountStoreState = {
 	ltaiBalance: number;
+    solBalance: number;
 	apiCredits: number;
 	formattedLTAIBalance: () => string;
+    formattedSOLBalance: () => string;
 	formattedAPICredits: () => string;
 	account: ConnectedAccount | null;
 	isAuthenticated: boolean;
@@ -45,6 +47,7 @@ type AccountStoreState = {
 		newSolanaAccount: SolanaWalletContextState | undefined,
 	) => Promise<void>;
 	getLTAIBalance: () => Promise<number>;
+    getSOLBalance: () => Promise<number>;
 	getAPICredits: () => Promise<number>;
 	onDisconnect: () => void;
 	authenticate: (
@@ -59,8 +62,10 @@ type AccountStoreState = {
 
 export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	ltaiBalance: 0,
+    solBalance: 0,
 	apiCredits: 0,
-	formattedLTAIBalance: () => get().ltaiBalance.toFixed(0),
+    formattedLTAIBalance: () => get().ltaiBalance.toFixed(0),
+	formattedSOLBalance: () => get().solBalance.toFixed(0),
 	formattedAPICredits: () => get().apiCredits.toFixed(0),
 	baseAccount: null,
 	solanaAccount: null,
@@ -149,6 +154,10 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 				// Get LTAI token balance from blockchain
 				const ltaiBalance = await state.getLTAIBalance();
 				set({ ltaiBalance: ltaiBalance });
+                if (newSolanaAccount?.publicKey) {
+                    const solBalance = await state.getSOLBalance();
+                    set({ solBalance: solBalance });
+                }
 			}
 		} catch (error) {
 			console.error("Account change error:", error);
@@ -241,6 +250,43 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		}
 		return Number(balance);
 	},
+    getSOLBalance: async (): Promise<number> => {
+        const state = get();
+        let balance: string = "0";
+
+        if (state.account === null) {
+          return 0;
+        }
+
+        try {
+          const body = {
+            jsonrpc: "2.0",
+            id: 1,
+            method: "getBalance",
+            params: [
+              state.account.address,
+              {
+                encoding: "jsonParsed",
+              },
+            ],
+          };
+
+          const response = await fetch(env.SOLANA_RPC, {
+            method: "POST",
+            body: JSON.stringify(body),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          const json = await response.json();
+          if (json.result && json.result.value) {
+            balance = String(json.result.value / 1e9);
+          }
+        } catch (error) {
+          console.error("Error fetching Solana balance:", error);
+        }
+    return Number(balance);
+  },
 	getAPICredits: async (): Promise<number> => {
 		// This would typically come from the API after authentication
 		// For now we'll return a placeholder value until we implement the proper endpoint
@@ -375,6 +421,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		set({
 			isAuthenticated: false,
 			ltaiBalance: 0,
+            solBalance: 0,
 			apiCredits: 0,
 			lastTransactionHash: null,
 			isInitialLoad: true,
