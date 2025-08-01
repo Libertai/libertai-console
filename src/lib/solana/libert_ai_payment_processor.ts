@@ -222,6 +222,62 @@ export type LibertAiPaymentProcessor = {
       ]
     },
     {
+      "name": "procesPaymentSol",
+      "discriminator": [
+        153,
+        230,
+        95,
+        88,
+        86,
+        78,
+        124,
+        192
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "programState",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  103,
+                  114,
+                  97,
+                  109,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "processPayment",
       "discriminator": [
         189,
@@ -546,6 +602,19 @@ export type LibertAiPaymentProcessor = {
         225,
         20
       ]
+    },
+    {
+      "name": "solPaymentEvent",
+      "discriminator": [
+        123,
+        131,
+        169,
+        174,
+        82,
+        247,
+        254,
+        170
+      ]
     }
   ],
   "errors": [
@@ -577,7 +646,7 @@ export type LibertAiPaymentProcessor = {
     {
       "code": 6005,
       "name": "invalidTokenMint",
-      "msg": "Invalid token mint - only 3onmcmVmxyuhKyprEw4LyfdpqTPW6fRA7JQhopbiph5k is accepted"
+      "msg": "Invalid token mint - only Df3shQQ3qZ9qyLfrWTqfjP2TSSAqMvM5zxb2NXQQKaXh is accepted"
     },
     {
       "code": 6006,
@@ -633,6 +702,26 @@ export type LibertAiPaymentProcessor = {
           {
             "name": "bump",
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "solPaymentEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
           }
         ]
       }

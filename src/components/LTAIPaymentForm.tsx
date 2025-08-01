@@ -11,6 +11,7 @@ import {
 	Transaction,
 	TransactionMessage,
 	VersionedTransaction,
+  SystemProgram
 } from "@solana/web3.js";
 import { LibertAiPaymentProcessor } from "@/lib/solana/libert_ai_payment_processor";
 import { useAccountStore } from "@/stores/account";
@@ -19,14 +20,22 @@ import { approve } from "thirdweb/extensions/erc20";
 import { base } from "thirdweb/chains";
 import { thirdwebClient } from "@/config/thirdweb";
 import { useLTAIPrice } from "@/hooks/use-ltai-price";
-import { eth_getTransactionReceipt, getRpcClient, prepareContractCall, sendTransaction } from "thirdweb";
+import {
+  eth_getTransactionReceipt,
+  getRpcClient,
+  prepareContractCall,
+  sendTransaction
+} from "thirdweb";
 import { parseUnits } from "viem";
 import { getAssociatedTokenAddress, TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction } from "@solana/spl-token";
 import { BN, Program } from "@coral-xyz/anchor";
+import {PaymentMethod} from "@/components/PaymentMethodSelector.tsx";
+import {useSOLPrice} from "@/hooks/use-sol-price.ts";
 
 interface LTAIPaymentFormProps {
 	usdAmount: number;
 	onPaymentSuccess: () => void;
+    paymentMethod: PaymentMethod;
 }
 
 const solanaConnection = new Connection(env.SOLANA_RPC, "confirmed");
@@ -60,10 +69,12 @@ const waitForTransaction = async (transactionHash: `0x${string}`, maxAttempts = 
 	throw new Error("Transaction confirmation timeout");
 };
 
-export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPaymentFormProps>) {
+export function LTAIPaymentForm({ usdAmount, onPaymentSuccess, paymentMethod }: Readonly<LTAIPaymentFormProps>) {
 	const account = useAccountStore((state) => state.account);
 	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
+    const solBalance = useAccountStore((state) => state.solBalance);
 	const getLTAIBalance = useAccountStore((state) => state.getLTAIBalance);
+  	const getSOLBalance = useAccountStore((state) => state.getSOLBalance);
 	const setLastTransactionHash = useAccountStore((state) => state.setLastTransactionHash);
 
 	const [isApproving, setIsApproving] = useState(false);
@@ -71,7 +82,9 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 	const [isApproved, setIsApproved] = useState(false);
 
 	const { price: ltaiPrice, isLoading, getRequiredLTAI } = useLTAIPrice();
+    const {price: solPrice, isLoading: solIsLoading, getRequiredSOL} = useSOLPrice();
 	const originalLtaiAmount = getRequiredLTAI(usdAmount, false);
+    const originalSolAmount = getRequiredSOL(usdAmount);
 	const discountedLtaiAmount = getRequiredLTAI(usdAmount, true);
 
 	const LTAI_BASE_CONTRACT_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
@@ -141,7 +154,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 	};
 
 	const handleProcessPayment = async () => {
-		if (!ltaiPrice || !discountedLtaiAmount) return;
+		if (!ltaiPrice || !discountedLtaiAmount || !solPrice) return;
 
 		setIsProcessing(true);
 		if (account?.chain === "base") {
@@ -209,14 +222,14 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 		} else if (account?.chain === "solana" && account.provider.publicKey !== null) {
 			try {
 				const amount = parseUnits(discountedLtaiAmount.toString(), 9);
-				
+
 				const mintAccountInfo = await solanaConnection.getAccountInfo(solanaTokenMint);
 				if (!mintAccountInfo) {
 					throw new Error("Token mint account not found");
 				}
-				
-				const tokenProgramId = mintAccountInfo.owner.equals(TOKEN_2022_PROGRAM_ID) 
-					? TOKEN_2022_PROGRAM_ID 
+
+				const tokenProgramId = mintAccountInfo.owner.equals(TOKEN_2022_PROGRAM_ID)
+					? TOKEN_2022_PROGRAM_ID
 					: TOKEN_PROGRAM_ID;
 
 				const userTokenAccount = await getAssociatedTokenAddress(
@@ -255,9 +268,9 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 						tokenProgram: tokenProgramId,
 					})
 					.instruction();
-				
+
 				instructions.push(paymentIx);
-				
+
 				const { blockhash } = await solanaConnection.getLatestBlockhash();
 
 				const messageV0 = new TransactionMessage({
@@ -330,7 +343,95 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 			}
 		}
 	};
-	if (isLoading) {
+
+    const handleSolProcessPayment = async () => {
+        if (account?.chain !== "solana" || !account.provider?.publicKey){
+            return;
+        }
+
+        const instructions = [];
+        const { blockhash } = await solanaConnection.getLatestBlockhash();
+        const [programState] = PublicKey.findProgramAddressSync(
+          [Buffer.from("program_state")],
+          solanaProgram.programId
+        );
+        const amount = parseUnits(originalSolAmount.toString(), 9);
+        const ix = await solanaProgram.methods
+          .procesPaymentSol(new BN(amount))
+          .accounts({
+            user: account.provider.publicKey,
+            programState: programState,
+            systemProgram: SystemProgram.programId,
+          })
+          .instruction();
+        instructions.push(ix);
+
+
+        const messageV0 = new TransactionMessage({
+          payerKey: account.provider.publicKey,
+          recentBlockhash: blockhash,
+          instructions: instructions,
+        }).compileToV0Message();
+        const versionedTx = new VersionedTransaction(messageV0);
+
+        try {
+          const config: SimulateTransactionConfig = {
+            sigVerify: false,
+            commitment: "confirmed",
+          };
+          const simulation = await solanaConnection.simulateTransaction(versionedTx, config);
+          if (simulation.value.err) {
+            throw new Error(`Transaction simulation failed: ${JSON.stringify(simulation.value.err)}`);
+          }
+        } catch (simError) {
+          console.error("Simulation error:", simError);
+          throw new Error(
+            `Transaction simulation failed: ${simError instanceof Error ? simError.message : String(simError)}`,
+          );
+        }
+
+        const tx = new Transaction().add(...instructions);
+        tx.recentBlockhash = blockhash;
+        tx.feePayer = account.provider.publicKey;
+
+        const sig = await account.provider.sendTransaction(tx, solanaProgram.provider.connection, {
+          skipPreflight: true, // Skip preflight since we already simulated
+          preflightCommitment: "confirmed",
+          maxRetries: 3,
+        });
+
+        setLastTransactionHash(sig);
+
+        const toastId = toast.loading("Waiting for payment confirmation...");
+        const latestBlockHash = await solanaConnection.getLatestBlockhash();
+
+        try {
+          await solanaConnection.confirmTransaction(
+            {
+              blockhash: blockhash,
+              lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+              signature: sig,
+            },
+            "confirmed",
+          );
+
+          toast.success("Payment successful", {
+            id: toastId,
+          });
+
+          await getSOLBalance();
+          onPaymentSuccess();
+        } catch (confirmError) {
+          console.error("Payment confirmation error:", confirmError);
+          toast.error("Payment confirmation failed", {
+            id: toastId,
+            description:
+              confirmError instanceof Error ? confirmError.message : "Transaction may not have been confirmed",
+          });
+        }
+    }
+
+	if (isLoading || solIsLoading) {
 		return (
 			<div className="space-y-6">
 				<div className="bg-card p-4 rounded-lg border border-border">
@@ -362,6 +463,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 	}
 
 	const hasEnoughLTAI = ltaiBalance >= discountedLtaiAmount;
+    const symbol = paymentMethod === "solana" && account?.chain === "solana" ? "SOL" : "LTAI";
 
 	return (
 		<div className="space-y-6">
@@ -371,29 +473,29 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 					<span>${usdAmount.toFixed(2)}</span>
 				</div>
 				<div className="flex justify-between mb-2">
-					<span className="text-muted-foreground">LTAI Price</span>
-					<span>${ltaiPrice.toFixed(4)} per LTAI</span>
+					<span className="text-muted-foreground">${symbol} Price</span>
+					<span>${symbol === "LTAI" ? ltaiPrice.toFixed(4) : solPrice.toFixed(2)} per ${symbol}</span>
 				</div>
 				<div className="border-t border-border my-2"></div>
 				<div className="flex justify-between font-medium">
-					<span>LTAI Required</span>
-					<div className="flex flex-col items-end">
-						<span className="line-through text-muted-foreground text-sm">{originalLtaiAmount.toFixed(2)} LTAI</span>
-						<div className="flex items-center">
-							<span className="text-green-600 mr-1 text-sm">20% OFF</span>
-							<span className="font-bold">{discountedLtaiAmount.toFixed(2)} LTAI</span>
-						</div>
-					</div>
-				</div>
-				<div className="flex justify-between mt-2 text-xs">
-					<span>Your LTAI Balance</span>
-					<span className={!hasEnoughLTAI ? "text-destructive" : ""}>{ltaiBalance.toFixed(2)} LTAI</span>
+					<span>${symbol} Required</span>
+                    <div className="flex flex-col items-end">
+                        {symbol === "LTAI" && (<span className="line-through text-muted-foreground text-sm">{originalLtaiAmount.toFixed(2)} LTAI</span>)}
+                        <div className="flex items-center">
+                            {symbol === "LTAI" && (<span className="text-green-600 mr-1 text-sm">20% OFF</span>)}
+                            <span className="font-bold">{symbol === "LTAI" ? discountedLtaiAmount.toFixed(2) : originalSolAmount.toFixed(2)} ${symbol}</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex justify-between mt-2 text-xs">
+                    <span>Your ${symbol} Balance</span>
+					<span className={!solBalance ? "text-destructive" : ""}>{symbol === "LTAI" ? ltaiBalance.toFixed(2) : solBalance.toFixed(2)} ${symbol}</span>
 				</div>
 			</div>
 
-			{!hasEnoughLTAI && (
+			{symbol === "LTAI" ? !hasEnoughLTAI : !solBalance && (
 				<div className="bg-destructive/10 p-4 rounded-lg border border-destructive/30 text-sm">
-					You don't have enough LTAI tokens for this payment. Please select another payment method.
+					You don't have enough ${symbol} tokens for this payment. Please select another payment method.
 				</div>
 			)}
 
@@ -416,7 +518,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 				)}
 
 				<Button
-					onClick={handleProcessPayment}
+					onClick={symbol === "LTAI" ?  handleProcessPayment : handleSolProcessPayment}
 					className="w-full"
 					disabled={isProcessing || isApproving || !hasEnoughLTAI || (!isApproved && account?.chain === "base")}
 				>
@@ -426,7 +528,7 @@ export function LTAIPaymentForm({ usdAmount, onPaymentSuccess }: Readonly<LTAIPa
 							Processing Payment...
 						</>
 					) : (
-						`${account?.chain === "solana" ? "" : "2. "}Pay with LTAI`
+						`${account?.chain === "solana" ? "" : "2. "}Pay with ${symbol}`
 					)}
 				</Button>
 			</div>

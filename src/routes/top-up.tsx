@@ -224,7 +224,7 @@ function TopUp() {
 										onSelectMethod={setMethod}
 										selectedMethod={method as PaymentMethod}
 										hasLTAI={hasLTAI}
-                    chain={account?.chain}
+                                        chain={account?.chain}
 									/>
 								</div>
 							</div>
@@ -264,7 +264,7 @@ function TopUp() {
 										/>
 									) : (
 										/* LTAI Payment Form */
-										<LTAIPaymentForm usdAmount={Number(amount)} onPaymentSuccess={handlePaymentSuccess} />
+										<LTAIPaymentForm usdAmount={Number(amount)} onPaymentSuccess={handlePaymentSuccess} paymentMethod={method as PaymentMethod}/>
 									)}
 								</div>
 							</div>
