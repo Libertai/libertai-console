@@ -646,7 +646,7 @@ export type LibertAiPaymentProcessor = {
     {
       "code": 6005,
       "name": "invalidTokenMint",
-      "msg": "Invalid token mint - only Df3shQQ3qZ9qyLfrWTqfjP2TSSAqMvM5zxb2NXQQKaXh is accepted"
+      "msg": "Invalid token mint - only 3onmcmVmxyuhKyprEw4LyfdpqTPW6fRA7JQhopbiph5k is accepted"
     },
     {
       "code": 6006,
