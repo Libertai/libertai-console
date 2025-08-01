@@ -26,7 +26,7 @@ export function PaymentMethodSelector({
 			title: "Pay with LTAI",
 			description: hasLTAI ? "Use your LTAI tokens" : "No LTAI tokens available",
 			disabled: !hasLTAI,
-      isHidden: true
+      isVisible: true
 		},
     {
       id: "solana",
@@ -35,7 +35,7 @@ export function PaymentMethodSelector({
       title: "Pay with SOL",
       description: "Use your SOL tokens",
       disabled: false,
-      isHidden: chain === "solana"
+      isVisible: chain === "solana"
     },
 		{
 			id: "crypto",
@@ -44,7 +44,7 @@ export function PaymentMethodSelector({
 			title: `Pay with crypto ${chain === "solana" ? "on EVM" : ""}`,
 			description: "Use USDC, ETH & more",
 			disabled: false,
-      isHidden: true
+      isVisible: true
 		},
 	];
 
@@ -55,7 +55,7 @@ export function PaymentMethodSelector({
 			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				{paymentOptions.map((option) => (
           <>
-            {option.isHidden ?
+            {option.isVisible ?
             <Button
               key={option.id}
               onClick={() => onSelectMethod(option.method as PaymentMethod)}
