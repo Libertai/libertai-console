@@ -21,12 +21,12 @@ const queryClient = new QueryClient({
 });
 
 const QueryClientInitializer = ({ children }: { children: ReactNode }) => {
-	const setQueryClient = useAccountStore(state => state.setQueryClient);
-	
+	const setQueryClient = useAccountStore((state) => state.setQueryClient);
+
 	useEffect(() => {
 		setQueryClient(queryClient);
 	}, [setQueryClient]);
-	
+
 	return <>{children}</>;
 };
 

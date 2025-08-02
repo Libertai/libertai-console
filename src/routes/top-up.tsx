@@ -1,37 +1,23 @@
-import { LTAIPaymentForm } from "@/components/LTAIPaymentForm";
-import { PaymentMethod, PaymentMethodSelector } from "@/components/PaymentMethodSelector";
-import { TopUpAmountInput } from "@/components/TopUpAmountInput";
+import { TopUpAmountInput } from "@/components/payment/TopUpAmountInput.tsx";
 import { Button } from "@/components/ui/button";
-import env from "@/config/env.ts";
-import { thirdwebClient } from "@/config/thirdweb.ts";
 import { useCredits } from "@/hooks/data/use-credits";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useAccountStore } from "@/stores/account";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CheckCircle, ChevronRight, CreditCard, HelpCircle, Zap } from "lucide-react";
+import { CheckCircle, ChevronRight, HelpCircle, Zap } from "lucide-react";
 import { useQueryState } from "nuqs";
-import { useEffect } from "react";
-import { base } from "thirdweb/chains";
-import { PayEmbed, useIsAutoConnecting } from "thirdweb/react";
+import { useIsAutoConnecting } from "thirdweb/react";
+import { PaymentStage } from "@/components/payment/stages/PaymentStage.tsx";
 
 export const Route = createFileRoute("/top-up")({
 	component: TopUp,
 });
 
-type PricingTier = {
-	id: string;
-	name: string;
-	tokens: number;
-	price: number;
-	usdcAmount: string;
-	popular?: boolean;
-};
-
 function TopUp() {
 	const isAutoConnecting = useIsAutoConnecting();
 
+	const { refreshCredits } = useCredits();
 	const account = useAccountStore((state) => state.account);
-	const ltaiBalance = useAccountStore((state) => state.ltaiBalance);
 	const lastTransactionHash = useAccountStore((state) => state.lastTransactionHash);
 	const setLastTransactionHash = useAccountStore((state) => state.setLastTransactionHash);
 
@@ -51,57 +37,6 @@ function TopUp() {
 		parse: (value) => (value !== "" ? value : ""),
 		serialize: (value) => (value !== undefined ? value.toString() : ""),
 	});
-	const [method, setMethod] = useQueryState("method", {
-		defaultValue: "ltai",
-		parse: (value): PaymentMethod => {
-			if (value === "ltai") return "ltai";
-			return "crypto";
-		},
-	});
-
-	const { refreshCredits } = useCredits();
-	const hasLTAI = ltaiBalance > 0;
-
-	// Effect to set initial payment method
-	useEffect(() => {
-		// Default to crypto payment if user has no LTAI tokens and no method is set
-		if (!hasLTAI && method === "crypto") {
-			setMethod("crypto");
-		}
-	}, [hasLTAI, method, setMethod]);
-
-	// Pricing tiers
-	const pricingTiers: PricingTier[] = [
-		{
-			id: "starter",
-			name: "Starter",
-			tokens: 100000,
-			price: 5,
-			usdcAmount: "5",
-		},
-		{
-			id: "pro",
-			name: "Professional",
-			tokens: 500000,
-			price: 20,
-			usdcAmount: "20",
-			popular: true,
-		},
-		{
-			id: "business",
-			name: "Business",
-			tokens: 2000000,
-			price: 75,
-			usdcAmount: "75",
-		},
-		{
-			id: "enterprise",
-			name: "Enterprise",
-			tokens: 10000000,
-			price: 350,
-			usdcAmount: "350",
-		},
-	];
 
 	// Use auth hook to require authentication
 	const { isAuthenticated } = useRequireAuth();
@@ -160,7 +95,7 @@ function TopUp() {
 						</div>
 
 						{/* Custom amount input component */}
-						<TopUpAmountInput pricingTiers={pricingTiers} onSelectAmount={handleSelectAmount} />
+						<TopUpAmountInput onSelectAmount={handleSelectAmount} />
 
 						<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
 							<div className="flex items-center gap-3 mb-4">
@@ -185,91 +120,11 @@ function TopUp() {
 				)}
 
 				{stage === "payment" && (
-					<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
-						<div className="flex justify-between items-center mb-8">
-							<div className="flex items-center gap-3">
-								<CreditCard className="h-5 w-5 text-primary" />
-								<h2 className="text-xl font-semibold">Payment</h2>
-							</div>
-							<Button variant="outline" size="sm" onClick={handleGoBackToSelection}>
-								Back to selection
-							</Button>
-						</div>
-
-						<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-							<div>
-								<h3 className="text-lg font-medium mb-4">Order Summary</h3>
-								<div className="bg-card p-4 rounded-lg border border-border mb-4">
-									<div className="flex justify-between mb-2">
-										<span className="text-muted-foreground">Credits top-up</span>
-										<span>${Number(amount).toFixed(2)}</span>
-									</div>
-									<div className="border-t border-border my-2"></div>
-									<div className="flex justify-between font-medium">
-										<span>Total</span>
-										<span>${Number(amount).toFixed(2)}</span>
-									</div>
-								</div>
-
-								<div className="bg-primary/5 dark:bg-primary/10 p-4 rounded-lg border border-primary/20">
-									<p className="text-sm text-foreground">
-										Your credits will be deposited directly to your connected wallet after payment. Credits do not
-										expire and can be used anytime.
-									</p>
-								</div>
-
-								{/* Payment Method Selector */}
-								<div className="mt-6">
-									<PaymentMethodSelector
-										onSelectMethod={setMethod}
-										selectedMethod={method as PaymentMethod}
-										hasLTAI={hasLTAI}
-                                        chain={account?.chain}
-									/>
-								</div>
-							</div>
-
-							<div>
-								<h3 className="text-lg font-medium mb-4">Payment Method</h3>
-								<div className="bg-card p-4 rounded-lg border border-border">
-									{method === "crypto" ? (
-										/* ThirdWeb PayEmbed component for crypto payments */
-										<PayEmbed
-											client={thirdwebClient}
-											payOptions={{
-												mode: "direct_payment",
-												buyWithFiat: false,
-												onPurchaseSuccess: (data) => {
-													// Store transaction hash if available
-													if (data.type === "transaction") {
-														setLastTransactionHash(data.transactionHash);
-													}
-													handlePaymentSuccess();
-												},
-												purchaseData: {
-													userAddress: account?.address,
-												},
-												paymentInfo: {
-													chain: base,
-													sellerAddress: env.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS,
-													amount: amount.toString(),
-													token: {
-														name: "USDC",
-														symbol: "USDC",
-														address: env.USDC_BASE_ADDRESS,
-													},
-												},
-											}}
-											className="!w-full"
-										/>
-									) : (
-										/* LTAI Payment Form */
-										<LTAIPaymentForm usdAmount={Number(amount)} onPaymentSuccess={handlePaymentSuccess} paymentMethod={method as PaymentMethod}/>
-									)}
-								</div>
-							</div>
-						</div>
-					</div>
+					<PaymentStage
+						usdAmount={Number(amount)}
+						handleGoBackToSelection={handleGoBackToSelection}
+						handlePaymentSuccess={handlePaymentSuccess}
+					/>
 				)}
 
 				{stage === "success" && (
@@ -285,9 +140,7 @@ function TopUp() {
 						<div className="bg-card p-6 rounded-lg border border-border mb-8 max-w-md mx-auto">
 							<div className="flex justify-between mb-3">
 								<span className="text-muted-foreground">Amount Paid:</span>
-								<span className="font-medium">
-									${Number(amount).toFixed(2)} {method === "ltai" ? "in LTAI" : "USDC"}
-								</span>
+								<span className="font-medium">${Number(amount).toFixed(2)} USD</span>
 							</div>
 							<div className="flex justify-between">
 								<span className="text-muted-foreground">Transaction Hash:</span>

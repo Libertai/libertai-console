@@ -1,5 +1,5 @@
-import {useQuery} from "@tanstack/react-query";
-import {z} from "zod";
+import { useQuery } from "@tanstack/react-query";
+import { z } from "zod";
 
 // Fetch the LTAI token price from CoinGecko API
 async function fetchSOLPrice(): Promise<number> {
@@ -44,6 +44,6 @@ export function useSOLPrice() {
 		isLoading: priceQuery.isLoading,
 		isError: priceQuery.isError,
 		error: priceQuery.error,
-        getRequiredSOL,
+		getRequiredSOL,
 	};
 }
