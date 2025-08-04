@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { CreditTransactionResponse } from "@/apis/inference";
+import { CreditTransactionProvider, CreditTransactionResponse } from "@/apis/inference";
 import { useTransactions } from "@/hooks/data/use-transactions";
 import { Skeleton } from "@/components/ui/skeleton";
 import dayjs from "dayjs";
@@ -23,16 +23,18 @@ function Transactions() {
 	}
 
 	// Format the transaction type/provider to be more user-friendly
-	const formatProvider = (provider: string): string => {
+	const formatProvider = (provider: CreditTransactionProvider): string => {
 		switch (provider) {
-			case "base":
+			case "ltai_base":
 				return "LibertAI (Base)";
-			case "solana":
+			case "ltai_solana":
 				return "LibertAI (Solana)";
 			case "thirdweb":
 				return "Thirdweb";
 			case "voucher":
 				return "Voucher";
+			case "sol_solana":
+				return "Solana (SOL)";
 			default:
 				return provider;
 		}
@@ -182,6 +184,9 @@ function Transactions() {
 							<li>
 								<span className="font-medium">LibertAI (Base/Solana)</span> - Credits purchased with $LTAI on Base or
 								Solana networks
+							</li>
+							<li>
+								<span className="font-medium">Solana (SOL)</span> - Credits purchased with $SOL on the Solana network
 							</li>
 							<li>
 								<span className="font-medium">Thirdweb</span> - Credits purchased using cryptocurrency via Thirdweb

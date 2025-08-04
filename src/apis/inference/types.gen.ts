@@ -81,7 +81,7 @@ export type CreditBalanceResponse = {
     balance: number;
 };
 
-export type CreditTransactionProvider = 'base' | 'thirdweb' | 'voucher' | 'solana';
+export type CreditTransactionProvider = 'ltai_base' | 'ltai_solana' | 'thirdweb' | 'voucher' | 'sol_solana';
 
 export type CreditTransactionResponse = {
     id: string;

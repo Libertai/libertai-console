@@ -10,7 +10,6 @@ import { useLTAIPrice } from "@/hooks/use-ltai-price.ts";
 import { useSOLPrice } from "@/hooks/use-sol-price.ts";
 import { useAccountStore } from "@/stores/account.ts";
 import { useQueryState } from "nuqs";
-import { useEffect } from "react";
 import { prepareContractCall, sendTransaction } from "thirdweb";
 import { parseUnits } from "viem";
 import { toast } from "sonner";
@@ -66,20 +65,18 @@ export const PaymentStage = ({ usdAmount, handleGoBackToSelection, handlePayment
 	const [method, setMethod] = useQueryState<PaymentMethod>("method", {
 		defaultValue: "ltai",
 		parse: (value): PaymentMethod => {
-			if (value === "ltai") return "ltai";
-			return "crypto";
+			switch (value) {
+				case "ltai":
+				case "solana":
+				case "crypto":
+					return value;
+				default:
+					return "ltai"; // Default to LTAI if invalid
+			}
 		},
 	});
 
 	const hasLTAI = ltaiBalance > 0;
-
-	// Effect to set initial payment method
-	useEffect(() => {
-		// Default to crypto payment if user has no LTAI tokens and no method is set
-		if (!hasLTAI && method === "crypto") {
-			setMethod("crypto");
-		}
-	}, [hasLTAI, method, setMethod]);
 
 	const handleLtaiPayment = async () => {
 		if (!ltaiPrice || !discountedLtaiAmount) return;
@@ -280,7 +277,7 @@ export const PaymentStage = ({ usdAmount, handleGoBackToSelection, handlePayment
 		const [programState] = PublicKey.findProgramAddressSync([Buffer.from("program_state")], solanaProgram.programId);
 		const amount = parseUnits(originalSolAmount.toString(), 9);
 		const ix = await solanaProgram.methods
-			.procesPaymentSol(new BN(amount))
+			.processPaymentSol(new BN(amount))
 			.accounts({
 				user: account.provider.publicKey,
 				programState: programState,
