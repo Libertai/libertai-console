@@ -216,62 +216,6 @@
       ]
     },
     {
-      "name": "proces_payment_sol",
-      "discriminator": [
-        153,
-        230,
-        95,
-        88,
-        86,
-        78,
-        124,
-        192
-      ],
-      "accounts": [
-        {
-          "name": "user",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "program_state",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  114,
-                  111,
-                  103,
-                  114,
-                  97,
-                  109,
-                  95,
-                  115,
-                  116,
-                  97,
-                  116,
-                  101
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
       "name": "process_payment",
       "discriminator": [
         189,
@@ -344,6 +288,62 @@
         {
           "name": "rent",
           "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "process_payment_sol",
+      "discriminator": [
+        177,
+        28,
+        123,
+        191,
+        14,
+        93,
+        138,
+        70
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  103,
+                  114,
+                  97,
+                  109,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
@@ -640,7 +640,7 @@
     {
       "code": 6005,
       "name": "InvalidTokenMint",
-      "msg": "Invalid token mint - only 3onmcmVmxyuhKyprEw4LyfdpqTPW6fRA7JQhopbiph5k is accepted"
+      "msg": "Invalid token mint - only mntpN8z1d29f3MWhMD7VqZFpeYmbD88MgwS3Bkz8y7u is accepted"
     },
     {
       "code": 6006,

@@ -130,39 +130,6 @@ export type LibertAiPaymentProcessor = {
 			];
 		},
 		{
-			name: "procesPaymentSol";
-			discriminator: [153, 230, 95, 88, 86, 78, 124, 192];
-			accounts: [
-				{
-					name: "user";
-					writable: true;
-					signer: true;
-				},
-				{
-					name: "programState";
-					writable: true;
-					pda: {
-						seeds: [
-							{
-								kind: "const";
-								value: [112, 114, 111, 103, 114, 97, 109, 95, 115, 116, 97, 116, 101];
-							},
-						];
-					};
-				},
-				{
-					name: "systemProgram";
-					address: "11111111111111111111111111111111";
-				},
-			];
-			args: [
-				{
-					name: "amount";
-					type: "u64";
-				},
-			];
-		},
-		{
 			name: "processPayment";
 			discriminator: [189, 81, 30, 198, 139, 186, 115, 23];
 			accounts: [
@@ -226,6 +193,39 @@ export type LibertAiPaymentProcessor = {
 				{
 					name: "rent";
 					address: "SysvarRent111111111111111111111111111111111";
+				},
+			];
+			args: [
+				{
+					name: "amount";
+					type: "u64";
+				},
+			];
+		},
+		{
+			name: "processPaymentSol";
+			discriminator: [177, 28, 123, 191, 14, 93, 138, 70];
+			accounts: [
+				{
+					name: "user";
+					writable: true;
+					signer: true;
+				},
+				{
+					name: "programState";
+					writable: true;
+					pda: {
+						seeds: [
+							{
+								kind: "const";
+								value: [112, 114, 111, 103, 114, 97, 109, 95, 115, 116, 97, 116, 101];
+							},
+						];
+					};
+				},
+				{
+					name: "systemProgram";
+					address: "11111111111111111111111111111111";
 				},
 			];
 			args: [
@@ -424,7 +424,7 @@ export type LibertAiPaymentProcessor = {
 		{
 			code: 6005;
 			name: "invalidTokenMint";
-			msg: "Invalid token mint - only 3onmcmVmxyuhKyprEw4LyfdpqTPW6fRA7JQhopbiph5k is accepted";
+			msg: "Invalid token mint - only mntpN8z1d29f3MWhMD7VqZFpeYmbD88MgwS3Bkz8y7u is accepted";
 		},
 		{
 			code: 6006;
