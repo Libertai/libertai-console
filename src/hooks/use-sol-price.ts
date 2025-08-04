@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 
-// Fetch the LTAI token price from CoinGecko API
+// Fetch the SOL token price from CoinGecko API
 async function fetchSOLPrice(): Promise<number> {
 	try {
 		const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
