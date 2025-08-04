@@ -30,8 +30,8 @@ import {
 } from "@solana/web3.js";
 import { BN, Program } from "@coral-xyz/anchor";
 import { waitForBaseTransaction } from "@/utils/transactions.ts";
-import idl from "@/lib/solana/libert_ai_payment_processor.json";
-import { LibertAiPaymentProcessor } from "@/lib/solana/libert_ai_payment_processor.ts";
+import idl from "@/lib/solana/libertai_payment_processor.json";
+import { LibertaiPaymentProcessor } from "@/lib/solana/libertai_payment_processor.ts";
 
 type PaymentStageProps = {
 	usdAmount: number;
@@ -42,7 +42,7 @@ type PaymentStageProps = {
 const PAYMENT_PROCESSOR_ADDRESS = env.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS as `0x${string}`;
 
 const solanaConnection = new Connection(env.SOLANA_RPC, "confirmed");
-const solanaProgram = new Program(idl as LibertAiPaymentProcessor, {
+const solanaProgram = new Program(idl as LibertaiPaymentProcessor, {
 	connection: solanaConnection,
 });
 const solanaTokenMint = new PublicKey(env.LTAI_SOLANA_ADDRESS);

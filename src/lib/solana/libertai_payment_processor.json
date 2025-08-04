@@ -1,7 +1,7 @@
 {
-  "address": "AnAYnLu4gaHK6usSXybni24154Qg4DQuLUvkyPCJMvXu",
+  "address": "21tHgbgC8Q6hoXyHx5pp3Gtp97B3HxrS2yH832ryeNSw",
   "metadata": {
-    "name": "libert_ai_payment_processor",
+    "name": "libertai_payment_processor",
     "version": "0.1.0",
     "spec": "0.1.0",
     "description": "Created with Anchor"
@@ -212,62 +212,6 @@
         {
           "name": "owner",
           "type": "pubkey"
-        }
-      ]
-    },
-    {
-      "name": "proces_payment_sol",
-      "discriminator": [
-        153,
-        230,
-        95,
-        88,
-        86,
-        78,
-        124,
-        192
-      ],
-      "accounts": [
-        {
-          "name": "user",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "program_state",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  114,
-                  111,
-                  103,
-                  114,
-                  97,
-                  109,
-                  95,
-                  115,
-                  116,
-                  97,
-                  116,
-                  101
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
         }
       ]
     },
