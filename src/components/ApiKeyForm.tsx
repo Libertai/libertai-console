@@ -19,7 +19,7 @@ const apiKeyFormSchema = z.object({
 	monthlyLimit: z
 		.string()
 		.refine((val) => val === "" || (!isNaN(Number(val)) && Number(val) >= 0), {
-			message: "Must be a valid positive number",
+			error: "Must be a valid positive number",
 		})
 		.transform((val) => (val === "" ? null : Number(val))),
 	isActive: z.boolean().optional(),

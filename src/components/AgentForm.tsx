@@ -17,9 +17,7 @@ interface AgentFormProps {
 const agentFormSchema = z.object({
 	name: z.string().min(1, "Agent name is required"),
 	sshPublicKey: z.string().min(1, "SSH Public Key is required"),
-	agreeToTerms: z.literal(true, {
-		errorMap: () => ({ message: "You must agree to the subscription terms" }),
-	}),
+	agreeToTerms: z.literal(true, { error: () => ({ message: "You must agree to the subscription terms" }) }),
 });
 
 export function AgentForm({
