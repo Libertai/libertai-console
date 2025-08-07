@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-	LTAI_INFERENCE_API_URL: z.string().url(),
-	SOLANA_RPC: z.string().url(),
+	LTAI_INFERENCE_API_URL: z.url(),
+	SOLANA_RPC: z.url(),
 	LTAI_BASE_ADDRESS: z.string().startsWith("0x").optional().default("0xF8B1b47AA748F5C7b5D0e80C726a843913EB573a"),
 	LTAI_SOLANA_ADDRESS: z.string().optional().default("mntpN8z1d29f3MWhMD7VqZFpeYmbD88MgwS3Bkz8y7u"),
 	THIRDWEB_CLIENT_ID: z.string(),

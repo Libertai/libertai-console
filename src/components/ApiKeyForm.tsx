@@ -19,7 +19,7 @@ const apiKeyFormSchema = z.object({
 	monthlyLimit: z
 		.string()
 		.refine((val) => val === "" || (!isNaN(Number(val)) && Number(val) >= 0), {
-			message: "Must be a valid positive number",
+			error: "Must be a valid positive number",
 		})
 		.transform((val) => (val === "" ? null : Number(val))),
 	isActive: z.boolean().optional(),
@@ -54,10 +54,10 @@ export function ApiKeyForm({ mode, onSubmit, onCancel, initialData, isLoading = 
 			if (error instanceof z.ZodError) {
 				const fieldErrors: { name?: string; monthlyLimit?: string } = {};
 
-				error.errors.forEach((err) => {
-					const field = err.path[0] as keyof typeof fieldErrors;
+				error.issues.forEach((issue) => {
+					const field = issue.path[0] as keyof typeof fieldErrors;
 					if (field) {
-						fieldErrors[field] = err.message;
+						fieldErrors[field] = issue.message;
 					}
 				});
 
