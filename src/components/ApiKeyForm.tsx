@@ -54,10 +54,10 @@ export function ApiKeyForm({ mode, onSubmit, onCancel, initialData, isLoading = 
 			if (error instanceof z.ZodError) {
 				const fieldErrors: { name?: string; monthlyLimit?: string } = {};
 
-				error.errors.forEach((err) => {
-					const field = err.path[0] as keyof typeof fieldErrors;
+				error.issues.forEach((issue) => {
+					const field = issue.path[0] as keyof typeof fieldErrors;
 					if (field) {
-						fieldErrors[field] = err.message;
+						fieldErrors[field] = issue.message;
 					}
 				});
 
