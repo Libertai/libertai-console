@@ -1,7 +1,7 @@
 import { CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { PaymentMethod, PaymentMethodSelector } from "@/components/payment/PaymentMethodSelector.tsx";
-import { PayEmbed } from "thirdweb/react";
+import { CheckoutWidget } from "thirdweb/react";
 import { thirdwebClient } from "@/config/thirdweb.ts";
 import { base } from "thirdweb/chains";
 import env from "@/config/env.ts";
@@ -400,31 +400,21 @@ export const PaymentStage = ({ usdAmount, handleGoBackToSelection, handlePayment
 					<div className="bg-card p-4 rounded-lg border border-border">
 						{method === "crypto" && (
 							/* ThirdWeb PayEmbed component for crypto payments */
-							<PayEmbed
+							<CheckoutWidget
 								client={thirdwebClient}
-								payOptions={{
-									mode: "direct_payment",
-									buyWithFiat: false,
-									onPurchaseSuccess: (data) => {
-										// Store transaction hash if available
-										if (data.type === "transaction") {
-											setLastTransactionHash(data.transactionHash);
-										}
-										handlePaymentSuccess();
-									},
-									purchaseData: {
-										userAddress: account?.address,
-									},
-									paymentInfo: {
-										chain: base,
-										sellerAddress: env.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS,
-										amount: usdAmount.toString(),
-										token: {
-											name: "USDC",
-											symbol: "USDC",
-											address: env.USDC_BASE_ADDRESS,
-										},
-									},
+								chain={base}
+								amount={usdAmount.toString()}
+								seller={env.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS as `0x${string}`}
+								tokenAddress={env.USDC_BASE_ADDRESS as `0x${string}`}
+								name="Checkout"
+								description={`${usdAmount.toFixed(2)}$ of LibertAI credits`}
+								paymentMethods={["crypto"]}
+								purchaseData={{
+									userAddress: account?.address,
+								}}
+								onSuccess={() => {
+									setLastTransactionHash(null);
+									handlePaymentSuccess();
 								}}
 								className="!w-full"
 							/>
