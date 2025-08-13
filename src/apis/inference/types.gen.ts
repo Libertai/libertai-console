@@ -655,9 +655,6 @@ export type UpdateApiKeyApiKeysKeyIdPutResponse = UpdateApiKeyApiKeysKeyIdPutRes
 
 export type RegisterInferenceCallApiKeysAdminUsagePostData = {
     body: InferenceCallData;
-    headers: {
-        'x-admin-token': string;
-    };
     path?: never;
     query?: never;
     url: '/api-keys/admin/usage';
@@ -706,6 +703,56 @@ export type GetAdminAllApiKeysApiKeysAdminListGetResponses = {
 };
 
 export type GetAdminAllApiKeysApiKeysAdminListGetResponse = GetAdminAllApiKeysApiKeysAdminListGetResponses[keyof GetAdminAllApiKeysApiKeysAdminListGetResponses];
+
+export type GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetData = {
+    body?: never;
+    path: {
+        subscription_id: string;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription_id}/transactions';
+};
+
+export type GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetError = GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetErrors[keyof GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetErrors];
+
+export type GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type GetSubscriptionByUserAddressSubscriptionsUserAddressGetData = {
+    body?: never;
+    path: {
+        user_address: string;
+    };
+    query?: never;
+    url: '/subscriptions/{user_address}';
+};
+
+export type GetSubscriptionByUserAddressSubscriptionsUserAddressGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetSubscriptionByUserAddressSubscriptionsUserAddressGetError = GetSubscriptionByUserAddressSubscriptionsUserAddressGetErrors[keyof GetSubscriptionByUserAddressSubscriptionsUserAddressGetErrors];
+
+export type GetSubscriptionByUserAddressSubscriptionsUserAddressGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
 
 export type CancelSubscriptionSubscriptionsSubscriptionIdDeleteData = {
     body?: never;
