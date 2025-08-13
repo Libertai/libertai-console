@@ -189,7 +189,8 @@ function Transactions() {
 								<span className="font-medium">Solana (SOL)</span> - Credits purchased with $SOL on the Solana network
 							</li>
 							<li>
-								<span className="font-medium">Thirdweb</span> - Credits purchased using cryptocurrency via Thirdweb
+								<span className="font-medium">Thirdweb</span> - Credits purchased using cryptocurrency or credit card
+								via Thirdweb
 							</li>
 							<li>
 								<span className="font-medium">Voucher</span> - Credits received from vouchers or promotional codes

@@ -69,6 +69,7 @@ export const PaymentStage = ({ usdAmount, handleGoBackToSelection, handlePayment
 				case "ltai":
 				case "solana":
 				case "crypto":
+				case "card":
 					return value;
 				default:
 					return "ltai"; // Default to LTAI if invalid
@@ -399,7 +400,7 @@ export const PaymentStage = ({ usdAmount, handleGoBackToSelection, handlePayment
 					<h3 className="text-lg font-medium mb-4">Payment Method</h3>
 					<div className="bg-card p-4 rounded-lg border border-border">
 						{method === "crypto" && (
-							/* ThirdWeb PayEmbed component for crypto payments */
+							/* ThirdWeb CheckoutWidget for crypto payments only */
 							<CheckoutWidget
 								client={thirdwebClient}
 								chain={base}
@@ -409,6 +410,27 @@ export const PaymentStage = ({ usdAmount, handleGoBackToSelection, handlePayment
 								name="Checkout"
 								description={`${usdAmount.toFixed(2)}$ of LibertAI credits`}
 								paymentMethods={["crypto"]}
+								purchaseData={{
+									userAddress: account?.address,
+								}}
+								onSuccess={() => {
+									setLastTransactionHash(null);
+									handlePaymentSuccess();
+								}}
+								className="!w-full"
+							/>
+						)}
+						{method === "card" && (
+							/* ThirdWeb CheckoutWidget for card payments only */
+							<CheckoutWidget
+								client={thirdwebClient}
+								chain={base}
+								amount={usdAmount.toString()}
+								seller={env.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS as `0x${string}`}
+								tokenAddress={env.USDC_BASE_ADDRESS as `0x${string}`}
+								name="Checkout"
+								description={`${usdAmount.toFixed(2)}$ of LibertAI credits`}
+								paymentMethods={["card"]}
 								purchaseData={{
 									userAddress: account?.address,
 								}}
