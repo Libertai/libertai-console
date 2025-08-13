@@ -88,7 +88,8 @@ function TopUp() {
 									<p className="text-sm text-muted-foreground mt-2">
 										API credits are used for API requests and are available immediately after purchase.
 										<br />
-										You can buy credits with $LTAI or main ERC-20 tokens on multiple chains.
+										You can buy credits with various payment methods ($LTAI token, ERC-20 tokens on many EVM chains,
+										Solana, credit cards...).
 									</p>
 								</div>
 							</div>
