@@ -4,7 +4,14 @@ import { CreditTransactionProvider, CreditTransactionResponse } from "@/apis/inf
 import { useTransactions } from "@/hooks/data/use-transactions";
 import { Skeleton } from "@/components/ui/skeleton";
 import dayjs from "dayjs";
-import { AlertCircle, Calendar as CalendarIcon, Download, FilterIcon, Receipt, X } from "lucide-react";
+import {
+	AlertCircle,
+	Calendar as CalendarIcon,
+	Download,
+	FilterIcon, LucideBrushCleaning,
+	Receipt,
+	X
+} from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { useState, useMemo } from "react";
 import {
@@ -123,7 +130,7 @@ const FilterModal = ({
 				<div className="flex items-center gap-2">
 					{hasActiveFilters && (
 						<Button variant="ghost" size="sm" onClick={onClearFilters}>
-							<X className="h-4 w-4 mr-2" />
+							<LucideBrushCleaning className="h-4 w-4 mr-2" />
 							Clear All
 						</Button>
 					)}
@@ -133,7 +140,7 @@ const FilterModal = ({
 						onClick={onClose}
 						className="text-black hover:text-red-500 p-1"
 					>
-						<X className="h-4 w-4" />
+						<X className="h-4 w-4 dark:text-white" />
 					</Button>
 				</div>
 			</div>
@@ -282,32 +289,29 @@ function Transactions() {
 		}
 	};
 
-	// Format the transaction status based on whether it's active
 	const getTransactionStatus = (transaction: CreditTransactionResponse): { label: string; className: string } => {
 		if (!transaction.is_active) {
 			return {
 				label: "Expired",
-				className: "bg-orange-900/30 text-orange-400",
+				className: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
 			};
 		}
 
 		if (transaction.amount_left <= 0) {
 			return {
 				label: "Used",
-				className: "bg-blue-900/30 text-blue-400",
+				className: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
 			};
 		}
 
 		return {
 			label: "Active",
-			className: "dark:bg-emerald-900/30 bg-emerald-900/5 text-emerald-400",
+			className: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
 		};
 	};
 
-	// Filter transactions based on current filters
 	const filteredTransactions = useMemo(() => {
 		return transactions.filter((transaction) => {
-			// Date filter
 			const transactionDate = dayjs(transaction.created_at);
 			if (filters.dateRange.from && transactionDate.isBefore(dayjs(filters.dateRange.from))) {
 				return false;
@@ -316,12 +320,10 @@ function Transactions() {
 				return false;
 			}
 
-			// Status filter
 			if (filters.statuses.length > 0) {
 				const status = getTransactionStatus(transaction);
 				let transactionStatus = status.label.toLowerCase();
 
-				// Add pending status check
 				if (transaction.status !== "completed") {
 					transactionStatus = "pending";
 				}
@@ -331,7 +333,6 @@ function Transactions() {
 				}
 			}
 
-			// Type filter
 			if (filters.types.length > 0) {
 				if (!filters.types.includes(transaction.provider)) {
 					return false;
@@ -342,14 +343,10 @@ function Transactions() {
 		});
 	}, [transactions, filters]);
 
-	// Return null if not authenticated (redirect is handled by the hook)
 	if (!isAuthenticated) {
 		return null;
 	}
 
-	const updateFilterModal = () => {
-		setShowFilterModal(!showFilterModal);
-	};
 
 	const handleClearFilters = () => {
 		setFilters({
@@ -398,11 +395,23 @@ function Transactions() {
 					<h1 className="text-3xl font-bold">Transaction History</h1>
 					<p className="text-muted-foreground mt-1">View your credit transaction history and details</p>
 				</div>
-				<div className={"flex gap-1"}>
-					<Button className="w-20 flex items-center justify-center gap-2" onClick={updateFilterModal}>
-						<FilterIcon className="h-4 w-4" />
-						Filter
-					</Button>
+				<div className="flex gap-1 relative">
+					<Popover open={showFilterModal} onOpenChange={setShowFilterModal}>
+						<PopoverTrigger asChild>
+							<Button className="w-20 flex items-center justify-center gap-2">
+								<FilterIcon className="h-4 w-4" />
+								Filter
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-[400px] p-0" align="start">
+							<FilterModal
+								filters={filters}
+								onFilterChange={setFilters}
+								onClearFilters={handleClearFilters}
+								onClose={() => setShowFilterModal(false)}
+							/>
+						</PopoverContent>
+					</Popover>
 					<Button
 						variant="outline"
 						onClick={handleExportData}
@@ -412,15 +421,6 @@ function Transactions() {
 						Export Data
 					</Button>
 				</div>
-
-				{showFilterModal && (
-					<FilterModal
-						filters={filters}
-						onFilterChange={setFilters}
-						onClearFilters={handleClearFilters}
-						onClose={() => setShowFilterModal(false)}
-					/>
-				)}
 
 				{/* Filter Summary */}
 				{(filters.statuses.length > 0 || filters.types.length > 0 || filters.dateRange.from || filters.dateRange.to) && (
@@ -531,7 +531,7 @@ function Transactions() {
 														{status.label}
 													</span>
 												{transaction.status !== "completed" && (
-													<span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-amber-900/30 text-amber-400">
+													<span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
 															Pending
 														</span>
 												)}
