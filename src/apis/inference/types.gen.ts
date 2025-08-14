@@ -197,7 +197,32 @@ export type ModelApiUsage = {
     used_at: string;
 };
 
+export type SubscriptionResponse = {
+    id: string;
+    user_address: string;
+    subscription_type: SubscriptionType;
+    amount: number;
+    last_charged_at: string;
+    next_charge_at: string;
+    status: SubscriptionStatus;
+    created_at: string;
+    related_id: string;
+};
+
 export type SubscriptionStatus = 'active' | 'cancelled' | 'inactive';
+
+export type SubscriptionTransactionResponse = {
+    id: string;
+    subscription_id: string;
+    amount: number;
+    status: SubscriptionTransactionStatus;
+    created_at: string;
+    notes?: string | null;
+};
+
+export type SubscriptionTransactionStatus = 'success' | 'failed';
+
+export type SubscriptionType = 'agent';
 
 export type ThirdwebWebhookPayload = {
     data: {
@@ -726,33 +751,35 @@ export type GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGe
     /**
      * Successful Response
      */
-    200: unknown;
+    200: Array<SubscriptionTransactionResponse>;
 };
 
-export type GetSubscriptionByUserAddressSubscriptionsUserAddressGetData = {
+export type GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetResponse = GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetResponses[keyof GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetResponses];
+
+export type GetSubscriptionByUserAddressSubscriptionsGetData = {
     body?: never;
-    path: {
-        user_address: string;
-    };
+    path?: never;
     query?: never;
-    url: '/subscriptions/{user_address}';
+    url: '/subscriptions';
 };
 
-export type GetSubscriptionByUserAddressSubscriptionsUserAddressGetErrors = {
+export type GetSubscriptionByUserAddressSubscriptionsGetErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GetSubscriptionByUserAddressSubscriptionsUserAddressGetError = GetSubscriptionByUserAddressSubscriptionsUserAddressGetErrors[keyof GetSubscriptionByUserAddressSubscriptionsUserAddressGetErrors];
+export type GetSubscriptionByUserAddressSubscriptionsGetError = GetSubscriptionByUserAddressSubscriptionsGetErrors[keyof GetSubscriptionByUserAddressSubscriptionsGetErrors];
 
-export type GetSubscriptionByUserAddressSubscriptionsUserAddressGetResponses = {
+export type GetSubscriptionByUserAddressSubscriptionsGetResponses = {
     /**
      * Successful Response
      */
-    200: unknown;
+    200: Array<SubscriptionResponse>;
 };
+
+export type GetSubscriptionByUserAddressSubscriptionsGetResponse = GetSubscriptionByUserAddressSubscriptionsGetResponses[keyof GetSubscriptionByUserAddressSubscriptionsGetResponses];
 
 export type CancelSubscriptionSubscriptionsSubscriptionIdDeleteData = {
     body?: never;

@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ArrowLeft, Download, Filter, FileText } from "lucide-react";
+import { ArrowLeft, ChevronRight, Download, FileText, Filter } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useState } from "react";
-import { useSubscriptions, useAllSubscriptionTransactions } from "@/hooks/data/use-subscriptions";
+import { useAllSubscriptionTransactions, useSubscriptions } from "@/hooks/data/use-subscriptions";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -25,7 +25,7 @@ function capitalizeFirst(str: string): string {
 
 function truncateNote(note: string, maxLength: number = 25): string {
 	if (!note || note.length <= maxLength) return note;
-	return note.substring(0, maxLength) + '...';
+	return note.substring(0, maxLength) + "...";
 }
 
 function Subscriptions() {
@@ -42,17 +42,18 @@ function Subscriptions() {
 	const isLoading = subscriptionsLoading || transactionsLoading;
 
 	const selectedSubscriptionTransactions = selectedSubscription
-		? allTransactions.filter(tx => tx.subscription_id === selectedSubscription)
+		? allTransactions.filter((tx) => tx.subscription_id === selectedSubscription)
 		: [];
 
-	const filteredTransactions = timeRange === "all"
-		? selectedSubscriptionTransactions
-		: selectedSubscriptionTransactions.filter(transaction => {
-			const transactionDate = new Date(transaction.created_at);
-			const start = new Date(startDate);
-			const end = new Date(endDate);
-			return transactionDate >= start && transactionDate <= end;
-		});
+	const filteredTransactions =
+		timeRange === "all"
+			? selectedSubscriptionTransactions
+			: selectedSubscriptionTransactions.filter((transaction) => {
+					const transactionDate = new Date(transaction.created_at);
+					const start = new Date(startDate);
+					const end = new Date(endDate);
+					return transactionDate >= start && transactionDate <= end;
+				});
 
 	const handleTimeRangeChange = (range: "all" | "7d" | "30d" | "custom") => {
 		const now = new Date();
@@ -67,62 +68,69 @@ function Subscriptions() {
 		}
 	};
 
-
 	const handleExportAllSubscriptions = () => {
-		const subscriptionHeaders = ["ID", "Type", "Amount", "Status", "Created At", "Last Charged", "Next Charge", "Related ID"];
-		const subscriptionRows = subscriptions.map(sub => [
+		const subscriptionHeaders = [
+			"ID",
+			"Type",
+			"Amount",
+			"Status",
+			"Created At",
+			"Last Charged",
+			"Next Charge",
+			"Related ID",
+		];
+		const subscriptionRows = subscriptions.map((sub) => [
 			sub.id,
 			sub.subscription_type,
 			sub.amount,
 			sub.status,
 			sub.created_at,
-			sub.last_charged_at || '',
-			sub.next_charge_at || '',
-			sub.related_id || ''
+			sub.last_charged_at || "",
+			sub.next_charge_at || "",
+			sub.related_id || "",
 		]);
 
-		const transactionHeaders = ["Transaction ID", "Subscription ID", "Subscription Type", "Date", "Amount", "Status", "Notes"];
-		const transactionRows = allTransactions.map(tx => {
-			const subscription = subscriptions.find(sub => sub.id === tx.subscription_id);
+		const transactionHeaders = [
+			"Transaction ID",
+			"Subscription ID",
+			"Subscription Type",
+			"Date",
+			"Amount",
+			"Status",
+			"Notes",
+		];
+		const transactionRows = allTransactions.map((tx) => {
+			const subscription = subscriptions.find((sub) => sub.id === tx.subscription_id);
 			return [
 				tx.id,
 				tx.subscription_id,
-				subscription?.subscription_type || '',
+				subscription?.subscription_type || "",
 				tx.created_at,
 				tx.amount,
 				tx.status,
-				tx.notes || ''
+				tx.notes || "",
 			];
 		});
 
 		const csvContent = [
 			"SUBSCRIPTIONS",
 			subscriptionHeaders.join(","),
-			...subscriptionRows.map(row => row.join(",")),
+			...subscriptionRows.map((row) => row.join(",")),
 			"",
-			"TRANSACTIONS", 
+			"TRANSACTIONS",
 			transactionHeaders.join(","),
-			...transactionRows.map(row => row.join(","))
+			...transactionRows.map((row) => row.join(",")),
 		].join("\n");
 
 		downloadCSV(csvContent, `libertai-subscriptions-and-transactions-${formatDate(new Date())}.csv`);
 	};
 
 	const handleExportTransactions = () => {
-		const selectedSub = subscriptions.find(s => s.id === selectedSubscription);
+		const selectedSub = subscriptions.find((s) => s.id === selectedSubscription);
 		const headers = ["Transaction ID", "Date", "Amount", "Status", "Notes"];
-		const rows = filteredTransactions.map(tx => [
-			tx.id,
-			tx.created_at,
-			tx.amount,
-			tx.status,
-			tx.notes || ''
-		]);
+		const rows = filteredTransactions.map((tx) => [tx.id, tx.created_at, tx.amount, tx.status, tx.notes || ""]);
 
-		const csvContent = [
-			headers.join(","),
-			...rows.map(row => row.join(","))
-		].join("\n");
+		const csvContent = [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
 
 		const dateRange = timeRange === "all" ? "all" : `${startDate}-to-${endDate}`;
 		const filename = `libertai-transactions-${selectedSub?.subscription_type}-${dateRange}.csv`;
@@ -158,7 +166,6 @@ function Subscriptions() {
 								className="flex items-center gap-2"
 							>
 								<ArrowLeft className="h-4 w-4" />
-								Back to Subscriptions
 							</Button>
 						)}
 						<div>
@@ -166,7 +173,9 @@ function Subscriptions() {
 								{selectedSubscription ? "Subscription Transactions" : "Subscriptions"}
 							</h1>
 							<p className="text-muted-foreground mt-1">
-								{selectedSubscription ? "Transaction history for selected subscription" : "View your subscriptions and their transactions"}
+								{selectedSubscription
+									? "Transaction history for selected subscription"
+									: "View your subscriptions and their transactions"}
 							</p>
 						</div>
 					</div>
@@ -177,9 +186,13 @@ function Subscriptions() {
 								<PopoverTrigger asChild>
 									<Button variant="outline" size="sm">
 										<Filter className="h-4 w-4 mr-2" />
-										{timeRange === "all" ? "All Time" : 
-										 timeRange === "7d" ? "7 Days" :
-										 timeRange === "30d" ? "30 Days" : "Custom"}
+										{timeRange === "all"
+											? "All Time"
+											: timeRange === "7d"
+												? "7 Days"
+												: timeRange === "30d"
+													? "30 Days"
+													: "Custom"}
 									</Button>
 								</PopoverTrigger>
 								<PopoverContent className="w-80" align="end">
@@ -273,7 +286,7 @@ function Subscriptions() {
 							) : (
 								<div className="space-y-2">
 									{subscriptions.map((subscription) => (
-										<div 
+										<div
 											key={subscription.id}
 											className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-card/70 cursor-pointer transition-colors"
 											onClick={() => setSelectedSubscription(subscription.id)}
@@ -282,18 +295,22 @@ function Subscriptions() {
 												<div>
 													<h3 className="text-lg font-medium">{subscription.subscription_type}</h3>
 													<p className="text-sm text-muted-foreground">
-														Created {dayjs(subscription.created_at).format('MMM DD, YYYY')}
+														Created {dayjs(subscription.created_at).format("MMM DD, YYYY")}
 													</p>
 												</div>
 											</div>
 											<div className="flex items-center gap-4">
 												<div className="text-right">
 													<p className="text-lg font-semibold">${subscription.amount.toFixed(2)}</p>
-													<span className={`px-2 py-1 rounded-full text-xs ${
-														subscription.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-														subscription.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
-														'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400'
-													}`}>
+													<span
+														className={`px-2 py-1 rounded-full text-xs ${
+															subscription.status === "active"
+																? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+																: subscription.status === "cancelled"
+																	? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+																	: "bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400"
+														}`}
+													>
 														{subscription.status}
 													</span>
 												</div>
@@ -315,7 +332,9 @@ function Subscriptions() {
 									<Skeleton className="h-8 w-full" />
 								</div>
 							) : filteredTransactions.length === 0 ? (
-								<p>No transactions found {timeRange !== "all" ? "for the selected date range" : "for this subscription"}</p>
+								<p>
+									No transactions found {timeRange !== "all" ? "for the selected date range" : "for this subscription"}
+								</p>
 							) : (
 								<table className="w-full">
 									<thead>
@@ -330,15 +349,19 @@ function Subscriptions() {
 										{filteredTransactions.map((transaction) => (
 											<tr key={transaction.id} className="border-b border-border/50 hover:bg-card/70">
 												<td className="px-4 py-3 text-sm font-medium">
-													{dayjs(transaction.created_at).format('MMM DD, YYYY HH:mm')}
+													{dayjs(transaction.created_at).format("MMM DD, YYYY HH:mm")}
 												</td>
 												<td className="px-4 py-3 text-sm text-right">${transaction.amount.toFixed(2)}</td>
 												<td className="px-4 py-3 text-sm text-center">
-													<span className={`px-2 py-1 rounded-full text-xs ${
-														transaction.status === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-														transaction.status === 'failed' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
-														'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-													}`}>
+													<span
+														className={`px-2 py-1 rounded-full text-xs ${
+															transaction.status === "success"
+																? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+																: transaction.status === "failed"
+																	? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+																	: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+														}`}
+													>
 														{capitalizeFirst(transaction.status)}
 													</span>
 												</td>
@@ -363,7 +386,7 @@ function Subscriptions() {
 															</DialogContent>
 														</Dialog>
 													) : (
-														<span>{capitalizeFirst(transaction.notes) || '-'}</span>
+														<span>{transaction.notes ? capitalizeFirst(transaction.notes) : "-"}</span>
 													)}
 												</td>
 											</tr>
