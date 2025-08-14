@@ -197,7 +197,32 @@ export type ModelApiUsage = {
     used_at: string;
 };
 
+export type SubscriptionResponse = {
+    id: string;
+    user_address: string;
+    subscription_type: SubscriptionType;
+    amount: number;
+    last_charged_at: string;
+    next_charge_at: string;
+    status: SubscriptionStatus;
+    created_at: string;
+    related_id: string;
+};
+
 export type SubscriptionStatus = 'active' | 'cancelled' | 'inactive';
+
+export type SubscriptionTransactionResponse = {
+    id: string;
+    subscription_id: string;
+    amount: number;
+    status: SubscriptionTransactionStatus;
+    created_at: string;
+    notes?: string | null;
+};
+
+export type SubscriptionTransactionStatus = 'success' | 'failed';
+
+export type SubscriptionType = 'agent';
 
 export type ThirdwebWebhookPayload = {
     data: {
@@ -655,9 +680,6 @@ export type UpdateApiKeyApiKeysKeyIdPutResponse = UpdateApiKeyApiKeysKeyIdPutRes
 
 export type RegisterInferenceCallApiKeysAdminUsagePostData = {
     body: InferenceCallData;
-    headers: {
-        'x-admin-token': string;
-    };
     path?: never;
     query?: never;
     url: '/api-keys/admin/usage';
@@ -706,6 +728,58 @@ export type GetAdminAllApiKeysApiKeysAdminListGetResponses = {
 };
 
 export type GetAdminAllApiKeysApiKeysAdminListGetResponse = GetAdminAllApiKeysApiKeysAdminListGetResponses[keyof GetAdminAllApiKeysApiKeysAdminListGetResponses];
+
+export type GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetData = {
+    body?: never;
+    path: {
+        subscription_id: string;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription_id}/transactions';
+};
+
+export type GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetError = GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetErrors[keyof GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetErrors];
+
+export type GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: Array<SubscriptionTransactionResponse>;
+};
+
+export type GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetResponse = GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetResponses[keyof GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetResponses];
+
+export type GetSubscriptionByUserAddressSubscriptionsGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/subscriptions';
+};
+
+export type GetSubscriptionByUserAddressSubscriptionsGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetSubscriptionByUserAddressSubscriptionsGetError = GetSubscriptionByUserAddressSubscriptionsGetErrors[keyof GetSubscriptionByUserAddressSubscriptionsGetErrors];
+
+export type GetSubscriptionByUserAddressSubscriptionsGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: Array<SubscriptionResponse>;
+};
+
+export type GetSubscriptionByUserAddressSubscriptionsGetResponse = GetSubscriptionByUserAddressSubscriptionsGetResponses[keyof GetSubscriptionByUserAddressSubscriptionsGetResponses];
 
 export type CancelSubscriptionSubscriptionsSubscriptionIdDeleteData = {
     body?: never;
