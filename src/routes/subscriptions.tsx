@@ -311,7 +311,7 @@ function Subscriptions() {
 																	: "bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400"
 														}`}
 													>
-														{subscription.status}
+														{capitalizeFirst(subscription.status)}
 													</span>
 												</div>
 												<ChevronRight className="h-5 w-5 text-muted-foreground" />
