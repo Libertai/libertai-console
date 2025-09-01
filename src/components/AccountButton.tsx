@@ -158,21 +158,19 @@ export default function AccountButton() {
 						</p>
 					</div>
 					<DropdownMenuSeparator />
-					<div className="">
-						<DropdownMenuItem
-							onClick={async () => {
-								if (thirdwebAccount !== undefined && evmWallet !== undefined) {
-									disconnect(evmWallet);
-								} else if (solanaWallet.wallet !== null) {
-									await solanaWallet.disconnect();
-								}
-							}}
-							className="cursor-pointer gap-2 text-destructive"
-						>
-							<LogOut className="h-4 w-4" />
-							Disconnect
-						</DropdownMenuItem>
-					</div>
+					<DropdownMenuItem
+						onClick={async () => {
+							if (thirdwebAccount !== undefined && evmWallet !== undefined) {
+								disconnect(evmWallet);
+							} else if (solanaWallet.wallet !== null) {
+								await solanaWallet.disconnect();
+							}
+						}}
+						className="cursor-pointer gap-2 text-destructive"
+					>
+						<LogOut className="h-4 w-4" />
+						Disconnect
+					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		);
