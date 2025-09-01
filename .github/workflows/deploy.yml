@@ -25,12 +25,11 @@ jobs:
           echo "VITE_THIRDWEB_CLIENT_ID=${{ secrets.THIRDWEB_CLIENT_ID }}" >> .env
           echo "VITE_LTAI_INFERENCE_API_URL=${{ secrets.LTAI_INFERENCE_API_URL }}" >> .env
           echo "VITE_SOLANA_RPC=${{ secrets.SOLANA_RPC }}" >> .env
-          echo "VITE_PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS=${{ secrets.PAYMENT_PROCESSOR_CONTRACT_BASE_ADDRESS }}" >> .env
       - name: Build project
         run: npm run build
 
       - name: Deploy with Aleph
-        uses: aleph-im/web3-hosting-action@f806db167505f19b3fe62d79f29ff33b309e5f36
+        uses: aleph-im/web3-hosting-action@v1.1.2
         with:
           path: 'dist'
           private-key: ${{ secrets.ALEPH_CLOUD_LTAI_CONSOLE_PROD }}
