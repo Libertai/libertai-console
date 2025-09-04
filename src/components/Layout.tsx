@@ -102,7 +102,7 @@ export function Layout({
 				{/* Desktop Sidebar */}
 				<Sidebar variant="inset">
 					<SidebarHeader className="font-bold text-xl h-16 flex items-center justify-between">
-						<Link to={"/"}>
+						<Link to="/">
 							<div>LibertAI</div>
 						</Link>
 					</SidebarHeader>
