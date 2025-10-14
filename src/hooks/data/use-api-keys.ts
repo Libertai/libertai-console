@@ -132,8 +132,8 @@ export function useApiKeys() {
 					key_id: keyId,
 				},
 				body: {
-					is_active: false,  // désactive la clé côté backend
-					is_deleted: true,  // active le soft delete
+					is_active: false,
+					is_deleted: true,
 				},
 			});
 

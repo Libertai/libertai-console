@@ -140,6 +140,10 @@ export type ApiKeyUpdate = {
 	 */
 	is_active?: boolean | null;
 	/**
+	 * Is Deleted
+	 */
+	is_deleted?: boolean | null;
+	/**
 	 * Monthly Limit
 	 */
 	monthly_limit?: number | null;
