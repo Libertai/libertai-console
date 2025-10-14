@@ -35,7 +35,7 @@ function ApiKeys() {
 	const { isAuthenticated } = useRequireAuth();
 
 	// Use API keys query hook
-	const { apiKeys, isLoading, createApiKey, updateApiKey, deleteApiKey } = useApiKeys();
+	const { apiKeys, isLoading, createApiKey, updateApiKey, deleteApiKey, softDeleteApiKey } = useApiKeys();
 
 	// Return null if not authenticated (redirect is handled by the hook)
 	if (!isAuthenticated) {
@@ -75,7 +75,7 @@ function ApiKeys() {
 
 	const handleDeleteKey = async (keyId: string) => {
 		try {
-			await deleteApiKey(keyId);
+			await softDeleteApiKey(keyId);
 		} catch (error) {
 			console.error("Error deleting API key:", error);
 		}
