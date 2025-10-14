@@ -120,6 +120,40 @@ export function useApiKeys() {
 		},
 	});
 
+	// Mutation for soft deleting (disabling) an API key
+	const softDeleteMutation = useMutation({
+		mutationFn: async ({
+												 keyId,
+											 }: {
+			keyId: string;
+		}) => {
+			const response = await updateApiKeyApiKeysKeyIdPut({
+				path: {
+					key_id: keyId,
+				},
+				body: {
+					is_active: false,  // désactive la clé côté backend
+					is_deleted: true,  // active le soft delete
+				},
+			});
+
+			if (response.error) {
+				throw new Error(extractFastAPIError(response.error.detail));
+			}
+
+			return response.data;
+		},
+		onSuccess: async () => {
+			toast.success("API key soft deleted successfully");
+			await queryClient.invalidateQueries({ queryKey: ["apiKeys", account?.address] });
+		},
+		onError: (error) => {
+			toast.error("Failed to soft delete API key", {
+				description: error instanceof Error ? error.message : "An unknown error occurred",
+			});
+		},
+	});
+
 	// Mutation for deleting an API key
 	const deleteMutation = useMutation({
 		mutationFn: async (keyId: string) => {
@@ -154,6 +188,7 @@ export function useApiKeys() {
 		refetch: query.refetch,
 		createApiKey: createMutation.mutateAsync,
 		updateApiKey: updateMutation.mutateAsync,
+		softDeleteApiKey: softDeleteMutation.mutateAsync,
 		deleteApiKey: deleteMutation.mutateAsync,
 		createApiKeyStatus: createMutation.status,
 		updateApiKeyStatus: updateMutation.status,
