@@ -84,11 +84,13 @@ export function useApiKeys() {
 		mutationFn: async ({
 			keyId,
 			isActive,
+			isDeleted,
 			name,
 			monthlyLimit,
 		}: {
 			keyId: string;
 			isActive: boolean;
+			isDeleted?: boolean;
 			name?: string | null;
 			monthlyLimit?: number | null;
 		}) => {
@@ -98,6 +100,7 @@ export function useApiKeys() {
 				},
 				body: {
 					is_active: isActive,
+					is_deleted: isDeleted,
 					name,
 					monthly_limit: monthlyLimit,
 				},
@@ -115,40 +118,6 @@ export function useApiKeys() {
 		},
 		onError: (error) => {
 			toast.error("Failed to update API key", {
-				description: error instanceof Error ? error.message : "An unknown error occurred",
-			});
-		},
-	});
-
-	// Mutation for soft deleting (disabling) an API key
-	const softDeleteMutation = useMutation({
-		mutationFn: async ({
-												 keyId,
-											 }: {
-			keyId: string;
-		}) => {
-			const response = await updateApiKeyApiKeysKeyIdPut({
-				path: {
-					key_id: keyId,
-				},
-				body: {
-					is_active: false,
-					is_deleted: true,
-				},
-			});
-
-			if (response.error) {
-				throw new Error(extractFastAPIError(response.error.detail));
-			}
-
-			return response.data;
-		},
-		onSuccess: async () => {
-			toast.success("API key soft deleted successfully");
-			await queryClient.invalidateQueries({ queryKey: ["apiKeys", account?.address] });
-		},
-		onError: (error) => {
-			toast.error("Failed to soft delete API key", {
 				description: error instanceof Error ? error.message : "An unknown error occurred",
 			});
 		},
@@ -188,7 +157,6 @@ export function useApiKeys() {
 		refetch: query.refetch,
 		createApiKey: createMutation.mutateAsync,
 		updateApiKey: updateMutation.mutateAsync,
-		softDeleteApiKey: softDeleteMutation.mutateAsync,
 		deleteApiKey: deleteMutation.mutateAsync,
 		createApiKeyStatus: createMutation.status,
 		updateApiKeyStatus: updateMutation.status,

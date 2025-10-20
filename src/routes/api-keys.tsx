@@ -35,7 +35,7 @@ function ApiKeys() {
 	const { isAuthenticated } = useRequireAuth();
 
 	// Use API keys query hook
-	const { apiKeys, isLoading, createApiKey, updateApiKey, deleteApiKey, softDeleteApiKey } = useApiKeys();
+	const { apiKeys, isLoading, createApiKey, updateApiKey } = useApiKeys();
 
 	// Return null if not authenticated (redirect is handled by the hook)
 	if (!isAuthenticated) {
@@ -75,7 +75,16 @@ function ApiKeys() {
 
 	const handleDeleteKey = async (keyId: string) => {
 		try {
-			await softDeleteApiKey(keyId);
+			await updateApiKey({
+				keyId: keyId,
+				isActive: false,
+				isDeleted: true,
+				name: currentKey?.name || null,
+				monthlyLimit: currentKey?.monthly_limit || null,
+			});
+
+			setShowEditModal(false);
+			setCurrentKey(null);
 		} catch (error) {
 			console.error("Error deleting API key:", error);
 		}
@@ -158,7 +167,7 @@ function ApiKeys() {
 										</tr>
 									</>
 								) : (
-									apiKeys.map((key) => (
+									apiKeys.filter(key => !key.is_deleted).map((key) => (
 										<tr key={key.id} className="border-b border-border/50 hover:bg-card/70">
 											<td className="px-6 py-4 text-sm font-medium">{key.name}</td>
 											<td className="px-6 py-4 text-sm font-mono">{key.key}</td>
