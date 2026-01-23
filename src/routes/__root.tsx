@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import Providers from "@/components/Providers";
 import { Layout } from "@/components/Layout";
-import { Bot, Coins, CreditCard, Key, LayoutDashboard, LineChart, PieChart, Receipt } from "lucide-react";
+import { Bot, Coins, CreditCard, Image, Key, LayoutDashboard, LineChart, PieChart, Receipt } from "lucide-react";
 
 const developersSidebarItems = [
 	{ to: "/", icon: <LayoutDashboard className="h-4 w-4" />, label: "Home" },
@@ -10,6 +10,11 @@ const developersSidebarItems = [
 		to: "/agents",
 		icon: <Bot className="h-4 w-4" />,
 		label: "Agents",
+	},
+	{
+		to: "/images",
+		icon: <Image className="h-4 w-4" />,
+		label: "Images",
 		badge: (
 			<span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary text-primary-foreground rounded-full ml-auto">
 				NEW

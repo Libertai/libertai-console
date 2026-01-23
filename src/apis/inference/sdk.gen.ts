@@ -41,6 +41,9 @@ import type {
 	CreateApiKeyApiKeysPostData,
 	CreateApiKeyApiKeysPostResponses,
 	CreateApiKeyApiKeysPostErrors,
+	GetChatApiKeyApiKeysChatGetData,
+	GetChatApiKeyApiKeysChatGetResponses,
+	GetChatApiKeyApiKeysChatGetErrors,
 	DeleteApiKeyApiKeysKeyIdDeleteData,
 	DeleteApiKeyApiKeysKeyIdDeleteResponses,
 	DeleteApiKeyApiKeysKeyIdDeleteErrors,
@@ -80,18 +83,24 @@ import type {
 	GetUsageStatsStatsUsageGetData,
 	GetUsageStatsStatsUsageGetResponses,
 	GetUsageStatsStatsUsageGetErrors,
-	GetCreditsStatsStatsGlobalCreditsGetData,
-	GetCreditsStatsStatsGlobalCreditsGetResponses,
-	GetCreditsStatsStatsGlobalCreditsGetErrors,
-	GetApiStatsStatsGlobalApiGetData,
-	GetApiStatsStatsGlobalApiGetResponses,
-	GetApiStatsStatsGlobalApiGetErrors,
-	GetAgentStatsStatsGlobalAgentsGetData,
-	GetAgentStatsStatsGlobalAgentsGetResponses,
-	GetAgentStatsStatsGlobalAgentsGetErrors,
-	GetTokensStatsStatsGlobalTokensGetData,
-	GetTokensStatsStatsGlobalTokensGetResponses,
-	GetTokensStatsStatsGlobalTokensGetErrors,
+	GetCreditsStatsStatsGlobalApiCreditsGetData,
+	GetCreditsStatsStatsGlobalApiCreditsGetResponses,
+	GetCreditsStatsStatsGlobalApiCreditsGetErrors,
+	GetApiStatsStatsGlobalApiCallsGetData,
+	GetApiStatsStatsGlobalApiCallsGetResponses,
+	GetApiStatsStatsGlobalApiCallsGetErrors,
+	GetTokensStatsStatsGlobalApiTokensGetData,
+	GetTokensStatsStatsGlobalApiTokensGetResponses,
+	GetTokensStatsStatsGlobalApiTokensGetErrors,
+	GetChatCallsStatsStatsGlobalChatCallsGetData,
+	GetChatCallsStatsStatsGlobalChatCallsGetResponses,
+	GetChatCallsStatsStatsGlobalChatCallsGetErrors,
+	GetChatTokensStatsStatsGlobalChatTokensGetData,
+	GetChatTokensStatsStatsGlobalChatTokensGetResponses,
+	GetChatTokensStatsStatsGlobalChatTokensGetErrors,
+	ProxyChatRequestChatCompletionsPostData,
+	ProxyChatRequestChatCompletionsPostResponses,
+	ProxyChatRequestChatCompletionsPostErrors,
 } from "./types.gen";
 import { client as _heyApiClient } from "./client.gen";
 
@@ -389,6 +398,27 @@ export const createApiKeyApiKeysPost = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * Get Chat Api Key
+ * Get the chat API key for the authenticated user.
+ *
+ * If the user doesn't have a chat API key, one will be automatically created.
+ * Returns only the full API key string.
+ */
+export const getChatApiKeyApiKeysChatGet = <ThrowOnError extends boolean = false>(
+	options?: Options<GetChatApiKeyApiKeysChatGetData, ThrowOnError>,
+) => {
+	return (options?.client ?? _heyApiClient).get<
+		GetChatApiKeyApiKeysChatGetResponses,
+		GetChatApiKeyApiKeysChatGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/api-keys/chat",
+		...options,
+	});
+};
+
+/**
  * Delete Api Key
  * Delete an API key.
  */
@@ -434,6 +464,9 @@ export const updateApiKeyApiKeysKeyIdPut = <ThrowOnError extends boolean = false
  *
  * This endpoint is protected by admin authorization and requires
  * the X-Admin-Token header to match the ADMIN_SECRET environment variable.
+ *
+ * For chat-type API keys, logs usage to chat_requests without deducting credits.
+ * For api-type API keys, logs usage to inference_calls and deducts credits.
  */
 export const registerInferenceCallApiKeysAdminUsagePost = <ThrowOnError extends boolean = false>(
 	options: Options<RegisterInferenceCallApiKeysAdminUsagePostData, ThrowOnError>,
@@ -658,16 +691,16 @@ export const getUsageStatsStatsUsageGet = <ThrowOnError extends boolean = false>
  * - Tokens used per model
  * - Which model has been used
  */
-export const getCreditsStatsStatsGlobalCreditsGet = <ThrowOnError extends boolean = false>(
-	options: Options<GetCreditsStatsStatsGlobalCreditsGetData, ThrowOnError>,
+export const getCreditsStatsStatsGlobalApiCreditsGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetCreditsStatsStatsGlobalApiCreditsGetData, ThrowOnError>,
 ) => {
 	return (options.client ?? _heyApiClient).get<
-		GetCreditsStatsStatsGlobalCreditsGetResponses,
-		GetCreditsStatsStatsGlobalCreditsGetErrors,
+		GetCreditsStatsStatsGlobalApiCreditsGetResponses,
+		GetCreditsStatsStatsGlobalApiCreditsGetErrors,
 		ThrowOnError
 	>({
 		responseType: "json",
-		url: "/stats/global/credits",
+		url: "/stats/global/api/credits",
 		...options,
 	});
 };
@@ -680,40 +713,16 @@ export const getCreditsStatsStatsGlobalCreditsGet = <ThrowOnError extends boolea
  * - Total API calls for the entire models
  * - List with API calls for each model
  */
-export const getApiStatsStatsGlobalApiGet = <ThrowOnError extends boolean = false>(
-	options: Options<GetApiStatsStatsGlobalApiGetData, ThrowOnError>,
+export const getApiStatsStatsGlobalApiCallsGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetApiStatsStatsGlobalApiCallsGetData, ThrowOnError>,
 ) => {
 	return (options.client ?? _heyApiClient).get<
-		GetApiStatsStatsGlobalApiGetResponses,
-		GetApiStatsStatsGlobalApiGetErrors,
+		GetApiStatsStatsGlobalApiCallsGetResponses,
+		GetApiStatsStatsGlobalApiCallsGetErrors,
 		ThrowOnError
 	>({
 		responseType: "json",
-		url: "/stats/global/api",
-		...options,
-	});
-};
-
-/**
- * Get Agent Stats
- * Get detailed agent usage statistics for a specific date range.
- *
- * Statistics include:
- * - Total agents created
- * - Total given vouchers
- * - Total subscriptions to the agents
- * - List with the agents creations dates
- */
-export const getAgentStatsStatsGlobalAgentsGet = <ThrowOnError extends boolean = false>(
-	options: Options<GetAgentStatsStatsGlobalAgentsGetData, ThrowOnError>,
-) => {
-	return (options.client ?? _heyApiClient).get<
-		GetAgentStatsStatsGlobalAgentsGetResponses,
-		GetAgentStatsStatsGlobalAgentsGetErrors,
-		ThrowOnError
-	>({
-		responseType: "json",
-		url: "/stats/global/agents",
+		url: "/stats/global/api/calls",
 		...options,
 	});
 };
@@ -728,16 +737,89 @@ export const getAgentStatsStatsGlobalAgentsGet = <ThrowOnError extends boolean =
  * - Total subscriptions to the agents
  * - List with the agents creations dates
  */
-export const getTokensStatsStatsGlobalTokensGet = <ThrowOnError extends boolean = false>(
-	options: Options<GetTokensStatsStatsGlobalTokensGetData, ThrowOnError>,
+export const getTokensStatsStatsGlobalApiTokensGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetTokensStatsStatsGlobalApiTokensGetData, ThrowOnError>,
 ) => {
 	return (options.client ?? _heyApiClient).get<
-		GetTokensStatsStatsGlobalTokensGetResponses,
-		GetTokensStatsStatsGlobalTokensGetErrors,
+		GetTokensStatsStatsGlobalApiTokensGetResponses,
+		GetTokensStatsStatsGlobalApiTokensGetErrors,
 		ThrowOnError
 	>({
 		responseType: "json",
-		url: "/stats/global/tokens",
+		url: "/stats/global/api/tokens",
 		...options,
+	});
+};
+
+/**
+ * Get Chat Calls Stats
+ * Get detailed chat API call statistics for a specific date range.
+ *
+ * Statistics include:
+ * - Total number of chat API calls
+ * - Daily breakdown by model of chat API calls
+ */
+export const getChatCallsStatsStatsGlobalChatCallsGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetChatCallsStatsStatsGlobalChatCallsGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		GetChatCallsStatsStatsGlobalChatCallsGetResponses,
+		GetChatCallsStatsStatsGlobalChatCallsGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/stats/global/chat/calls",
+		...options,
+	});
+};
+
+/**
+ * Get Chat Tokens Stats
+ * Get detailed chat token usage statistics for a specific date range.
+ *
+ * Statistics include:
+ * - Total input tokens
+ * - Total output tokens
+ * - Total cached tokens
+ * - Daily breakdown by model of token usage
+ */
+export const getChatTokensStatsStatsGlobalChatTokensGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetChatTokensStatsStatsGlobalChatTokensGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		GetChatTokensStatsStatsGlobalChatTokensGetResponses,
+		GetChatTokensStatsStatsGlobalChatTokensGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/stats/global/chat/tokens",
+		...options,
+	});
+};
+
+/**
+ * Proxy Chat Request
+ * Proxy requests to LibertAI chat completions API.
+ *
+ * Always replaces the Authorization header with LIBERTAI_CHAT_DEFAULT_API_KEY from environment.
+ * Forwards all request parameters, query params, and body to api.libertai.io/v1/chat/completions.
+ *
+ * Handles both streaming and non-streaming responses.
+ */
+export const proxyChatRequestChatCompletionsPost = <ThrowOnError extends boolean = false>(
+	options: Options<ProxyChatRequestChatCompletionsPostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		ProxyChatRequestChatCompletionsPostResponses,
+		ProxyChatRequestChatCompletionsPostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/chat/completions",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
 	});
 };

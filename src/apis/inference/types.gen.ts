@@ -46,20 +46,6 @@ export type AgentResponse = {
 };
 
 /**
- * AgentUsage
- */
-export type AgentUsage = {
-	/**
-	 * Name
-	 */
-	name: string;
-	/**
-	 * Created At
-	 */
-	created_at: string;
-};
-
-/**
  * ApiKey
  */
 export type ApiKey = {
@@ -91,6 +77,7 @@ export type ApiKey = {
 	 * Monthly Limit
 	 */
 	monthly_limit?: number | null;
+	type: ApiKeyType;
 };
 
 /**
@@ -124,8 +111,13 @@ export type ApiKeyListResponse = {
 	/**
 	 * Keys
 	 */
-	keys: Array<ApiKey>;
+	keys: Array<FullApiKey>;
 };
+
+/**
+ * ApiKeyType
+ */
+export type ApiKeyType = "api" | "chat";
 
 /**
  * ApiKeyUpdate
@@ -229,6 +221,71 @@ export type Call = {
 	 * Nb Output Tokens
 	 */
 	nb_output_tokens: number;
+	/**
+	 * Model Name
+	 */
+	model_name: string;
+};
+
+/**
+ * ChatApiKeyResponse
+ */
+export type ChatApiKeyResponse = {
+	/**
+	 * Key
+	 */
+	key: string;
+};
+
+/**
+ * ChatCallUsage
+ */
+export type ChatCallUsage = {
+	/**
+	 * Model Name
+	 */
+	model_name: string;
+	/**
+	 * Used At
+	 */
+	used_at: string;
+	/**
+	 * Call Count
+	 */
+	call_count: number;
+};
+
+/**
+ * ChatRequest
+ */
+export type ChatRequest = {
+	/**
+	 * Model
+	 */
+	model: string;
+	[key: string]: unknown | string;
+};
+
+/**
+ * ChatTokenUsage
+ */
+export type ChatTokenUsage = {
+	/**
+	 * Date
+	 */
+	date: string;
+	/**
+	 * Nb Input Tokens
+	 */
+	nb_input_tokens: number;
+	/**
+	 * Nb Output Tokens
+	 */
+	nb_output_tokens: number;
+	/**
+	 * Nb Cached Tokens
+	 */
+	nb_cached_tokens: number;
 	/**
 	 * Model Name
 	 */
@@ -446,6 +503,7 @@ export type FullApiKey = {
 	 * Monthly Limit
 	 */
 	monthly_limit?: number | null;
+	type: ApiKeyType;
 	/**
 	 * Full Key
 	 */
@@ -492,29 +550,6 @@ export type GetAgentResponse = {
 };
 
 /**
- * GlobalAgentStats
- * Agent usage statistics for a date range.
- */
-export type GlobalAgentStats = {
-	/**
-	 * Total Agents Created
-	 */
-	total_agents_created: number;
-	/**
-	 * Total Vouchers
-	 */
-	total_vouchers: number;
-	/**
-	 * Total Subscriptions
-	 */
-	total_subscriptions: number;
-	/**
-	 * Agents
-	 */
-	agents: Array<AgentUsage>;
-};
-
-/**
  * GlobalApiStats
  * Api usage statistics for a date range.
  */
@@ -527,6 +562,44 @@ export type GlobalApiStats = {
 	 * Api Usage
 	 */
 	api_usage: Array<ModelApiUsage>;
+};
+
+/**
+ * GlobalChatCallsStats
+ * Chat API calls statistics for a date range.
+ */
+export type GlobalChatCallsStats = {
+	/**
+	 * Total Calls
+	 */
+	total_calls: number;
+	/**
+	 * Chat Usage
+	 */
+	chat_usage: Array<ChatCallUsage>;
+};
+
+/**
+ * GlobalChatTokensStats
+ * Chat token usage statistics for a date range.
+ */
+export type GlobalChatTokensStats = {
+	/**
+	 * Total Input Tokens
+	 */
+	total_input_tokens: number;
+	/**
+	 * Total Output Tokens
+	 */
+	total_output_tokens: number;
+	/**
+	 * Total Cached Tokens
+	 */
+	total_cached_tokens: number;
+	/**
+	 * Token Usage
+	 */
+	token_usage: Array<ChatTokenUsage>;
 };
 
 /**
@@ -573,30 +646,28 @@ export type HttpValidationError = {
 };
 
 /**
- * InferenceCallData
+ * ImageInferenceCallData
  */
-export type InferenceCallData = {
+export type ImageInferenceCallData = {
 	/**
 	 * Key
 	 */
 	key: string;
 	/**
-	 * Input Tokens
-	 */
-	input_tokens: number;
-	/**
-	 * Output Tokens
-	 */
-	output_tokens: number;
-	/**
-	 * Cached Tokens
-	 */
-	cached_tokens?: number;
-	/**
 	 * Model Name
 	 */
 	model_name: string;
+	/**
+	 * Image Count
+	 */
+	image_count: number;
+	type?: InferenceCallType;
 };
+
+/**
+ * InferenceCallType
+ */
+export type InferenceCallType = "text" | "image";
 
 /**
  * LibertaiChain
@@ -615,6 +686,10 @@ export type ModelApiUsage = {
 	 * Used At
 	 */
 	used_at: string;
+	/**
+	 * Call Count
+	 */
+	call_count: number;
 };
 
 /**
@@ -694,6 +769,33 @@ export type SubscriptionTransactionStatus = "success" | "failed";
  * SubscriptionType
  */
 export type SubscriptionType = "agent";
+
+/**
+ * TextInferenceCallData
+ */
+export type TextInferenceCallData = {
+	/**
+	 * Key
+	 */
+	key: string;
+	/**
+	 * Model Name
+	 */
+	model_name: string;
+	/**
+	 * Input Tokens
+	 */
+	input_tokens: number;
+	/**
+	 * Output Tokens
+	 */
+	output_tokens: number;
+	/**
+	 * Cached Tokens
+	 */
+	cached_tokens?: number;
+	type?: InferenceCallType | null;
+};
 
 /**
  * ThirdwebOnchainTransactionData
@@ -1410,6 +1512,33 @@ export type CreateApiKeyApiKeysPostResponses = {
 
 export type CreateApiKeyApiKeysPostResponse = CreateApiKeyApiKeysPostResponses[keyof CreateApiKeyApiKeysPostResponses];
 
+export type GetChatApiKeyApiKeysChatGetData = {
+	body?: never;
+	path?: never;
+	query?: never;
+	url: "/api-keys/chat";
+};
+
+export type GetChatApiKeyApiKeysChatGetErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type GetChatApiKeyApiKeysChatGetError =
+	GetChatApiKeyApiKeysChatGetErrors[keyof GetChatApiKeyApiKeysChatGetErrors];
+
+export type GetChatApiKeyApiKeysChatGetResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: ChatApiKeyResponse;
+};
+
+export type GetChatApiKeyApiKeysChatGetResponse =
+	GetChatApiKeyApiKeysChatGetResponses[keyof GetChatApiKeyApiKeysChatGetResponses];
+
 export type DeleteApiKeyApiKeysKeyIdDeleteData = {
 	body?: never;
 	path: {
@@ -1472,7 +1601,10 @@ export type UpdateApiKeyApiKeysKeyIdPutResponse =
 	UpdateApiKeyApiKeysKeyIdPutResponses[keyof UpdateApiKeyApiKeysKeyIdPutResponses];
 
 export type RegisterInferenceCallApiKeysAdminUsagePostData = {
-	body: InferenceCallData;
+	/**
+	 * Usage Log
+	 */
+	body: TextInferenceCallData | ImageInferenceCallData;
 	path?: never;
 	query?: never;
 	url: "/api-keys/admin/usage";
@@ -1797,7 +1929,7 @@ export type GetUsageStatsStatsUsageGetResponses = {
 export type GetUsageStatsStatsUsageGetResponse =
 	GetUsageStatsStatsUsageGetResponses[keyof GetUsageStatsStatsUsageGetResponses];
 
-export type GetCreditsStatsStatsGlobalCreditsGetData = {
+export type GetCreditsStatsStatsGlobalApiCreditsGetData = {
 	body?: never;
 	path?: never;
 	query: {
@@ -1812,30 +1944,30 @@ export type GetCreditsStatsStatsGlobalCreditsGetData = {
 		 */
 		end_date: string;
 	};
-	url: "/stats/global/credits";
+	url: "/stats/global/api/credits";
 };
 
-export type GetCreditsStatsStatsGlobalCreditsGetErrors = {
+export type GetCreditsStatsStatsGlobalApiCreditsGetErrors = {
 	/**
 	 * Validation Error
 	 */
 	422: HttpValidationError;
 };
 
-export type GetCreditsStatsStatsGlobalCreditsGetError =
-	GetCreditsStatsStatsGlobalCreditsGetErrors[keyof GetCreditsStatsStatsGlobalCreditsGetErrors];
+export type GetCreditsStatsStatsGlobalApiCreditsGetError =
+	GetCreditsStatsStatsGlobalApiCreditsGetErrors[keyof GetCreditsStatsStatsGlobalApiCreditsGetErrors];
 
-export type GetCreditsStatsStatsGlobalCreditsGetResponses = {
+export type GetCreditsStatsStatsGlobalApiCreditsGetResponses = {
 	/**
 	 * Successful Response
 	 */
 	200: GlobalCreditsStats;
 };
 
-export type GetCreditsStatsStatsGlobalCreditsGetResponse =
-	GetCreditsStatsStatsGlobalCreditsGetResponses[keyof GetCreditsStatsStatsGlobalCreditsGetResponses];
+export type GetCreditsStatsStatsGlobalApiCreditsGetResponse =
+	GetCreditsStatsStatsGlobalApiCreditsGetResponses[keyof GetCreditsStatsStatsGlobalApiCreditsGetResponses];
 
-export type GetApiStatsStatsGlobalApiGetData = {
+export type GetApiStatsStatsGlobalApiCallsGetData = {
 	body?: never;
 	path?: never;
 	query: {
@@ -1850,30 +1982,30 @@ export type GetApiStatsStatsGlobalApiGetData = {
 		 */
 		end_date: string;
 	};
-	url: "/stats/global/api";
+	url: "/stats/global/api/calls";
 };
 
-export type GetApiStatsStatsGlobalApiGetErrors = {
+export type GetApiStatsStatsGlobalApiCallsGetErrors = {
 	/**
 	 * Validation Error
 	 */
 	422: HttpValidationError;
 };
 
-export type GetApiStatsStatsGlobalApiGetError =
-	GetApiStatsStatsGlobalApiGetErrors[keyof GetApiStatsStatsGlobalApiGetErrors];
+export type GetApiStatsStatsGlobalApiCallsGetError =
+	GetApiStatsStatsGlobalApiCallsGetErrors[keyof GetApiStatsStatsGlobalApiCallsGetErrors];
 
-export type GetApiStatsStatsGlobalApiGetResponses = {
+export type GetApiStatsStatsGlobalApiCallsGetResponses = {
 	/**
 	 * Successful Response
 	 */
 	200: GlobalApiStats;
 };
 
-export type GetApiStatsStatsGlobalApiGetResponse =
-	GetApiStatsStatsGlobalApiGetResponses[keyof GetApiStatsStatsGlobalApiGetResponses];
+export type GetApiStatsStatsGlobalApiCallsGetResponse =
+	GetApiStatsStatsGlobalApiCallsGetResponses[keyof GetApiStatsStatsGlobalApiCallsGetResponses];
 
-export type GetAgentStatsStatsGlobalAgentsGetData = {
+export type GetTokensStatsStatsGlobalApiTokensGetData = {
 	body?: never;
 	path?: never;
 	query: {
@@ -1888,66 +2020,128 @@ export type GetAgentStatsStatsGlobalAgentsGetData = {
 		 */
 		end_date: string;
 	};
-	url: "/stats/global/agents";
+	url: "/stats/global/api/tokens";
 };
 
-export type GetAgentStatsStatsGlobalAgentsGetErrors = {
+export type GetTokensStatsStatsGlobalApiTokensGetErrors = {
 	/**
 	 * Validation Error
 	 */
 	422: HttpValidationError;
 };
 
-export type GetAgentStatsStatsGlobalAgentsGetError =
-	GetAgentStatsStatsGlobalAgentsGetErrors[keyof GetAgentStatsStatsGlobalAgentsGetErrors];
+export type GetTokensStatsStatsGlobalApiTokensGetError =
+	GetTokensStatsStatsGlobalApiTokensGetErrors[keyof GetTokensStatsStatsGlobalApiTokensGetErrors];
 
-export type GetAgentStatsStatsGlobalAgentsGetResponses = {
-	/**
-	 * Successful Response
-	 */
-	200: GlobalAgentStats;
-};
-
-export type GetAgentStatsStatsGlobalAgentsGetResponse =
-	GetAgentStatsStatsGlobalAgentsGetResponses[keyof GetAgentStatsStatsGlobalAgentsGetResponses];
-
-export type GetTokensStatsStatsGlobalTokensGetData = {
-	body?: never;
-	path?: never;
-	query: {
-		/**
-		 * Start Date
-		 * Start date in format YYYY-MM-DD
-		 */
-		start_date: string;
-		/**
-		 * End Date
-		 * End date in format YYYY-MM-DD
-		 */
-		end_date: string;
-	};
-	url: "/stats/global/tokens";
-};
-
-export type GetTokensStatsStatsGlobalTokensGetErrors = {
-	/**
-	 * Validation Error
-	 */
-	422: HttpValidationError;
-};
-
-export type GetTokensStatsStatsGlobalTokensGetError =
-	GetTokensStatsStatsGlobalTokensGetErrors[keyof GetTokensStatsStatsGlobalTokensGetErrors];
-
-export type GetTokensStatsStatsGlobalTokensGetResponses = {
+export type GetTokensStatsStatsGlobalApiTokensGetResponses = {
 	/**
 	 * Successful Response
 	 */
 	200: GlobalTokensStats;
 };
 
-export type GetTokensStatsStatsGlobalTokensGetResponse =
-	GetTokensStatsStatsGlobalTokensGetResponses[keyof GetTokensStatsStatsGlobalTokensGetResponses];
+export type GetTokensStatsStatsGlobalApiTokensGetResponse =
+	GetTokensStatsStatsGlobalApiTokensGetResponses[keyof GetTokensStatsStatsGlobalApiTokensGetResponses];
+
+export type GetChatCallsStatsStatsGlobalChatCallsGetData = {
+	body?: never;
+	path?: never;
+	query: {
+		/**
+		 * Start Date
+		 * Start date in format YYYY-MM-DD
+		 */
+		start_date: string;
+		/**
+		 * End Date
+		 * End date in format YYYY-MM-DD
+		 */
+		end_date: string;
+	};
+	url: "/stats/global/chat/calls";
+};
+
+export type GetChatCallsStatsStatsGlobalChatCallsGetErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type GetChatCallsStatsStatsGlobalChatCallsGetError =
+	GetChatCallsStatsStatsGlobalChatCallsGetErrors[keyof GetChatCallsStatsStatsGlobalChatCallsGetErrors];
+
+export type GetChatCallsStatsStatsGlobalChatCallsGetResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: GlobalChatCallsStats;
+};
+
+export type GetChatCallsStatsStatsGlobalChatCallsGetResponse =
+	GetChatCallsStatsStatsGlobalChatCallsGetResponses[keyof GetChatCallsStatsStatsGlobalChatCallsGetResponses];
+
+export type GetChatTokensStatsStatsGlobalChatTokensGetData = {
+	body?: never;
+	path?: never;
+	query: {
+		/**
+		 * Start Date
+		 * Start date in format YYYY-MM-DD
+		 */
+		start_date: string;
+		/**
+		 * End Date
+		 * End date in format YYYY-MM-DD
+		 */
+		end_date: string;
+	};
+	url: "/stats/global/chat/tokens";
+};
+
+export type GetChatTokensStatsStatsGlobalChatTokensGetErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type GetChatTokensStatsStatsGlobalChatTokensGetError =
+	GetChatTokensStatsStatsGlobalChatTokensGetErrors[keyof GetChatTokensStatsStatsGlobalChatTokensGetErrors];
+
+export type GetChatTokensStatsStatsGlobalChatTokensGetResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: GlobalChatTokensStats;
+};
+
+export type GetChatTokensStatsStatsGlobalChatTokensGetResponse =
+	GetChatTokensStatsStatsGlobalChatTokensGetResponses[keyof GetChatTokensStatsStatsGlobalChatTokensGetResponses];
+
+export type ProxyChatRequestChatCompletionsPostData = {
+	body: ChatRequest;
+	path?: never;
+	query?: never;
+	url: "/chat/completions";
+};
+
+export type ProxyChatRequestChatCompletionsPostErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type ProxyChatRequestChatCompletionsPostError =
+	ProxyChatRequestChatCompletionsPostErrors[keyof ProxyChatRequestChatCompletionsPostErrors];
+
+export type ProxyChatRequestChatCompletionsPostResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: unknown;
+};
 
 export type ClientOptions = {
 	baseURL: "http://localhost:8000" | (string & {});
