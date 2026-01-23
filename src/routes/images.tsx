@@ -54,6 +54,7 @@ function Images() {
 	const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [cost, setCost] = useState<number | null>(null);
+	const [responseSeed, setResponseSeed] = useState<number | null>(null);
 
 	// Use auth hook to require authentication
 	const { isAuthenticated } = useRequireAuth();
@@ -159,11 +160,14 @@ function Images() {
 					throw new Error("No image returned from API");
 				}
 				imageB64 = data.images[0];
+				// Extract seed from response if available
+				setResponseSeed(data.parameters?.seed !== undefined && data.parameters.seed >= 0 ? data.parameters.seed : null);
 			} else {
 				if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
 					throw new Error("No image returned from API");
 				}
 				imageB64 = data.data[0]?.b64_json;
+				setResponseSeed(null);
 			}
 
 			if (!imageB64) {
@@ -349,6 +353,9 @@ function Images() {
 							) : generatedImage ? (
 								<div className="space-y-4">
 									<img src={generatedImage} alt="Generated" className="w-full rounded-lg border border-border" />
+									{responseSeed !== null && responseSeed >= 0 && (
+										<p className="text-sm text-muted-foreground text-center">Seed: {responseSeed}</p>
+									)}
 									<div className="flex gap-3">
 										<Button onClick={handleDownload} variant="outline" className="flex-1">
 											<Download className="h-4 w-4 mr-2" />
