@@ -4,9 +4,9 @@ import { Download, Image as ImageIcon, RefreshCw } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
 import { useApiKeys } from "@/hooks/data/use-api-keys";
+import { useAlephModels } from "@/hooks/data/use-models";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/images")({
@@ -14,18 +14,6 @@ export const Route = createFileRoute("/images")({
 });
 
 type EndpointType = "sdapi" | "openai";
-
-interface AlephModel {
-	id: string;
-	name: string;
-	hf_id: string;
-	capabilities: {
-		image?: boolean;
-	};
-	pricing: {
-		image?: number;
-	};
-}
 
 const DEFAULT_TEMPLATES = {
 	sdapi: {
@@ -62,19 +50,8 @@ function Images() {
 	// Use API keys query hook
 	const { apiKeys, isLoading: isLoadingKeys } = useApiKeys();
 
-	// Fetch models from Aleph
-	const { data: models, isLoading: isLoadingModels } = useQuery({
-		queryKey: ["aleph-pricing"],
-		queryFn: async () => {
-			const response = await fetch(
-				"https://api2.aleph.im/api/v0/aggregates/0xe1F7220D201C64871Cefb25320a8a588393eE508.json?keys=LTAI_PRICING",
-			);
-			const data = await response.json();
-			const allModels: AlephModel[] = data.data.LTAI_PRICING.models;
-			return allModels.filter((model) => model.capabilities.image === true);
-		},
-		staleTime: 5 * 60 * 1000, // 5 minutes
-	});
+	// Fetch image models from Aleph
+	const { data: models, isLoading: isLoadingModels } = useAlephModels("image");
 
 	// Set default model when models load
 	useEffect(() => {

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Copy, Eye, EyeOff, Key, MoreHorizontal, Plus, Settings, Trash, X } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -12,14 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ApiKey, ApiKeyCreate } from "@/apis/inference";
 import { useApiKeys } from "@/hooks/data/use-api-keys";
+import { useUsageStats } from "@/hooks/data/use-stats";
+import { useAlephModels } from "@/hooks/data/use-models";
 import { toast } from "sonner";
 import { ApiKeyForm } from "@/components/ApiKeyForm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
-
-const DEFAULT_MODEL = "hermes-3-8b-tee";
 
 type CodeLang = "curl" | "python" | "typescript";
 
@@ -139,20 +138,19 @@ function ApiKeys() {
 	const [newGeneratedKey, setNewGeneratedKey] = useState<string | null>(null);
 	const [showKey, setShowKey] = useState(false);
 	const [showCopiedTooltip, setShowCopiedTooltip] = useState(false);
-	const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
+	const [selectedModel, setSelectedModel] = useState<string | null>(null);
 	const [activeLang, setActiveLang] = useState<CodeLang>("curl");
 	const [copiedTool, setCopiedTool] = useState<string | null>(null);
 
-	// Fetch available models from LibertAI
-	const { data: models, isLoading: isLoadingModels } = useQuery({
-		queryKey: ["libertai-models"],
-		queryFn: async () => {
-			const response = await fetch("https://api.libertai.io/libertai/models");
-			const data: Record<string, { servers: string[] }> = await response.json();
-			return Object.keys(data);
-		},
-		staleTime: 5 * 60 * 1000, // 5 minutes
-	});
+	// Fetch available text models from Aleph
+	const { data: models, isLoading: isLoadingModels } = useAlephModels("text");
+
+	// Default to the first available model
+	useEffect(() => {
+		if (models && models.length > 0 && !selectedModel) {
+			setSelectedModel(models[0].id);
+		}
+	}, [models, selectedModel]);
 
 	// Current key being edited
 	const [currentKey, setCurrentKey] = useState<ApiKey | null>(null);
@@ -162,6 +160,12 @@ function ApiKeys() {
 
 	// Use API keys query hook
 	const { apiKeys, isLoading, createApiKey, updateApiKey, deleteApiKey } = useApiKeys();
+
+	// Rolling 30-day usage stats
+	const endDate = dayjs().format("YYYY-MM-DD");
+	const startDate = dayjs().subtract(30, "day").format("YYYY-MM-DD");
+	const { apiKeyUsage, isLoading: isLoadingUsage } = useUsageStats(startDate, endDate);
+	const usageByName = useMemo(() => new Map(apiKeyUsage.map((u) => [u.name, u.cost])), [apiKeyUsage]);
 
 	// Return null if not authenticated (redirect is handled by the hook)
 	if (!isAuthenticated) {
@@ -254,6 +258,7 @@ function ApiKeys() {
 									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Prefix</th>
 									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Created</th>
 									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Limit</th>
+									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">30d Usage</th>
 									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Status</th>
 									<th className="px-6 py-4 text-right text-sm font-medium text-muted-foreground">Actions</th>
 								</tr>
@@ -261,24 +266,24 @@ function ApiKeys() {
 							<tbody>
 								{apiKeys.length === 0 && !isLoading ? (
 									<tr className="border-b border-border/50">
-										<td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+										<td colSpan={7} className="px-6 py-8 text-center text-muted-foreground">
 											No API keys found. Create one to get started.
 										</td>
 									</tr>
 								) : isLoading ? (
 									<>
 										<tr className="border-b border-border/50">
-											<td colSpan={6} className="px-6 py-2">
+											<td colSpan={7} className="px-6 py-2">
 												<Skeleton className="h-10 w-full my-1" />
 											</td>
 										</tr>
 										<tr className="border-b border-border/50">
-											<td colSpan={6} className="px-6 py-2">
+											<td colSpan={7} className="px-6 py-2">
 												<Skeleton className="h-10 w-full my-1" />
 											</td>
 										</tr>
 										<tr className="border-b border-border/50">
-											<td colSpan={6} className="px-6 py-2">
+											<td colSpan={7} className="px-6 py-2">
 												<Skeleton className="h-10 w-full my-1" />
 											</td>
 										</tr>
@@ -293,6 +298,13 @@ function ApiKeys() {
 											</td>
 											<td className="px-6 py-4 text-sm text-muted-foreground">
 												{key.monthly_limit ? `$${key.monthly_limit}` : "None"}
+											</td>
+											<td className="px-6 py-4 text-sm text-muted-foreground">
+												{isLoadingUsage ? (
+													<Skeleton className="h-4 w-12" />
+												) : (
+													`$${(usageByName.get(key.name) ?? 0).toFixed(2)}`
+												)}
 											</td>
 											<td className="px-6 py-4 text-sm">
 												<span
@@ -353,14 +365,14 @@ function ApiKeys() {
 							{isLoadingModels ? (
 								<Skeleton className="h-9 w-full max-w-xs" />
 							) : (
-								<Select value={selectedModel} onValueChange={setSelectedModel}>
+								<Select value={selectedModel ?? ""} onValueChange={setSelectedModel}>
 									<SelectTrigger id="model-select" className="w-full max-w-xs">
 										<SelectValue placeholder="Select a model" />
 									</SelectTrigger>
 									<SelectContent>
 										{models?.map((model) => (
-											<SelectItem key={model} value={model}>
-												{model}
+											<SelectItem key={model.id} value={model.id}>
+												{model.name} ({model.id})
 											</SelectItem>
 										))}
 									</SelectContent>
@@ -382,25 +394,31 @@ function ApiKeys() {
 						</div>
 
 						<div className="bg-secondary/50 p-4 rounded-md border border-border/50 relative">
-							<pre id="code-example" className="text-sm font-mono overflow-x-auto whitespace-pre-wrap">
-								{buildCodeSnippet(activeLang, selectedModel)}
-							</pre>
-							<Button
-								variant="outline"
-								size="icon"
-								className="absolute top-2 right-2"
-								onClick={() => {
-									navigator.clipboard.writeText(buildCodeSnippet(activeLang, selectedModel));
-									setShowCopiedTooltip(true);
-									setTimeout(() => setShowCopiedTooltip(false), 1000);
-								}}
-							>
-								<Copy className="h-4 w-4" />
-							</Button>
-							{showCopiedTooltip && (
-								<div className="absolute top-2 right-12 bg-primary text-primary-foreground px-2 py-1 rounded text-xs">
-									Copied!
-								</div>
+							{selectedModel ? (
+								<>
+									<pre id="code-example" className="text-sm font-mono overflow-x-auto whitespace-pre-wrap">
+										{buildCodeSnippet(activeLang, selectedModel)}
+									</pre>
+									<Button
+										variant="outline"
+										size="icon"
+										className="absolute top-2 right-2"
+										onClick={() => {
+											navigator.clipboard.writeText(buildCodeSnippet(activeLang, selectedModel));
+											setShowCopiedTooltip(true);
+											setTimeout(() => setShowCopiedTooltip(false), 1000);
+										}}
+									>
+										<Copy className="h-4 w-4" />
+									</Button>
+									{showCopiedTooltip && (
+										<div className="absolute top-2 right-12 bg-primary text-primary-foreground px-2 py-1 rounded text-xs">
+											Copied!
+										</div>
+									)}
+								</>
+							) : (
+								<Skeleton className="h-32 w-full" />
 							)}
 						</div>
 
@@ -424,7 +442,7 @@ function ApiKeys() {
 					</p>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						{TOOL_INTEGRATIONS.map((tool) => {
-							const snippet = tool.snippet(selectedModel);
+							const snippet = selectedModel ? tool.snippet(selectedModel) : null;
 							return (
 								<div key={tool.name} className="bg-secondary/50 p-4 rounded-md border border-border/50 flex flex-col gap-3">
 									<div>
@@ -432,25 +450,31 @@ function ApiKeys() {
 										<p className="text-xs text-muted-foreground mt-1">{tool.description}</p>
 									</div>
 									<div className="relative">
-										<pre className="text-xs font-mono overflow-x-auto whitespace-pre-wrap bg-background/60 p-3 rounded-md border border-border/50 pr-10">
-											{snippet}
-										</pre>
-										<Button
-											variant="outline"
-											size="icon"
-											className="absolute top-2 right-2 h-7 w-7"
-											onClick={() => {
-												navigator.clipboard.writeText(snippet);
-												setCopiedTool(tool.name);
-												setTimeout(() => setCopiedTool((current) => (current === tool.name ? null : current)), 1000);
-											}}
-										>
-											<Copy className="h-3.5 w-3.5" />
-										</Button>
-										{copiedTool === tool.name && (
-											<div className="absolute top-2 right-11 bg-primary text-primary-foreground px-2 py-0.5 rounded text-xs">
-												Copied!
-											</div>
+										{snippet ? (
+											<>
+												<pre className="text-xs font-mono overflow-x-auto whitespace-pre-wrap bg-background/60 p-3 rounded-md border border-border/50 pr-10">
+													{snippet}
+												</pre>
+												<Button
+													variant="outline"
+													size="icon"
+													className="absolute top-2 right-2 h-7 w-7"
+													onClick={() => {
+														navigator.clipboard.writeText(snippet);
+														setCopiedTool(tool.name);
+														setTimeout(() => setCopiedTool((current) => (current === tool.name ? null : current)), 1000);
+													}}
+												>
+													<Copy className="h-3.5 w-3.5" />
+												</Button>
+												{copiedTool === tool.name && (
+													<div className="absolute top-2 right-11 bg-primary text-primary-foreground px-2 py-0.5 rounded text-xs">
+														Copied!
+													</div>
+												)}
+											</>
+										) : (
+											<Skeleton className="h-24 w-full" />
 										)}
 									</div>
 								</div>
