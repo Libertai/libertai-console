@@ -74,6 +74,10 @@ export type ApiKey = {
 	 */
 	is_active: boolean;
 	/**
+	 * Is Deleted
+	 */
+	is_deleted: boolean;
+	/**
 	 * Monthly Limit
 	 */
 	monthly_limit?: number | null;
@@ -131,6 +135,10 @@ export type ApiKeyUpdate = {
 	 * Is Active
 	 */
 	is_active?: boolean | null;
+	/**
+	 * Is Deleted
+	 */
+	is_deleted?: boolean | null;
 	/**
 	 * Monthly Limit
 	 */
@@ -499,6 +507,10 @@ export type FullApiKey = {
 	 * Is Active
 	 */
 	is_active: boolean;
+	/**
+	 * Is Deleted
+	 */
+	is_deleted: boolean;
 	/**
 	 * Monthly Limit
 	 */

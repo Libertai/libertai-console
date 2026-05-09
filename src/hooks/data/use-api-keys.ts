@@ -84,11 +84,13 @@ export function useApiKeys() {
 		mutationFn: async ({
 			keyId,
 			isActive,
+			isDeleted,
 			name,
 			monthlyLimit,
 		}: {
 			keyId: string;
 			isActive: boolean;
+			isDeleted?: boolean;
 			name?: string | null;
 			monthlyLimit?: number | null;
 		}) => {
@@ -98,6 +100,7 @@ export function useApiKeys() {
 				},
 				body: {
 					is_active: isActive,
+					is_deleted: isDeleted,
 					name,
 					monthly_limit: monthlyLimit,
 				},
