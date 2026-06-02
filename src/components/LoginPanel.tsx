@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAccountStore } from "@/stores/account";
-import AccountButton from "@/components/AccountButton";
+import WalletConnectButtons from "@/components/WalletConnectButtons";
 
 export default function LoginPanel() {
 	const loginWithEmail = useAccountStore((state) => state.loginWithEmail);
@@ -105,13 +105,11 @@ export default function LoginPanel() {
 
 			<div className="flex items-center gap-3 text-xs text-muted-foreground">
 				<span className="h-px flex-1 bg-border" />
-				OR
+				OR CONNECT A WALLET
 				<span className="h-px flex-1 bg-border" />
 			</div>
 
-			<div className="flex justify-center">
-				<AccountButton />
-			</div>
+			<WalletConnectButtons />
 		</div>
 	);
 }

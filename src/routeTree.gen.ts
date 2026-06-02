@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsageRouteImport } from './routes/usage'
 import { Route as TransactionsRouteImport } from './routes/transactions'
 import { Route as TopUpRouteImport } from './routes/top-up'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImagesRouteImport } from './routes/images'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
@@ -31,6 +32,11 @@ const TransactionsRoute = TransactionsRouteImport.update({
 const TopUpRoute = TopUpRouteImport.update({
   id: '/top-up',
   path: '/top-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImagesRoute = ImagesRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
+  '/login': typeof LoginRoute
   '/top-up': typeof TopUpRoute
   '/transactions': typeof TransactionsRoute
   '/usage': typeof UsageRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
+  '/login': typeof LoginRoute
   '/top-up': typeof TopUpRoute
   '/transactions': typeof TransactionsRoute
   '/usage': typeof UsageRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
+  '/login': typeof LoginRoute
   '/top-up': typeof TopUpRoute
   '/transactions': typeof TransactionsRoute
   '/usage': typeof UsageRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/api-keys'
     | '/dashboard'
     | '/images'
+    | '/login'
     | '/top-up'
     | '/transactions'
     | '/usage'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/api-keys'
     | '/dashboard'
     | '/images'
+    | '/login'
     | '/top-up'
     | '/transactions'
     | '/usage'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/api-keys'
     | '/dashboard'
     | '/images'
+    | '/login'
     | '/top-up'
     | '/transactions'
     | '/usage'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   ApiKeysRoute: typeof ApiKeysRoute
   DashboardRoute: typeof DashboardRoute
   ImagesRoute: typeof ImagesRoute
+  LoginRoute: typeof LoginRoute
   TopUpRoute: typeof TopUpRoute
   TransactionsRoute: typeof TransactionsRoute
   UsageRoute: typeof UsageRoute
@@ -155,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/top-up'
       fullPath: '/top-up'
       preLoaderRoute: typeof TopUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/images': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiKeysRoute: ApiKeysRoute,
   DashboardRoute: DashboardRoute,
   ImagesRoute: ImagesRoute,
+  LoginRoute: LoginRoute,
   TopUpRoute: TopUpRoute,
   TransactionsRoute: TransactionsRoute,
   UsageRoute: UsageRoute,

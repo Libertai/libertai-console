@@ -29,7 +29,7 @@ export function useRequireAuth() {
 					duration: 5000,
 				});
 			}
-			navigate({ to: "/" });
+			navigate({ to: "/login" });
 		}
 	}, [isAuthenticated, navigate, isInitialLoad, hasWaited]);
 
