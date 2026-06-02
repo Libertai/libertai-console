@@ -335,6 +335,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		}
 		persistTokens(accessToken, response.data?.refresh_token ?? null);
 		set({ accessToken, isAuthenticated: true });
+		get().queryClient?.invalidateQueries();
 		return true;
 	},
 	loginWithOAuth: (provider: "google" | "github") => {
@@ -349,6 +350,7 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		}
 		persistTokens(accessToken, response.data?.refresh_token ?? null);
 		set({ accessToken, isAuthenticated: true });
+		get().queryClient?.invalidateQueries();
 		return true;
 	},
 	logout: async (): Promise<void> => {
@@ -362,6 +364,8 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		}
 		clearTokens();
 		set({ accessToken: null, isAuthenticated: false, account: null });
+		// Drop cached data so the next user doesn't see the previous session's data.
+		get().queryClient?.clear();
 	},
 	checkAuthStatus: async (accountAddress: string): Promise<boolean> => {
 		try {

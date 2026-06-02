@@ -5,16 +5,12 @@ import { toast } from "sonner";
 
 export function useCredits() {
 	const queryClient = useQueryClient();
-	const account = useAccountStore((state) => state.account);
+	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
 
 	// Query for credits balance
 	const creditsQuery = useQuery({
-		queryKey: ["credits", account?.address],
+		queryKey: ["credits"],
 		queryFn: async () => {
-			if (!account) {
-				return { balance: 0 };
-			}
-
 			const response = await getUserBalanceCreditsBalanceGet();
 
 			if (response.error) {
@@ -23,7 +19,7 @@ export function useCredits() {
 
 			return response.data;
 		},
-		enabled: !!account, // Only run the query when account exists
+		enabled: isAuthenticated, // Run for any authenticated user (wallet or email/OAuth)
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		refetchOnWindowFocus: false,
 	});
@@ -31,10 +27,6 @@ export function useCredits() {
 	// Mutation to refresh balance
 	const refreshCreditsMutation = useMutation({
 		mutationFn: async () => {
-			if (!account) {
-				throw new Error("No account available");
-			}
-
 			const response = await getUserBalanceCreditsBalanceGet();
 
 			if (response.error) {
@@ -44,7 +36,7 @@ export function useCredits() {
 			return response.data;
 		},
 		onSuccess: (data) => {
-			queryClient.setQueryData(["credits", account?.address], data);
+			queryClient.setQueryData(["credits"], data);
 		},
 		onError: (error) => {
 			toast.error("Failed to update credits balance", {
