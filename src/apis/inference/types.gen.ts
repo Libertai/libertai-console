@@ -187,6 +187,20 @@ export type Call = {
 };
 
 /**
+ * CancelResponse
+ */
+export type CancelResponse = {
+	/**
+	 * Message
+	 */
+	message: string;
+	/**
+	 * Effective Date
+	 */
+	effective_date?: string | null;
+};
+
+/**
  * ChatApiKeyResponse
  */
 export type ChatApiKeyResponse = {
@@ -252,6 +266,16 @@ export type ChatTokenUsage = {
 };
 
 /**
+ * CheckoutResponse
+ */
+export type CheckoutResponse = {
+	/**
+	 * Checkout Url
+	 */
+	checkout_url: string;
+};
+
+/**
  * CreditBalanceResponse
  */
 export type CreditBalanceResponse = {
@@ -268,7 +292,7 @@ export type CreditBalanceResponse = {
 /**
  * CreditTransactionProvider
  */
-export type CreditTransactionProvider = "ltai_base" | "ltai_solana" | "thirdweb" | "voucher" | "sol_solana";
+export type CreditTransactionProvider = "ltai_base" | "ltai_solana" | "thirdweb" | "voucher" | "sol_solana" | "revolut";
 
 /**
  * CreditTransactionResponse
@@ -374,6 +398,30 @@ export type DashboardStats = {
 		[key: string]: number;
 	};
 	current_month: TokenStats;
+};
+
+/**
+ * DowngradeRequest
+ */
+export type DowngradeRequest = {
+	/**
+	 * Tier
+	 */
+	tier: string;
+};
+
+/**
+ * DowngradeResponse
+ */
+export type DowngradeResponse = {
+	/**
+	 * New Tier
+	 */
+	new_tier: string;
+	/**
+	 * Effective Date
+	 */
+	effective_date?: string | null;
 };
 
 /**
@@ -730,6 +778,40 @@ export type ModelApiUsage = {
 };
 
 /**
+ * PaymentProviderResponse
+ */
+export type PaymentProviderResponse = {
+	/**
+	 * Id
+	 */
+	id: string;
+	/**
+	 * Kind
+	 */
+	kind: string;
+	/**
+	 * Label
+	 */
+	label: string;
+	/**
+	 * Capabilities
+	 */
+	capabilities: Array<string>;
+	/**
+	 * Currencies
+	 */
+	currencies: Array<string>;
+	/**
+	 * Chain
+	 */
+	chain?: string | null;
+	/**
+	 * Contract Address
+	 */
+	contract_address?: string | null;
+};
+
+/**
  * RefreshRequest
  */
 export type RefreshRequest = {
@@ -737,6 +819,79 @@ export type RefreshRequest = {
 	 * Refresh Token
 	 */
 	refresh_token: string;
+};
+
+/**
+ * SubscribeRequest
+ */
+export type SubscribeRequest = {
+	/**
+	 * Provider
+	 */
+	provider?: string;
+	/**
+	 * Tier
+	 */
+	tier: string;
+};
+
+/**
+ * SubscriptionResponse
+ * Current subscription state. ``tier`` is the effective entitlement tier.
+ */
+export type SubscriptionResponse = {
+	/**
+	 * Tier
+	 */
+	tier: string;
+	/**
+	 * Has Subscription
+	 */
+	has_subscription: boolean;
+	/**
+	 * Status
+	 */
+	status?: string | null;
+	/**
+	 * Provider
+	 */
+	provider?: string | null;
+	/**
+	 * Current Period End
+	 */
+	current_period_end?: string | null;
+	/**
+	 * Cancel At Period End
+	 */
+	cancel_at_period_end?: boolean;
+	/**
+	 * Pending Tier
+	 */
+	pending_tier?: string | null;
+	/**
+	 * Is Trial
+	 */
+	is_trial?: boolean;
+	/**
+	 * Window 5H Used
+	 */
+	window_5h_used?: number;
+	/**
+	 * Window 5H Limit
+	 */
+	window_5h_limit?: number;
+	/**
+	 * Weekly Used
+	 */
+	weekly_used?: number;
+	/**
+	 * Weekly Limit
+	 */
+	weekly_limit?: number;
+	/**
+	 * Prepaid Balance
+	 */
+	prepaid_balance?: number;
 };
 
 /**
@@ -940,6 +1095,36 @@ export type ThirdwebWebhookPayload = {
 };
 
 /**
+ * TierResponse
+ */
+export type TierResponse = {
+	/**
+	 * Name
+	 */
+	name: string;
+	/**
+	 * Price Cents
+	 */
+	price_cents: number;
+	/**
+	 * Currency
+	 */
+	currency: string;
+	/**
+	 * Window 5H Credits
+	 */
+	window_5h_credits: number;
+	/**
+	 * Weekly Credits
+	 */
+	weekly_credits: number;
+	/**
+	 * Is Paid
+	 */
+	is_paid: boolean;
+};
+
+/**
  * TokenPairResponse
  */
 export type TokenPairResponse = {
@@ -982,6 +1167,20 @@ export type TokenStats = {
 	 * Credits Used
 	 */
 	credits_used: number;
+};
+
+/**
+ * TopupRequest
+ */
+export type TopupRequest = {
+	/**
+	 * Provider
+	 */
+	provider?: string;
+	/**
+	 * Amount
+	 */
+	amount: number;
 };
 
 /**
@@ -2730,6 +2929,287 @@ export type GetX402PricesX402PricesGetResponses = {
 
 export type GetX402PricesX402PricesGetResponse =
 	GetX402PricesX402PricesGetResponses[keyof GetX402PricesX402PricesGetResponses];
+
+export type ListProvidersPaymentsProvidersGetData = {
+	body?: never;
+	headers?: {
+		/**
+		 * Authorization
+		 */
+		authorization?: string | null;
+	};
+	path?: never;
+	query?: never;
+	url: "/payments/providers";
+};
+
+export type ListProvidersPaymentsProvidersGetErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type ListProvidersPaymentsProvidersGetError =
+	ListProvidersPaymentsProvidersGetErrors[keyof ListProvidersPaymentsProvidersGetErrors];
+
+export type ListProvidersPaymentsProvidersGetResponses = {
+	/**
+	 * Response List Providers Payments Providers Get
+	 * Successful Response
+	 */
+	200: Array<PaymentProviderResponse>;
+};
+
+export type ListProvidersPaymentsProvidersGetResponse =
+	ListProvidersPaymentsProvidersGetResponses[keyof ListProvidersPaymentsProvidersGetResponses];
+
+export type ListTiersPaymentsTiersGetData = {
+	body?: never;
+	path?: never;
+	query?: never;
+	url: "/payments/tiers";
+};
+
+export type ListTiersPaymentsTiersGetResponses = {
+	/**
+	 * Response List Tiers Payments Tiers Get
+	 * Successful Response
+	 */
+	200: Array<TierResponse>;
+};
+
+export type ListTiersPaymentsTiersGetResponse =
+	ListTiersPaymentsTiersGetResponses[keyof ListTiersPaymentsTiersGetResponses];
+
+export type TopupPaymentsTopupPostData = {
+	body: TopupRequest;
+	headers?: {
+		/**
+		 * Authorization
+		 */
+		authorization?: string | null;
+	};
+	path?: never;
+	query?: never;
+	url: "/payments/topup";
+};
+
+export type TopupPaymentsTopupPostErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type TopupPaymentsTopupPostError = TopupPaymentsTopupPostErrors[keyof TopupPaymentsTopupPostErrors];
+
+export type TopupPaymentsTopupPostResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: CheckoutResponse;
+};
+
+export type TopupPaymentsTopupPostResponse = TopupPaymentsTopupPostResponses[keyof TopupPaymentsTopupPostResponses];
+
+export type SubscribePaymentsSubscribePostData = {
+	body: SubscribeRequest;
+	headers?: {
+		/**
+		 * Authorization
+		 */
+		authorization?: string | null;
+	};
+	path?: never;
+	query?: never;
+	url: "/payments/subscribe";
+};
+
+export type SubscribePaymentsSubscribePostErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type SubscribePaymentsSubscribePostError =
+	SubscribePaymentsSubscribePostErrors[keyof SubscribePaymentsSubscribePostErrors];
+
+export type SubscribePaymentsSubscribePostResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: CheckoutResponse;
+};
+
+export type SubscribePaymentsSubscribePostResponse =
+	SubscribePaymentsSubscribePostResponses[keyof SubscribePaymentsSubscribePostResponses];
+
+export type UpgradePaymentsUpgradePostData = {
+	body: SubscribeRequest;
+	headers?: {
+		/**
+		 * Authorization
+		 */
+		authorization?: string | null;
+	};
+	path?: never;
+	query?: never;
+	url: "/payments/upgrade";
+};
+
+export type UpgradePaymentsUpgradePostErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type UpgradePaymentsUpgradePostError = UpgradePaymentsUpgradePostErrors[keyof UpgradePaymentsUpgradePostErrors];
+
+export type UpgradePaymentsUpgradePostResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: CheckoutResponse;
+};
+
+export type UpgradePaymentsUpgradePostResponse =
+	UpgradePaymentsUpgradePostResponses[keyof UpgradePaymentsUpgradePostResponses];
+
+export type DowngradePaymentsDowngradePostData = {
+	body: DowngradeRequest;
+	headers?: {
+		/**
+		 * Authorization
+		 */
+		authorization?: string | null;
+	};
+	path?: never;
+	query?: never;
+	url: "/payments/downgrade";
+};
+
+export type DowngradePaymentsDowngradePostErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type DowngradePaymentsDowngradePostError =
+	DowngradePaymentsDowngradePostErrors[keyof DowngradePaymentsDowngradePostErrors];
+
+export type DowngradePaymentsDowngradePostResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: DowngradeResponse;
+};
+
+export type DowngradePaymentsDowngradePostResponse =
+	DowngradePaymentsDowngradePostResponses[keyof DowngradePaymentsDowngradePostResponses];
+
+export type CancelPaymentsCancelPostData = {
+	body?: never;
+	headers?: {
+		/**
+		 * Authorization
+		 */
+		authorization?: string | null;
+	};
+	path?: never;
+	query?: never;
+	url: "/payments/cancel";
+};
+
+export type CancelPaymentsCancelPostErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type CancelPaymentsCancelPostError = CancelPaymentsCancelPostErrors[keyof CancelPaymentsCancelPostErrors];
+
+export type CancelPaymentsCancelPostResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: CancelResponse;
+};
+
+export type CancelPaymentsCancelPostResponse =
+	CancelPaymentsCancelPostResponses[keyof CancelPaymentsCancelPostResponses];
+
+export type GetSubscriptionPaymentsSubscriptionGetData = {
+	body?: never;
+	headers?: {
+		/**
+		 * Authorization
+		 */
+		authorization?: string | null;
+	};
+	path?: never;
+	query?: never;
+	url: "/payments/subscription";
+};
+
+export type GetSubscriptionPaymentsSubscriptionGetErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type GetSubscriptionPaymentsSubscriptionGetError =
+	GetSubscriptionPaymentsSubscriptionGetErrors[keyof GetSubscriptionPaymentsSubscriptionGetErrors];
+
+export type GetSubscriptionPaymentsSubscriptionGetResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: SubscriptionResponse;
+};
+
+export type GetSubscriptionPaymentsSubscriptionGetResponse =
+	GetSubscriptionPaymentsSubscriptionGetResponses[keyof GetSubscriptionPaymentsSubscriptionGetResponses];
+
+export type WebhookPaymentsWebhookProviderIdPostData = {
+	body?: never;
+	path: {
+		/**
+		 * Provider Id
+		 */
+		provider_id: string;
+	};
+	query?: never;
+	url: "/payments/webhook/{provider_id}";
+};
+
+export type WebhookPaymentsWebhookProviderIdPostErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type WebhookPaymentsWebhookProviderIdPostError =
+	WebhookPaymentsWebhookProviderIdPostErrors[keyof WebhookPaymentsWebhookProviderIdPostErrors];
+
+export type WebhookPaymentsWebhookProviderIdPostResponses = {
+	/**
+	 * Response Webhook Payments Webhook  Provider Id  Post
+	 * Successful Response
+	 */
+	200: {
+		[key: string]: unknown;
+	};
+};
+
+export type WebhookPaymentsWebhookProviderIdPostResponse =
+	WebhookPaymentsWebhookProviderIdPostResponses[keyof WebhookPaymentsWebhookProviderIdPostResponses];
 
 export type ClientOptions = {
 	baseURL: "http://localhost:8000" | (string & {});
