@@ -3,16 +3,12 @@ import { getTransactionHistoryCreditsTransactionsGet } from "@/apis/inference";
 import { useAccountStore } from "@/stores/account";
 
 export function useTransactions() {
-	const account = useAccountStore((state) => state.account);
+	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
 
 	// Query for transaction history
 	const transactionsQuery = useQuery({
-		queryKey: ["transactions", account?.address],
+		queryKey: ["transactions"],
 		queryFn: async () => {
-			if (!account) {
-				return { address: "", transactions: [] };
-			}
-
 			const response = await getTransactionHistoryCreditsTransactionsGet();
 
 			if (response.error) {
@@ -23,7 +19,7 @@ export function useTransactions() {
 
 			return response.data;
 		},
-		enabled: !!account, // Only run the query when account exists
+		enabled: isAuthenticated, // Run for any authenticated user (wallet or email/OAuth)
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		refetchOnWindowFocus: false,
 	});
