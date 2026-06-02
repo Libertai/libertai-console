@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAccountStore } from "@/stores/account";
 import { ArrowRight, Coins, Key, LayoutDashboard, LineChart, MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import AccountButton from "@/components/AccountButton";
+import LoginPanel from "@/components/LoginPanel";
 import { useCredits } from "@/hooks/data/use-credits";
 
 export const Route = createFileRoute("/")({
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-	const account = useAccountStore((state) => state.account);
+	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
 	const { formattedCredits } = useCredits();
 	const navigate = useNavigate();
 
@@ -24,12 +24,10 @@ function Index() {
 					Connect your wallet, create API keys, and build powerful applications with LibertAI's inference capabilities
 				</p>
 
-				{!account ? (
-					<div className="mt-8 flex flex-col items-center space-y-4">
-						<p className="text-muted-foreground">Connect your wallet to get started</p>
-						<div className="flex justify-center mt-4 mb-6">
-							<AccountButton />
-						</div>
+				{!isAuthenticated ? (
+					<div className="mt-8 flex flex-col items-center space-y-6">
+						<p className="text-muted-foreground">Sign in to get started</p>
+						<LoginPanel />
 						<div className="w-full max-w-md bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
 							<div className="flex flex-col space-y-4">
 								<p className="text-card-foreground">Access your developer dashboard to:</p>

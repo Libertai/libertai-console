@@ -11,6 +11,36 @@ import type {
 	CheckAuthStatusAuthStatusGetData,
 	CheckAuthStatusAuthStatusGetResponses,
 	CheckAuthStatusAuthStatusGetErrors,
+	WalletChallengeAuthWalletChallengePostData,
+	WalletChallengeAuthWalletChallengePostResponses,
+	WalletChallengeAuthWalletChallengePostErrors,
+	WalletVerifyAuthWalletVerifyPostData,
+	WalletVerifyAuthWalletVerifyPostResponses,
+	WalletVerifyAuthWalletVerifyPostErrors,
+	LoginEmailAuthLoginEmailPostData,
+	LoginEmailAuthLoginEmailPostResponses,
+	LoginEmailAuthLoginEmailPostErrors,
+	VerifyMagicLinkRouteAuthVerifyMagicLinkPostData,
+	VerifyMagicLinkRouteAuthVerifyMagicLinkPostResponses,
+	VerifyMagicLinkRouteAuthVerifyMagicLinkPostErrors,
+	OauthStartAuthOauthProviderGetData,
+	OauthStartAuthOauthProviderGetResponses,
+	OauthStartAuthOauthProviderGetErrors,
+	OauthCallbackAuthOauthProviderCallbackGetData,
+	OauthCallbackAuthOauthProviderCallbackGetResponses,
+	OauthCallbackAuthOauthProviderCallbackGetErrors,
+	ExchangeCodeAuthExchangePostData,
+	ExchangeCodeAuthExchangePostResponses,
+	ExchangeCodeAuthExchangePostErrors,
+	RefreshTokensAuthRefreshPostData,
+	RefreshTokensAuthRefreshPostResponses,
+	RefreshTokensAuthRefreshPostErrors,
+	LogoutAuthLogoutPostData,
+	LogoutAuthLogoutPostResponses,
+	LogoutAuthLogoutPostErrors,
+	LinkWalletRouteAuthLinkWalletPostData,
+	LinkWalletRouteAuthLinkWalletPostResponses,
+	LinkWalletRouteAuthLinkWalletPostErrors,
 	ProcessBaseLtaiTransactionsCreditsLtaiBaseProcessPostData,
 	ProcessBaseLtaiTransactionsCreditsLtaiBaseProcessPostResponses,
 	ProcessSolanaLtaiTransactionsCreditsLtaiSolanaProcessPostData,
@@ -56,27 +86,6 @@ import type {
 	GetAdminAllApiKeysApiKeysAdminListGetData,
 	GetAdminAllApiKeysApiKeysAdminListGetResponses,
 	GetAdminAllApiKeysApiKeysAdminListGetErrors,
-	GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetData,
-	GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetResponses,
-	GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetErrors,
-	GetSubscriptionByUserAddressSubscriptionsGetData,
-	GetSubscriptionByUserAddressSubscriptionsGetResponses,
-	GetSubscriptionByUserAddressSubscriptionsGetErrors,
-	CancelSubscriptionSubscriptionsSubscriptionIdDeleteData,
-	CancelSubscriptionSubscriptionsSubscriptionIdDeleteResponses,
-	CancelSubscriptionSubscriptionsSubscriptionIdDeleteErrors,
-	ListAgentsAgentsGetData,
-	ListAgentsAgentsGetResponses,
-	ListAgentsAgentsGetErrors,
-	CreateAgentAgentsPostData,
-	CreateAgentAgentsPostResponses,
-	CreateAgentAgentsPostErrors,
-	GetAgentPublicInfoAgentsAgentIdGetData,
-	GetAgentPublicInfoAgentsAgentIdGetResponses,
-	GetAgentPublicInfoAgentsAgentIdGetErrors,
-	ReallocateAgentAgentsAgentIdReallocatePostData,
-	ReallocateAgentAgentsAgentIdReallocatePostResponses,
-	ReallocateAgentAgentsAgentIdReallocatePostErrors,
 	GetDashboardStatsStatsDashboardGetData,
 	GetDashboardStatsStatsDashboardGetResponses,
 	GetDashboardStatsStatsDashboardGetErrors,
@@ -98,9 +107,42 @@ import type {
 	GetChatTokensStatsStatsGlobalChatTokensGetData,
 	GetChatTokensStatsStatsGlobalChatTokensGetResponses,
 	GetChatTokensStatsStatsGlobalChatTokensGetErrors,
+	GetLiberclawCallsStatsStatsGlobalLiberclawCallsGetData,
+	GetLiberclawCallsStatsStatsGlobalLiberclawCallsGetResponses,
+	GetLiberclawCallsStatsStatsGlobalLiberclawCallsGetErrors,
+	GetLiberclawTokensStatsStatsGlobalLiberclawTokensGetData,
+	GetLiberclawTokensStatsStatsGlobalLiberclawTokensGetResponses,
+	GetLiberclawTokensStatsStatsGlobalLiberclawTokensGetErrors,
+	GetLiberclawCreditsStatsStatsGlobalLiberclawCreditsGetData,
+	GetLiberclawCreditsStatsStatsGlobalLiberclawCreditsGetResponses,
+	GetLiberclawCreditsStatsStatsGlobalLiberclawCreditsGetErrors,
+	GetX402CallsStatsStatsGlobalX402CallsGetData,
+	GetX402CallsStatsStatsGlobalX402CallsGetResponses,
+	GetX402CallsStatsStatsGlobalX402CallsGetErrors,
+	GetX402TokensStatsStatsGlobalX402TokensGetData,
+	GetX402TokensStatsStatsGlobalX402TokensGetResponses,
+	GetX402TokensStatsStatsGlobalX402TokensGetErrors,
+	GetX402CreditsStatsStatsGlobalX402CreditsGetData,
+	GetX402CreditsStatsStatsGlobalX402CreditsGetResponses,
+	GetX402CreditsStatsStatsGlobalX402CreditsGetErrors,
+	GetGlobalSummaryStatsGlobalSummaryGetData,
+	GetGlobalSummaryStatsGlobalSummaryGetResponses,
+	GetGlobalSummaryStatsGlobalSummaryGetErrors,
 	ProxyChatRequestChatCompletionsPostData,
 	ProxyChatRequestChatCompletionsPostResponses,
 	ProxyChatRequestChatCompletionsPostErrors,
+	GetOrCreateApiKeyLiberclawApiKeyPostData,
+	GetOrCreateApiKeyLiberclawApiKeyPostResponses,
+	GetOrCreateApiKeyLiberclawApiKeyPostErrors,
+	UpdateTierLiberclawTierPutData,
+	UpdateTierLiberclawTierPutResponses,
+	UpdateTierLiberclawTierPutErrors,
+	GetUserLiberclawUserGetData,
+	GetUserLiberclawUserGetResponses,
+	GetUserLiberclawUserGetErrors,
+	GetX402PricesX402PricesGetData,
+	GetX402PricesX402PricesGetResponses,
+	GetX402PricesX402PricesGetErrors,
 } from "./types.gen";
 import { client as _heyApiClient } from "./client.gen";
 
@@ -180,6 +222,215 @@ export const checkAuthStatusAuthStatusGet = <ThrowOnError extends boolean = fals
 		responseType: "json",
 		url: "/auth/status",
 		...options,
+	});
+};
+
+/**
+ * Wallet Challenge
+ * Issue a nonce message for an EVM wallet to sign.
+ */
+export const walletChallengeAuthWalletChallengePost = <ThrowOnError extends boolean = false>(
+	options: Options<WalletChallengeAuthWalletChallengePostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		WalletChallengeAuthWalletChallengePostResponses,
+		WalletChallengeAuthWalletChallengePostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/auth/wallet/challenge",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Wallet Verify
+ * Verify a signed challenge and return a token pair (creates/links the wallet user).
+ */
+export const walletVerifyAuthWalletVerifyPost = <ThrowOnError extends boolean = false>(
+	options: Options<WalletVerifyAuthWalletVerifyPostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		WalletVerifyAuthWalletVerifyPostResponses,
+		WalletVerifyAuthWalletVerifyPostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/auth/wallet/verify",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Login Email
+ * Send a magic-link email (token + 6-digit code).
+ */
+export const loginEmailAuthLoginEmailPost = <ThrowOnError extends boolean = false>(
+	options: Options<LoginEmailAuthLoginEmailPostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		LoginEmailAuthLoginEmailPostResponses,
+		LoginEmailAuthLoginEmailPostErrors,
+		ThrowOnError
+	>({
+		url: "/auth/login/email",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Verify Magic Link Route
+ * Verify a magic link (by token or email+code) and return a token pair.
+ */
+export const verifyMagicLinkRouteAuthVerifyMagicLinkPost = <ThrowOnError extends boolean = false>(
+	options: Options<VerifyMagicLinkRouteAuthVerifyMagicLinkPostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		VerifyMagicLinkRouteAuthVerifyMagicLinkPostResponses,
+		VerifyMagicLinkRouteAuthVerifyMagicLinkPostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/auth/verify-magic-link",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Oauth Start
+ * Redirect to the provider's consent screen.
+ */
+export const oauthStartAuthOauthProviderGet = <ThrowOnError extends boolean = false>(
+	options: Options<OauthStartAuthOauthProviderGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		OauthStartAuthOauthProviderGetResponses,
+		OauthStartAuthOauthProviderGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/auth/oauth/{provider}",
+		...options,
+	});
+};
+
+/**
+ * Oauth Callback
+ * Provider redirect target: verify state, mint tokens, hand back a one-time code to the frontend.
+ */
+export const oauthCallbackAuthOauthProviderCallbackGet = <ThrowOnError extends boolean = false>(
+	options: Options<OauthCallbackAuthOauthProviderCallbackGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		OauthCallbackAuthOauthProviderCallbackGetResponses,
+		OauthCallbackAuthOauthProviderCallbackGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/auth/oauth/{provider}/callback",
+		...options,
+	});
+};
+
+/**
+ * Exchange Code
+ * Exchange a one-time OAuth code for the token pair (single-use).
+ */
+export const exchangeCodeAuthExchangePost = <ThrowOnError extends boolean = false>(
+	options: Options<ExchangeCodeAuthExchangePostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		ExchangeCodeAuthExchangePostResponses,
+		ExchangeCodeAuthExchangePostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/auth/exchange",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Refresh Tokens
+ * Rotate a refresh token (one-time use per token) and return a fresh pair.
+ */
+export const refreshTokensAuthRefreshPost = <ThrowOnError extends boolean = false>(
+	options: Options<RefreshTokensAuthRefreshPostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		RefreshTokensAuthRefreshPostResponses,
+		RefreshTokensAuthRefreshPostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/auth/refresh",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Logout
+ * Revoke the session backing a refresh token.
+ */
+export const logoutAuthLogoutPost = <ThrowOnError extends boolean = false>(
+	options: Options<LogoutAuthLogoutPostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		LogoutAuthLogoutPostResponses,
+		LogoutAuthLogoutPostErrors,
+		ThrowOnError
+	>({
+		url: "/auth/logout",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Link Wallet Route
+ * Attach a verified EVM wallet to the logged-in user (e.g. a fiat user adding crypto).
+ */
+export const linkWalletRouteAuthLinkWalletPost = <ThrowOnError extends boolean = false>(
+	options: Options<LinkWalletRouteAuthLinkWalletPostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		LinkWalletRouteAuthLinkWalletPostResponses,
+		LinkWalletRouteAuthLinkWalletPostErrors,
+		ThrowOnError
+	>({
+		url: "/auth/link/wallet",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
 	});
 };
 
@@ -359,7 +610,6 @@ export const changeVoucherExpirationCreditsVoucherExpirationPost = <ThrowOnError
 
 /**
  * Get Api Keys
- * Get all API keys for a user.
  */
 export const getApiKeysApiKeysGet = <ThrowOnError extends boolean = false>(
 	options?: Options<GetApiKeysApiKeysGetData, ThrowOnError>,
@@ -377,7 +627,6 @@ export const getApiKeysApiKeysGet = <ThrowOnError extends boolean = false>(
 
 /**
  * Create Api Key
- * Create a new API key for a user.
  */
 export const createApiKeyApiKeysPost = <ThrowOnError extends boolean = false>(
 	options: Options<CreateApiKeyApiKeysPostData, ThrowOnError>,
@@ -399,10 +648,6 @@ export const createApiKeyApiKeysPost = <ThrowOnError extends boolean = false>(
 
 /**
  * Get Chat Api Key
- * Get the chat API key for the authenticated user.
- *
- * If the user doesn't have a chat API key, one will be automatically created.
- * Returns only the full API key string.
  */
 export const getChatApiKeyApiKeysChatGet = <ThrowOnError extends boolean = false>(
 	options?: Options<GetChatApiKeyApiKeysChatGetData, ThrowOnError>,
@@ -420,7 +665,6 @@ export const getChatApiKeyApiKeysChatGet = <ThrowOnError extends boolean = false
 
 /**
  * Delete Api Key
- * Delete an API key.
  */
 export const deleteApiKeyApiKeysKeyIdDelete = <ThrowOnError extends boolean = false>(
 	options: Options<DeleteApiKeyApiKeysKeyIdDeleteData, ThrowOnError>,
@@ -438,7 +682,6 @@ export const deleteApiKeyApiKeysKeyIdDelete = <ThrowOnError extends boolean = fa
 
 /**
  * Update Api Key
- * Update an API key.
  */
 export const updateApiKeyApiKeysKeyIdPut = <ThrowOnError extends boolean = false>(
 	options: Options<UpdateApiKeyApiKeysKeyIdPutData, ThrowOnError>,
@@ -460,13 +703,6 @@ export const updateApiKeyApiKeysKeyIdPut = <ThrowOnError extends boolean = false
 
 /**
  * Register Inference Call
- * Log API key usage.
- *
- * This endpoint is protected by admin authorization and requires
- * the X-Admin-Token header to match the ADMIN_SECRET environment variable.
- *
- * For chat-type API keys, logs usage to chat_requests without deducting credits.
- * For api-type API keys, logs usage to inference_calls and deducts credits.
  */
 export const registerInferenceCallApiKeysAdminUsagePost = <ThrowOnError extends boolean = false>(
 	options: Options<RegisterInferenceCallApiKeysAdminUsagePostData, ThrowOnError>,
@@ -488,10 +724,6 @@ export const registerInferenceCallApiKeysAdminUsagePost = <ThrowOnError extends 
 
 /**
  * Get Admin All Api Keys
- * Get all API keys across all addresses.
- *
- * This endpoint is protected by admin authorization and requires
- * the X-Admin-Token header to match the ADMIN_SECRET environment variable.
  */
 export const getAdminAllApiKeysApiKeysAdminListGet = <ThrowOnError extends boolean = false>(
 	options: Options<GetAdminAllApiKeysApiKeysAdminListGetData, ThrowOnError>,
@@ -508,139 +740,7 @@ export const getAdminAllApiKeysApiKeysAdminListGet = <ThrowOnError extends boole
 };
 
 /**
- * Get Subscription Transactions
- * Get subscription transactions
- */
-export const getSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGet = <
-	ThrowOnError extends boolean = false,
->(
-	options: Options<GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetData, ThrowOnError>,
-) => {
-	return (options.client ?? _heyApiClient).get<
-		GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetResponses,
-		GetSubscriptionTransactionsSubscriptionsSubscriptionIdTransactionsGetErrors,
-		ThrowOnError
-	>({
-		responseType: "json",
-		url: "/subscriptions/{subscription_id}/transactions",
-		...options,
-	});
-};
-
-/**
- * Get Subscription By User Address
- * Get subscriptions for the logged in user
- */
-export const getSubscriptionByUserAddressSubscriptionsGet = <ThrowOnError extends boolean = false>(
-	options?: Options<GetSubscriptionByUserAddressSubscriptionsGetData, ThrowOnError>,
-) => {
-	return (options?.client ?? _heyApiClient).get<
-		GetSubscriptionByUserAddressSubscriptionsGetResponses,
-		GetSubscriptionByUserAddressSubscriptionsGetErrors,
-		ThrowOnError
-	>({
-		responseType: "json",
-		url: "/subscriptions",
-		...options,
-	});
-};
-
-/**
- * Cancel Subscription
- * Cancel a subscription
- */
-export const cancelSubscriptionSubscriptionsSubscriptionIdDelete = <ThrowOnError extends boolean = false>(
-	options: Options<CancelSubscriptionSubscriptionsSubscriptionIdDeleteData, ThrowOnError>,
-) => {
-	return (options.client ?? _heyApiClient).delete<
-		CancelSubscriptionSubscriptionsSubscriptionIdDeleteResponses,
-		CancelSubscriptionSubscriptionsSubscriptionIdDeleteErrors,
-		ThrowOnError
-	>({
-		responseType: "json",
-		url: "/subscriptions/{subscription_id}",
-		...options,
-	});
-};
-
-/**
- * List Agents
- * List all agents for the current user
- */
-export const listAgentsAgentsGet = <ThrowOnError extends boolean = false>(
-	options?: Options<ListAgentsAgentsGetData, ThrowOnError>,
-) => {
-	return (options?.client ?? _heyApiClient).get<ListAgentsAgentsGetResponses, ListAgentsAgentsGetErrors, ThrowOnError>({
-		responseType: "json",
-		url: "/agents/",
-		...options,
-	});
-};
-
-/**
- * Create Agent
- * Create a new agent
- */
-export const createAgentAgentsPost = <ThrowOnError extends boolean = false>(
-	options: Options<CreateAgentAgentsPostData, ThrowOnError>,
-) => {
-	return (options.client ?? _heyApiClient).post<
-		CreateAgentAgentsPostResponses,
-		CreateAgentAgentsPostErrors,
-		ThrowOnError
-	>({
-		responseType: "json",
-		url: "/agents/",
-		...options,
-		headers: {
-			"Content-Type": "application/json",
-			...options.headers,
-		},
-	});
-};
-
-/**
- * Get Agent Public Info
- * Get an agent's public information
- */
-export const getAgentPublicInfoAgentsAgentIdGet = <ThrowOnError extends boolean = false>(
-	options: Options<GetAgentPublicInfoAgentsAgentIdGetData, ThrowOnError>,
-) => {
-	return (options.client ?? _heyApiClient).get<
-		GetAgentPublicInfoAgentsAgentIdGetResponses,
-		GetAgentPublicInfoAgentsAgentIdGetErrors,
-		ThrowOnError
-	>({
-		responseType: "json",
-		url: "/agents/{agent_id}",
-		...options,
-	});
-};
-
-/**
- * Reallocate Agent
- * Reallocate an agent instance
- */
-export const reallocateAgentAgentsAgentIdReallocatePost = <ThrowOnError extends boolean = false>(
-	options: Options<ReallocateAgentAgentsAgentIdReallocatePostData, ThrowOnError>,
-) => {
-	return (options.client ?? _heyApiClient).post<
-		ReallocateAgentAgentsAgentIdReallocatePostResponses,
-		ReallocateAgentAgentsAgentIdReallocatePostErrors,
-		ThrowOnError
-	>({
-		responseType: "json",
-		url: "/agents/{agent_id}/reallocate",
-		...options,
-	});
-};
-
-/**
  * Get Dashboard Stats
- * Get dashboard statistics for the authenticated user:
- * - Credits used per month for the last 6 months
- * - Number of inference calls made this month
- * - Tokens used this month (input, output, and total)
  */
 export const getDashboardStatsStatsDashboardGet = <ThrowOnError extends boolean = false>(
 	options?: Options<GetDashboardStatsStatsDashboardGetData, ThrowOnError>,
@@ -658,15 +758,6 @@ export const getDashboardStatsStatsDashboardGet = <ThrowOnError extends boolean 
 
 /**
  * Get Usage Stats
- * Get detailed usage statistics for a specific date range.
- *
- * Statistics include:
- * - Total number of inference calls
- * - Total tokens (input and output)
- * - Total cost
- * - Daily breakdown of token usage
- * - Usage breakdown by model
- * - Usage breakdown by API key
  */
 export const getUsageStatsStatsUsageGet = <ThrowOnError extends boolean = false>(
 	options: Options<GetUsageStatsStatsUsageGetData, ThrowOnError>,
@@ -684,12 +775,6 @@ export const getUsageStatsStatsUsageGet = <ThrowOnError extends boolean = false>
 
 /**
  * Get Credits Stats
- * Get detailed credits statistics and models usage for a specific date range.
- *
- * Statistics include:
- * - Credits used per model
- * - Tokens used per model
- * - Which model has been used
  */
 export const getCreditsStatsStatsGlobalApiCreditsGet = <ThrowOnError extends boolean = false>(
 	options: Options<GetCreditsStatsStatsGlobalApiCreditsGetData, ThrowOnError>,
@@ -707,11 +792,6 @@ export const getCreditsStatsStatsGlobalApiCreditsGet = <ThrowOnError extends boo
 
 /**
  * Get Api Stats
- * Get detailed api statistics and models usage for a specific date range.
- *
- * Statistics include:
- * - Total API calls for the entire models
- * - List with API calls for each model
  */
 export const getApiStatsStatsGlobalApiCallsGet = <ThrowOnError extends boolean = false>(
 	options: Options<GetApiStatsStatsGlobalApiCallsGetData, ThrowOnError>,
@@ -729,13 +809,6 @@ export const getApiStatsStatsGlobalApiCallsGet = <ThrowOnError extends boolean =
 
 /**
  * Get Tokens Stats
- * Get detailed tokens usage statistics for a specific date range.
- *
- * Statistics include:
- * - Total user input tokens
- * - Total model output vouchers
- * - Total subscriptions to the agents
- * - List with the agents creations dates
  */
 export const getTokensStatsStatsGlobalApiTokensGet = <ThrowOnError extends boolean = false>(
 	options: Options<GetTokensStatsStatsGlobalApiTokensGetData, ThrowOnError>,
@@ -753,11 +826,6 @@ export const getTokensStatsStatsGlobalApiTokensGet = <ThrowOnError extends boole
 
 /**
  * Get Chat Calls Stats
- * Get detailed chat API call statistics for a specific date range.
- *
- * Statistics include:
- * - Total number of chat API calls
- * - Daily breakdown by model of chat API calls
  */
 export const getChatCallsStatsStatsGlobalChatCallsGet = <ThrowOnError extends boolean = false>(
 	options: Options<GetChatCallsStatsStatsGlobalChatCallsGetData, ThrowOnError>,
@@ -775,13 +843,6 @@ export const getChatCallsStatsStatsGlobalChatCallsGet = <ThrowOnError extends bo
 
 /**
  * Get Chat Tokens Stats
- * Get detailed chat token usage statistics for a specific date range.
- *
- * Statistics include:
- * - Total input tokens
- * - Total output tokens
- * - Total cached tokens
- * - Daily breakdown by model of token usage
  */
 export const getChatTokensStatsStatsGlobalChatTokensGet = <ThrowOnError extends boolean = false>(
 	options: Options<GetChatTokensStatsStatsGlobalChatTokensGetData, ThrowOnError>,
@@ -793,6 +854,125 @@ export const getChatTokensStatsStatsGlobalChatTokensGet = <ThrowOnError extends 
 	>({
 		responseType: "json",
 		url: "/stats/global/chat/tokens",
+		...options,
+	});
+};
+
+/**
+ * Get Liberclaw Calls Stats
+ */
+export const getLiberclawCallsStatsStatsGlobalLiberclawCallsGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetLiberclawCallsStatsStatsGlobalLiberclawCallsGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		GetLiberclawCallsStatsStatsGlobalLiberclawCallsGetResponses,
+		GetLiberclawCallsStatsStatsGlobalLiberclawCallsGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/stats/global/liberclaw/calls",
+		...options,
+	});
+};
+
+/**
+ * Get Liberclaw Tokens Stats
+ */
+export const getLiberclawTokensStatsStatsGlobalLiberclawTokensGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetLiberclawTokensStatsStatsGlobalLiberclawTokensGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		GetLiberclawTokensStatsStatsGlobalLiberclawTokensGetResponses,
+		GetLiberclawTokensStatsStatsGlobalLiberclawTokensGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/stats/global/liberclaw/tokens",
+		...options,
+	});
+};
+
+/**
+ * Get Liberclaw Credits Stats
+ */
+export const getLiberclawCreditsStatsStatsGlobalLiberclawCreditsGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetLiberclawCreditsStatsStatsGlobalLiberclawCreditsGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		GetLiberclawCreditsStatsStatsGlobalLiberclawCreditsGetResponses,
+		GetLiberclawCreditsStatsStatsGlobalLiberclawCreditsGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/stats/global/liberclaw/credits",
+		...options,
+	});
+};
+
+/**
+ * Get X402 Calls Stats
+ */
+export const getX402CallsStatsStatsGlobalX402CallsGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetX402CallsStatsStatsGlobalX402CallsGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		GetX402CallsStatsStatsGlobalX402CallsGetResponses,
+		GetX402CallsStatsStatsGlobalX402CallsGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/stats/global/x402/calls",
+		...options,
+	});
+};
+
+/**
+ * Get X402 Tokens Stats
+ */
+export const getX402TokensStatsStatsGlobalX402TokensGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetX402TokensStatsStatsGlobalX402TokensGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		GetX402TokensStatsStatsGlobalX402TokensGetResponses,
+		GetX402TokensStatsStatsGlobalX402TokensGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/stats/global/x402/tokens",
+		...options,
+	});
+};
+
+/**
+ * Get X402 Credits Stats
+ */
+export const getX402CreditsStatsStatsGlobalX402CreditsGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetX402CreditsStatsStatsGlobalX402CreditsGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		GetX402CreditsStatsStatsGlobalX402CreditsGetResponses,
+		GetX402CreditsStatsStatsGlobalX402CreditsGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/stats/global/x402/credits",
+		...options,
+	});
+};
+
+/**
+ * Get Global Summary
+ */
+export const getGlobalSummaryStatsGlobalSummaryGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetGlobalSummaryStatsGlobalSummaryGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		GetGlobalSummaryStatsGlobalSummaryGetResponses,
+		GetGlobalSummaryStatsGlobalSummaryGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/stats/global/summary",
 		...options,
 	});
 };
@@ -821,5 +1001,84 @@ export const proxyChatRequestChatCompletionsPost = <ThrowOnError extends boolean
 			"Content-Type": "application/json",
 			...options.headers,
 		},
+	});
+};
+
+/**
+ * Get Or Create Api Key
+ * Get or create an API key for a Liberclaw user.
+ */
+export const getOrCreateApiKeyLiberclawApiKeyPost = <ThrowOnError extends boolean = false>(
+	options: Options<GetOrCreateApiKeyLiberclawApiKeyPostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		GetOrCreateApiKeyLiberclawApiKeyPostResponses,
+		GetOrCreateApiKeyLiberclawApiKeyPostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/liberclaw/api-key",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Update Tier
+ * Update a Liberclaw user's tier.
+ */
+export const updateTierLiberclawTierPut = <ThrowOnError extends boolean = false>(
+	options: Options<UpdateTierLiberclawTierPutData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).put<
+		UpdateTierLiberclawTierPutResponses,
+		UpdateTierLiberclawTierPutErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/liberclaw/tier",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Get User
+ * Get Liberclaw user info with usage stats.
+ */
+export const getUserLiberclawUserGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetUserLiberclawUserGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		GetUserLiberclawUserGetResponses,
+		GetUserLiberclawUserGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/liberclaw/user",
+		...options,
+	});
+};
+
+/**
+ * Get X402 Prices
+ */
+export const getX402PricesX402PricesGet = <ThrowOnError extends boolean = false>(
+	options: Options<GetX402PricesX402PricesGetData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).get<
+		GetX402PricesX402PricesGetResponses,
+		GetX402PricesX402PricesGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/x402/prices",
+		...options,
 	});
 };
