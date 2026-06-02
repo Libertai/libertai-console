@@ -60,7 +60,7 @@ function Dashboard() {
 			action: {
 				label: "Top Up",
 				variant: "default",
-				onClick: () => navigate({ to: "/top-up" }),
+				onClick: () => navigate({ to: "/billing" }),
 			},
 		},
 		{
@@ -155,8 +155,9 @@ function Dashboard() {
 											tick={{ fontSize: 12 }}
 											tickLine={false}
 											axisLine={{ stroke: "var(--border)" }}
-											domain={[0, "dataMax"]}
-											tickFormatter={(value) => `$${value}`}
+											domain={[0, (dataMax: number) => Math.max(1, Math.ceil(dataMax))]}
+											allowDecimals={false}
+											tickFormatter={(value) => `$${Number(value).toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
 										/>
 										<Tooltip
 											contentStyle={{
