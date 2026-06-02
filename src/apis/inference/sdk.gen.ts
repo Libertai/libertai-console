@@ -143,6 +143,32 @@ import type {
 	GetX402PricesX402PricesGetData,
 	GetX402PricesX402PricesGetResponses,
 	GetX402PricesX402PricesGetErrors,
+	ListProvidersPaymentsProvidersGetData,
+	ListProvidersPaymentsProvidersGetResponses,
+	ListProvidersPaymentsProvidersGetErrors,
+	ListTiersPaymentsTiersGetData,
+	ListTiersPaymentsTiersGetResponses,
+	TopupPaymentsTopupPostData,
+	TopupPaymentsTopupPostResponses,
+	TopupPaymentsTopupPostErrors,
+	SubscribePaymentsSubscribePostData,
+	SubscribePaymentsSubscribePostResponses,
+	SubscribePaymentsSubscribePostErrors,
+	UpgradePaymentsUpgradePostData,
+	UpgradePaymentsUpgradePostResponses,
+	UpgradePaymentsUpgradePostErrors,
+	DowngradePaymentsDowngradePostData,
+	DowngradePaymentsDowngradePostResponses,
+	DowngradePaymentsDowngradePostErrors,
+	CancelPaymentsCancelPostData,
+	CancelPaymentsCancelPostResponses,
+	CancelPaymentsCancelPostErrors,
+	GetSubscriptionPaymentsSubscriptionGetData,
+	GetSubscriptionPaymentsSubscriptionGetResponses,
+	GetSubscriptionPaymentsSubscriptionGetErrors,
+	WebhookPaymentsWebhookProviderIdPostData,
+	WebhookPaymentsWebhookProviderIdPostResponses,
+	WebhookPaymentsWebhookProviderIdPostErrors,
 } from "./types.gen";
 import { client as _heyApiClient } from "./client.gen";
 
@@ -1079,6 +1105,180 @@ export const getX402PricesX402PricesGet = <ThrowOnError extends boolean = false>
 	>({
 		responseType: "json",
 		url: "/x402/prices",
+		...options,
+	});
+};
+
+/**
+ * List Providers
+ * Payment providers available to the authenticated user
+ */
+export const listProvidersPaymentsProvidersGet = <ThrowOnError extends boolean = false>(
+	options?: Options<ListProvidersPaymentsProvidersGetData, ThrowOnError>,
+) => {
+	return (options?.client ?? _heyApiClient).get<
+		ListProvidersPaymentsProvidersGetResponses,
+		ListProvidersPaymentsProvidersGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/payments/providers",
+		...options,
+	});
+};
+
+/**
+ * List Tiers
+ * Subscription tiers and their pricing/allowances
+ */
+export const listTiersPaymentsTiersGet = <ThrowOnError extends boolean = false>(
+	options?: Options<ListTiersPaymentsTiersGetData, ThrowOnError>,
+) => {
+	return (options?.client ?? _heyApiClient).get<ListTiersPaymentsTiersGetResponses, unknown, ThrowOnError>({
+		responseType: "json",
+		url: "/payments/tiers",
+		...options,
+	});
+};
+
+/**
+ * Topup
+ * Open a checkout to buy prepaid credits
+ */
+export const topupPaymentsTopupPost = <ThrowOnError extends boolean = false>(
+	options: Options<TopupPaymentsTopupPostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		TopupPaymentsTopupPostResponses,
+		TopupPaymentsTopupPostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/payments/topup",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Subscribe
+ * Open a checkout to subscribe to a paid tier
+ */
+export const subscribePaymentsSubscribePost = <ThrowOnError extends boolean = false>(
+	options: Options<SubscribePaymentsSubscribePostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		SubscribePaymentsSubscribePostResponses,
+		SubscribePaymentsSubscribePostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/payments/subscribe",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Upgrade
+ * Upgrade to a higher paid tier
+ */
+export const upgradePaymentsUpgradePost = <ThrowOnError extends boolean = false>(
+	options: Options<UpgradePaymentsUpgradePostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		UpgradePaymentsUpgradePostResponses,
+		UpgradePaymentsUpgradePostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/payments/upgrade",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Downgrade
+ * Queue a downgrade for the end of the billing period
+ */
+export const downgradePaymentsDowngradePost = <ThrowOnError extends boolean = false>(
+	options: Options<DowngradePaymentsDowngradePostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		DowngradePaymentsDowngradePostResponses,
+		DowngradePaymentsDowngradePostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/payments/downgrade",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Cancel
+ * Cancel the current subscription at period end
+ */
+export const cancelPaymentsCancelPost = <ThrowOnError extends boolean = false>(
+	options?: Options<CancelPaymentsCancelPostData, ThrowOnError>,
+) => {
+	return (options?.client ?? _heyApiClient).post<
+		CancelPaymentsCancelPostResponses,
+		CancelPaymentsCancelPostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/payments/cancel",
+		...options,
+	});
+};
+
+/**
+ * Get Subscription
+ * Current subscription state for the authenticated user
+ */
+export const getSubscriptionPaymentsSubscriptionGet = <ThrowOnError extends boolean = false>(
+	options?: Options<GetSubscriptionPaymentsSubscriptionGetData, ThrowOnError>,
+) => {
+	return (options?.client ?? _heyApiClient).get<
+		GetSubscriptionPaymentsSubscriptionGetResponses,
+		GetSubscriptionPaymentsSubscriptionGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/payments/subscription",
+		...options,
+	});
+};
+
+/**
+ * Webhook
+ * Provider payment webhook (signature-verified)
+ */
+export const webhookPaymentsWebhookProviderIdPost = <ThrowOnError extends boolean = false>(
+	options: Options<WebhookPaymentsWebhookProviderIdPostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		WebhookPaymentsWebhookProviderIdPostResponses,
+		WebhookPaymentsWebhookProviderIdPostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/payments/webhook/{provider_id}",
 		...options,
 	});
 };
