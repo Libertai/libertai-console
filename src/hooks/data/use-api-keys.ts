@@ -128,7 +128,7 @@ export function useApiKeys() {
 			return true;
 		},
 		onSuccess: async () => {
-			toast.success("API key disabled successfully");
+			toast.success("API key deleted successfully");
 			await queryClient.invalidateQueries({ queryKey: ["apiKeys"] });
 		},
 		onError: (error) => {
