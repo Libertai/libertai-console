@@ -43,10 +43,20 @@ declare module "@tanstack/react-router" {
 }
 
 // Configure the inference client with cross-origin credentials support
-// This enables sending cookies with requests to different domains
+// This enables sending cookies with requests to different domains (legacy wallet auth)
 inferenceClient.setConfig({
 	baseURL: env.LTAI_INFERENCE_API_URL,
 	withCredentials: true, // Enable sending cookies in cross-origin requests
+});
+
+// Attach the bearer access token (email / OAuth auth) to every request when present.
+// The backend accepts either this header or the legacy wallet cookie.
+inferenceClient.instance.interceptors.request.use((config) => {
+	const token = localStorage.getItem("ltai_access_token");
+	if (token) {
+		config.headers.Authorization = `Bearer ${token}`;
+	}
+	return config;
 });
 
 // Render the app

@@ -4,8 +4,12 @@ import env from "@/config/env.ts";
 import { base } from "thirdweb/chains";
 import {
 	checkAuthStatusAuthStatusGet,
+	exchangeCodeAuthExchangePost,
 	getAuthMessageAuthMessagePost,
+	loginEmailAuthLoginEmailPost,
 	loginWithWalletAuthLoginPost,
+	logoutAuthLogoutPost,
+	verifyMagicLinkRouteAuthVerifyMagicLinkPost,
 } from "@/apis/inference/sdk.gen";
 import { toast } from "sonner";
 import { ethers } from "ethers";
@@ -14,6 +18,21 @@ import { Buffer } from "buffer";
 import { QueryClient } from "@tanstack/react-query";
 
 const LTAI_BASE_ADDRESS = env.LTAI_BASE_ADDRESS as `0x${string}`;
+
+// Bearer tokens for the email / OAuth (non-wallet) auth, persisted across reloads.
+const ACCESS_TOKEN_KEY = "ltai_access_token";
+const REFRESH_TOKEN_KEY = "ltai_refresh_token";
+const storedAccessToken = typeof localStorage !== "undefined" ? localStorage.getItem(ACCESS_TOKEN_KEY) : null;
+
+function persistTokens(accessToken: string, refreshToken: string | null) {
+	localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+	if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+}
+
+function clearTokens() {
+	localStorage.removeItem(ACCESS_TOKEN_KEY);
+	localStorage.removeItem(REFRESH_TOKEN_KEY);
+}
 
 type ConnectedAccount = {
 	address: string;
@@ -38,6 +57,12 @@ type AccountStoreState = {
 	account: ConnectedAccount | null;
 	isAuthenticated: boolean;
 	isAuthenticating: boolean;
+	accessToken: string | null;
+	loginWithEmail: (email: string) => Promise<boolean>;
+	verifyEmailCode: (email: string, code: string) => Promise<boolean>;
+	loginWithOAuth: (provider: "google" | "github") => void;
+	exchangeOAuthCode: (code: string) => Promise<boolean>;
+	logout: () => Promise<void>;
 	lastTransactionHash: string | null;
 	isInitialLoad: boolean;
 	queryClient: QueryClient | null;
@@ -69,8 +94,9 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 	formattedAPICredits: () => get().apiCredits.toFixed(0),
 	baseAccount: null,
 	solanaAccount: null,
-	isAuthenticated: false,
+	isAuthenticated: !!storedAccessToken,
 	isAuthenticating: false,
+	accessToken: storedAccessToken,
 	lastTransactionHash: null,
 	isInitialLoad: true,
 	account: null,
@@ -292,6 +318,51 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		// For now we'll return a placeholder value until we implement the proper endpoint
 		return 0;
 	},
+	loginWithEmail: async (email: string): Promise<boolean> => {
+		const response = await loginEmailAuthLoginEmailPost({ body: { email } });
+		if (response.error) {
+			toast.error("Could not send the sign-in email");
+			return false;
+		}
+		return true;
+	},
+	verifyEmailCode: async (email: string, code: string): Promise<boolean> => {
+		const response = await verifyMagicLinkRouteAuthVerifyMagicLinkPost({ body: { email, code } });
+		const accessToken = response.data?.access_token;
+		if (response.error || !accessToken) {
+			toast.error("Invalid or expired code");
+			return false;
+		}
+		persistTokens(accessToken, response.data?.refresh_token ?? null);
+		set({ accessToken, isAuthenticated: true });
+		return true;
+	},
+	loginWithOAuth: (provider: "google" | "github") => {
+		// Full-page redirect to the backend, which redirects to the provider then back to /auth/callback.
+		window.location.href = `${env.LTAI_INFERENCE_API_URL}/auth/oauth/${provider}`;
+	},
+	exchangeOAuthCode: async (code: string): Promise<boolean> => {
+		const response = await exchangeCodeAuthExchangePost({ body: { code } });
+		const accessToken = response.data?.access_token;
+		if (response.error || !accessToken) {
+			return false;
+		}
+		persistTokens(accessToken, response.data?.refresh_token ?? null);
+		set({ accessToken, isAuthenticated: true });
+		return true;
+	},
+	logout: async (): Promise<void> => {
+		const refreshToken = typeof localStorage !== "undefined" ? localStorage.getItem(REFRESH_TOKEN_KEY) : null;
+		if (refreshToken) {
+			try {
+				await logoutAuthLogoutPost({ body: { refresh_token: refreshToken } });
+			} catch {
+				// best-effort
+			}
+		}
+		clearTokens();
+		set({ accessToken: null, isAuthenticated: false, account: null });
+	},
 	checkAuthStatus: async (accountAddress: string): Promise<boolean> => {
 		try {
 			const response = await checkAuthStatusAuthStatusGet();
@@ -418,8 +489,10 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		}
 	},
 	onDisconnect: () => {
+		// A wallet disconnect must NOT drop email/OAuth (bearer token) auth.
+		const hasToken = !!get().accessToken;
 		set({
-			isAuthenticated: false,
+			isAuthenticated: hasToken,
 			ltaiBalance: 0,
 			solBalance: 0,
 			apiCredits: 0,
