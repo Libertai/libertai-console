@@ -12,11 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsageRouteImport } from './routes/usage'
 import { Route as TransactionsRouteImport } from './routes/transactions'
 import { Route as TopUpRouteImport } from './routes/top-up'
-import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as ImagesRouteImport } from './routes/images'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
-import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as IndexRouteImport } from './routes/index'
 
 const UsageRoute = UsageRouteImport.update({
@@ -34,11 +32,6 @@ const TopUpRoute = TopUpRouteImport.update({
   path: '/top-up',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SubscriptionsRoute = SubscriptionsRouteImport.update({
-  id: '/subscriptions',
-  path: '/subscriptions',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ImagesRoute = ImagesRouteImport.update({
   id: '/images',
   path: '/images',
@@ -54,11 +47,6 @@ const ApiKeysRoute = ApiKeysRouteImport.update({
   path: '/api-keys',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AgentsRoute = AgentsRouteImport.update({
-  id: '/agents',
-  path: '/agents',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -67,22 +55,18 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/agents': typeof AgentsRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
-  '/subscriptions': typeof SubscriptionsRoute
   '/top-up': typeof TopUpRoute
   '/transactions': typeof TransactionsRoute
   '/usage': typeof UsageRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/agents': typeof AgentsRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
-  '/subscriptions': typeof SubscriptionsRoute
   '/top-up': typeof TopUpRoute
   '/transactions': typeof TransactionsRoute
   '/usage': typeof UsageRoute
@@ -90,11 +74,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/agents': typeof AgentsRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
-  '/subscriptions': typeof SubscriptionsRoute
   '/top-up': typeof TopUpRoute
   '/transactions': typeof TransactionsRoute
   '/usage': typeof UsageRoute
@@ -103,33 +85,27 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/agents'
     | '/api-keys'
     | '/dashboard'
     | '/images'
-    | '/subscriptions'
     | '/top-up'
     | '/transactions'
     | '/usage'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/agents'
     | '/api-keys'
     | '/dashboard'
     | '/images'
-    | '/subscriptions'
     | '/top-up'
     | '/transactions'
     | '/usage'
   id:
     | '__root__'
     | '/'
-    | '/agents'
     | '/api-keys'
     | '/dashboard'
     | '/images'
-    | '/subscriptions'
     | '/top-up'
     | '/transactions'
     | '/usage'
@@ -137,11 +113,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AgentsRoute: typeof AgentsRoute
   ApiKeysRoute: typeof ApiKeysRoute
   DashboardRoute: typeof DashboardRoute
   ImagesRoute: typeof ImagesRoute
-  SubscriptionsRoute: typeof SubscriptionsRoute
   TopUpRoute: typeof TopUpRoute
   TransactionsRoute: typeof TransactionsRoute
   UsageRoute: typeof UsageRoute
@@ -170,13 +144,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TopUpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/subscriptions': {
-      id: '/subscriptions'
-      path: '/subscriptions'
-      fullPath: '/subscriptions'
-      preLoaderRoute: typeof SubscriptionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/images': {
       id: '/images'
       path: '/images'
@@ -198,13 +165,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiKeysRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/agents': {
-      id: '/agents'
-      path: '/agents'
-      fullPath: '/agents'
-      preLoaderRoute: typeof AgentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -217,11 +177,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AgentsRoute: AgentsRoute,
   ApiKeysRoute: ApiKeysRoute,
   DashboardRoute: DashboardRoute,
   ImagesRoute: ImagesRoute,
-  SubscriptionsRoute: SubscriptionsRoute,
   TopUpRoute: TopUpRoute,
   TransactionsRoute: TransactionsRoute,
   UsageRoute: UsageRoute,
