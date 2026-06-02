@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Link, useRouter } from "@tanstack/react-router";
-import AccountButton from "./AccountButton";
+import UserMenu from "./UserMenu";
 import {
 	Sidebar,
 	SidebarContent,
@@ -95,12 +95,12 @@ export function Layout({
 					<div className="font-bold text-lg">LibertAI</div>
 					<div className="flex items-center gap-2">
 						<ThemeToggle />
-						<AccountButton />
+						<UserMenu />
 					</div>
 				</header>
 
 				{/* Desktop Sidebar */}
-				<Sidebar variant="inset">
+				<Sidebar className="border-r-0">
 					<SidebarHeader className="font-bold text-xl h-16 flex items-center justify-between">
 						<Link to="/">
 							<div>LibertAI</div>
@@ -129,7 +129,7 @@ export function Layout({
 					<header className="h-16 border-b border-border px-4 hidden md:flex items-center justify-end">
 						<div className="flex items-center gap-4">
 							<ThemeToggle />
-							<AccountButton />
+							<UserMenu />
 						</div>
 					</header>
 

@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAccountStore } from "@/stores/account";
 import { ArrowRight, Coins, Key, LayoutDashboard, LineChart, MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import LoginPanel from "@/components/LoginPanel";
 import { useCredits } from "@/hooks/data/use-credits";
 
 export const Route = createFileRoute("/")({
@@ -21,13 +20,15 @@ function Index() {
 					LibertAI Developer Platform
 				</h1>
 				<p className="text-lg text-muted-foreground max-w-2xl">
-					Connect your wallet, create API keys, and build powerful applications with LibertAI's inference capabilities
+					Sign in, create API keys, and build powerful applications with LibertAI's inference capabilities
 				</p>
 
 				{!isAuthenticated ? (
 					<div className="mt-8 flex flex-col items-center space-y-6">
-						<p className="text-muted-foreground">Sign in to get started</p>
-						<LoginPanel />
+						<Button size="lg" onClick={() => navigate({ to: "/login" })}>
+							Get started
+							<ArrowRight className="h-4 w-4" />
+						</Button>
 						<div className="w-full max-w-md bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
 							<div className="flex flex-col space-y-4">
 								<p className="text-card-foreground">Access your developer dashboard to:</p>
