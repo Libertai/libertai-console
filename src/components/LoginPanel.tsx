@@ -10,7 +10,9 @@ import WalletConnectButtons from "@/components/WalletConnectButtons";
 // Google/GitHub OAuth is hidden for now (only email + wallets). Flip to re-enable.
 const SHOW_OAUTH = false;
 
-export default function LoginPanel() {
+// `onSuccess` overrides the default post-login redirect (used by the CLI authorize page,
+// which stays on /cli to show the approve step instead of navigating to the dashboard).
+export default function LoginPanel({ onSuccess }: { onSuccess?: () => void } = {}) {
 	const loginWithEmail = useAccountStore((state) => state.loginWithEmail);
 	const verifyEmailCode = useAccountStore((state) => state.verifyEmailCode);
 	const loginWithOAuth = useAccountStore((state) => state.loginWithOAuth);
@@ -36,7 +38,10 @@ export default function LoginPanel() {
 		setLoading(true);
 		const ok = await verifyEmailCode(email, code);
 		setLoading(false);
-		if (ok) navigate({ to: "/dashboard" });
+		if (ok) {
+			if (onSuccess) onSuccess();
+			else navigate({ to: "/dashboard" });
+		}
 	};
 
 	return (

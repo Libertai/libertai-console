@@ -35,6 +35,9 @@ import type {
 	ExchangeCodeAuthExchangePostData,
 	ExchangeCodeAuthExchangePostResponses,
 	ExchangeCodeAuthExchangePostErrors,
+	CliCodeAuthCliCodePostData,
+	CliCodeAuthCliCodePostResponses,
+	CliCodeAuthCliCodePostErrors,
 	RefreshTokensAuthRefreshPostData,
 	RefreshTokensAuthRefreshPostResponses,
 	RefreshTokensAuthRefreshPostErrors,
@@ -77,6 +80,12 @@ import type {
 	GetChatApiKeyApiKeysChatGetData,
 	GetChatApiKeyApiKeysChatGetResponses,
 	GetChatApiKeyApiKeysChatGetErrors,
+	GetCliApiKeysApiKeysCliGetData,
+	GetCliApiKeysApiKeysCliGetResponses,
+	GetCliApiKeysApiKeysCliGetErrors,
+	CreateCliApiKeyApiKeysCliPostData,
+	CreateCliApiKeyApiKeysCliPostResponses,
+	CreateCliApiKeyApiKeysCliPostErrors,
 	DeleteApiKeyApiKeysKeyIdDeleteData,
 	DeleteApiKeyApiKeysKeyIdDeleteResponses,
 	DeleteApiKeyApiKeysKeyIdDeleteErrors,
@@ -417,6 +426,31 @@ export const exchangeCodeAuthExchangePost = <ThrowOnError extends boolean = fals
 };
 
 /**
+ * Cli Code
+ * Mint a one-time, PKCE-bound code for the CLI loopback flow.
+ *
+ * Called by the console SPA once the user is authenticated (by any method). The code is
+ * bound to the supplied PKCE challenge and exchanged by the CLI at /auth/exchange.
+ */
+export const cliCodeAuthCliCodePost = <ThrowOnError extends boolean = false>(
+	options: Options<CliCodeAuthCliCodePostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		CliCodeAuthCliCodePostResponses,
+		CliCodeAuthCliCodePostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/auth/cli/code",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
  * Refresh Tokens
  * Rotate a refresh token (one-time use per token) and return a fresh pair.
  */
@@ -706,6 +740,48 @@ export const getChatApiKeyApiKeysChatGet = <ThrowOnError extends boolean = false
 		responseType: "json",
 		url: "/api-keys/chat",
 		...options,
+	});
+};
+
+/**
+ * Get Cli Api Keys
+ */
+export const getCliApiKeysApiKeysCliGet = <ThrowOnError extends boolean = false>(
+	options?: Options<GetCliApiKeysApiKeysCliGetData, ThrowOnError>,
+) => {
+	return (options?.client ?? _heyApiClient).get<
+		GetCliApiKeysApiKeysCliGetResponses,
+		GetCliApiKeysApiKeysCliGetErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/api-keys/cli",
+		...options,
+	});
+};
+
+/**
+ * Create Cli Api Key
+ * Mint (or rotate in place) the CLI API key for the caller's device.
+ *
+ * Final step of the CLI browser-SSO login: the CLI calls this with the freshly
+ * exchanged session token. Returns the full key once (stored by the CLI).
+ */
+export const createCliApiKeyApiKeysCliPost = <ThrowOnError extends boolean = false>(
+	options: Options<CreateCliApiKeyApiKeysCliPostData, ThrowOnError>,
+) => {
+	return (options.client ?? _heyApiClient).post<
+		CreateCliApiKeyApiKeysCliPostResponses,
+		CreateCliApiKeyApiKeysCliPostErrors,
+		ThrowOnError
+	>({
+		responseType: "json",
+		url: "/api-keys/cli",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
 	});
 };
 

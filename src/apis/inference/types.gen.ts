@@ -37,6 +37,10 @@ export type ApiKey = {
 	 */
 	monthly_limit?: number | null;
 	type: ApiKeyType;
+	/**
+	 * Expires At
+	 */
+	expires_at?: string | null;
 };
 
 /**
@@ -76,7 +80,7 @@ export type ApiKeyListResponse = {
 /**
  * ApiKeyType
  */
-export type ApiKeyType = "api" | "chat" | "liberclaw" | "x402";
+export type ApiKeyType = "api" | "chat" | "liberclaw" | "x402" | "cli";
 
 /**
  * ApiKeyUpdate
@@ -276,6 +280,36 @@ export type CheckoutResponse = {
 };
 
 /**
+ * CliApiKeyCreate
+ */
+export type CliApiKeyCreate = {
+	/**
+	 * Host
+	 */
+	host?: string | null;
+};
+
+/**
+ * CliCodeRequest
+ */
+export type CliCodeRequest = {
+	/**
+	 * Challenge
+	 */
+	challenge: string;
+};
+
+/**
+ * CliCodeResponse
+ */
+export type CliCodeResponse = {
+	/**
+	 * Code
+	 */
+	code: string;
+};
+
+/**
  * CreditBalanceResponse
  */
 export type CreditBalanceResponse = {
@@ -468,6 +502,10 @@ export type ExchangeRequest = {
 	 * Code
 	 */
 	code: string;
+	/**
+	 * Verifier
+	 */
+	verifier?: string | null;
 };
 
 /**
@@ -543,6 +581,10 @@ export type FullApiKey = {
 	 */
 	monthly_limit?: number | null;
 	type: ApiKeyType;
+	/**
+	 * Expires At
+	 */
+	expires_at?: string | null;
 	/**
 	 * Full Key
 	 */
@@ -1740,6 +1782,37 @@ export type ExchangeCodeAuthExchangePostResponses = {
 export type ExchangeCodeAuthExchangePostResponse =
 	ExchangeCodeAuthExchangePostResponses[keyof ExchangeCodeAuthExchangePostResponses];
 
+export type CliCodeAuthCliCodePostData = {
+	body: CliCodeRequest;
+	headers?: {
+		/**
+		 * Authorization
+		 */
+		authorization?: string | null;
+	};
+	path?: never;
+	query?: never;
+	url: "/auth/cli/code";
+};
+
+export type CliCodeAuthCliCodePostErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type CliCodeAuthCliCodePostError = CliCodeAuthCliCodePostErrors[keyof CliCodeAuthCliCodePostErrors];
+
+export type CliCodeAuthCliCodePostResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: CliCodeResponse;
+};
+
+export type CliCodeAuthCliCodePostResponse = CliCodeAuthCliCodePostResponses[keyof CliCodeAuthCliCodePostResponses];
+
 export type RefreshTokensAuthRefreshPostData = {
 	body: RefreshRequest;
 	path?: never;
@@ -2166,6 +2239,72 @@ export type GetChatApiKeyApiKeysChatGetResponses = {
 
 export type GetChatApiKeyApiKeysChatGetResponse =
 	GetChatApiKeyApiKeysChatGetResponses[keyof GetChatApiKeyApiKeysChatGetResponses];
+
+export type GetCliApiKeysApiKeysCliGetData = {
+	body?: never;
+	headers?: {
+		/**
+		 * Authorization
+		 */
+		authorization?: string | null;
+	};
+	path?: never;
+	query?: never;
+	url: "/api-keys/cli";
+};
+
+export type GetCliApiKeysApiKeysCliGetErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type GetCliApiKeysApiKeysCliGetError = GetCliApiKeysApiKeysCliGetErrors[keyof GetCliApiKeysApiKeysCliGetErrors];
+
+export type GetCliApiKeysApiKeysCliGetResponses = {
+	/**
+	 * Response Get Cli Api Keys Api Keys Cli Get
+	 * Successful Response
+	 */
+	200: Array<ApiKey>;
+};
+
+export type GetCliApiKeysApiKeysCliGetResponse =
+	GetCliApiKeysApiKeysCliGetResponses[keyof GetCliApiKeysApiKeysCliGetResponses];
+
+export type CreateCliApiKeyApiKeysCliPostData = {
+	body: CliApiKeyCreate;
+	headers?: {
+		/**
+		 * Authorization
+		 */
+		authorization?: string | null;
+	};
+	path?: never;
+	query?: never;
+	url: "/api-keys/cli";
+};
+
+export type CreateCliApiKeyApiKeysCliPostErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type CreateCliApiKeyApiKeysCliPostError =
+	CreateCliApiKeyApiKeysCliPostErrors[keyof CreateCliApiKeyApiKeysCliPostErrors];
+
+export type CreateCliApiKeyApiKeysCliPostResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: FullApiKey;
+};
+
+export type CreateCliApiKeyApiKeysCliPostResponse =
+	CreateCliApiKeyApiKeysCliPostResponses[keyof CreateCliApiKeyApiKeysCliPostResponses];
 
 export type DeleteApiKeyApiKeysKeyIdDeleteData = {
 	body?: never;
