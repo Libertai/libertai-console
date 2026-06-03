@@ -18,7 +18,8 @@ function LoginPage() {
 	return (
 		<div className="container mx-auto flex min-h-[80vh] flex-col items-center justify-center px-4 py-12">
 			<div className="w-full max-w-sm space-y-6">
-				<div className="space-y-2 text-center">
+				<div className="flex flex-col items-center space-y-3 text-center">
+					<img src="/favicon.ico" alt="LibertAI" className="h-14 w-14 rounded-2xl shadow-sm" />
 					<h1 className="text-2xl font-bold">Sign in to LibertAI</h1>
 					<p className="text-sm text-muted-foreground">Use your email, a social account, or a wallet.</p>
 				</div>

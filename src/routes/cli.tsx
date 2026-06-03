@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Loader2, TerminalSquare } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { cliCodeAuthCliCodePost } from "@/apis/inference/sdk.gen";
 import { useAccountStore } from "@/stores/account";
 import { Button } from "@/components/ui/button";
@@ -62,40 +62,33 @@ function CliAuthorize() {
 	};
 
 	return (
-		<div className="container mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-4 py-12 text-center">
+		<div className="container mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center px-4 py-12 text-center">
 			<div className="mb-6 flex flex-col items-center gap-3">
-				<div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-					<TerminalSquare className="h-6 w-6 text-primary" />
-				</div>
+				<img src="/favicon.ico" alt="LibertAI" className="h-14 w-14 rounded-2xl shadow-sm" />
 				<h1 className="text-xl font-semibold">Authorize the LibertAI CLI</h1>
 			</div>
 
 			{!paramsValid ? (
-				<p className="text-muted-foreground">
-					This authorization link is invalid or incomplete. Run <code>libertai login</code> again from your
-					terminal.
+				<p className="text-sm text-muted-foreground">
+					This link is invalid. Run <code>libertai login</code> again.
 				</p>
 			) : !isAuthenticated ? (
 				<div className="w-full space-y-4">
-					<p className="text-sm text-muted-foreground">Sign in to connect your terminal to LibertAI.</p>
+					<p className="text-sm text-muted-foreground">Sign in to connect your terminal.</p>
 					{/* Stay on /cli after sign-in; the page reacts to isAuthenticated and shows Approve. */}
 					<div className="flex justify-center">
 						<LoginPanel onSuccess={() => {}} />
 					</div>
 				</div>
 			) : (
-				<div className="w-full space-y-4">
-					<p className="text-muted-foreground">
-						A device wants to sign in to LibertAI as you and create a CLI API key on this machine.
-					</p>
+				<div className="w-full space-y-3">
+					<p className="text-sm text-muted-foreground">Connect this device to your account.</p>
 					{error && <p className="text-sm text-destructive">{error}</p>}
 					<Button className="w-full" onClick={handleApprove} disabled={submitting}>
 						{submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-						Authorize this device
+						Authorize
 					</Button>
-					<p className="text-xs text-muted-foreground">
-						Only approve this if you just started <code>libertai login</code> yourself.
-					</p>
+					<p className="text-xs text-muted-foreground">Only continue if you started this from your terminal.</p>
 				</div>
 			)}
 		</div>
