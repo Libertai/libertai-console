@@ -881,6 +881,10 @@ export type SubscriptionResponse = {
 	 */
 	window_5h_limit?: number;
 	/**
+	 * Window 5H Resets At
+	 */
+	window_5h_resets_at?: string | null;
+	/**
 	 * Weekly Used
 	 */
 	weekly_used?: number;
@@ -888,6 +892,10 @@ export type SubscriptionResponse = {
 	 * Weekly Limit
 	 */
 	weekly_limit?: number;
+	/**
+	 * Weekly Resets At
+	 */
+	weekly_resets_at?: string | null;
 	/**
 	 * Prepaid Balance
 	 */

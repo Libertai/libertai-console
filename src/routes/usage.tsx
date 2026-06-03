@@ -29,8 +29,30 @@ function formatDate(date: Date): string {
 	return dayjs(date).format("YYYY-MM-DD");
 }
 
-function AllowanceBar({ label, used, limit }: Readonly<{ label: string; used: number; limit: number }>) {
+function formatCountdown(resetsAt: string | null | undefined, now: number): string | null {
+	if (!resetsAt) return null;
+	const diff = new Date(resetsAt).getTime() - now;
+	if (diff <= 0) return null;
+	const s = Math.floor(diff / 1000);
+	const d = Math.floor(s / 86400);
+	const h = Math.floor((s % 86400) / 3600);
+	const m = Math.floor((s % 3600) / 60);
+	const sec = s % 60;
+	if (d > 0) return `${d}d ${h}h`;
+	if (h > 0) return `${h}h ${m}m`;
+	if (m > 0) return `${m}m ${sec}s`;
+	return `${sec}s`;
+}
+
+function AllowanceBar({
+	label,
+	used,
+	limit,
+	resetsAt,
+	now,
+}: Readonly<{ label: string; used: number; limit: number; resetsAt?: string | null; now: number }>) {
 	const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+	const countdown = formatCountdown(resetsAt, now);
 	return (
 		<div>
 			<div className="flex justify-between text-sm mb-1">
@@ -40,6 +62,7 @@ function AllowanceBar({ label, used, limit }: Readonly<{ label: string; used: nu
 			<div className="h-2.5 w-full rounded-full bg-muted overflow-hidden">
 				<div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
 			</div>
+			{countdown && <p className="text-xs text-muted-foreground mt-1 text-right">Resets in {countdown}</p>}
 		</div>
 	);
 }
@@ -47,6 +70,13 @@ function AllowanceBar({ label, used, limit }: Readonly<{ label: string; used: nu
 function OverviewView() {
 	const { data: subscription } = useSubscription();
 	const currentTier = subscription?.tier ?? "free";
+
+	// Tick every second so the reset countdowns stay live.
+	const [now, setNow] = useState(() => Date.now());
+	useEffect(() => {
+		const t = setInterval(() => setNow(Date.now()), 1000);
+		return () => clearInterval(t);
+	}, []);
 
 	return (
 		<div className="flex flex-col space-y-6">
@@ -72,11 +102,15 @@ function OverviewView() {
 						label="Last 5 hours"
 						used={subscription?.window_5h_used ?? 0}
 						limit={subscription?.window_5h_limit ?? 0}
+						resetsAt={subscription?.window_5h_resets_at}
+						now={now}
 					/>
 					<AllowanceBar
 						label="This week"
 						used={subscription?.weekly_used ?? 0}
 						limit={subscription?.weekly_limit ?? 0}
+						resetsAt={subscription?.weekly_resets_at}
+						now={now}
 					/>
 				</div>
 			</div>
@@ -379,9 +413,13 @@ function AdvancedView() {
 	);
 }
 
+// Plan/allowance overview is hidden while subscriptions are disabled. Flip to re-enable
+// the Overview/Advanced tabs (OverviewView shows plan + reset-countdown windows).
+const SHOW_PLAN_OVERVIEW = false;
+
 function Usage() {
 	const { isAuthenticated } = useRequireAuth();
-	const [view, setView] = useState<"overview" | "advanced">("overview");
+	const [view, setView] = useState<"overview" | "advanced">(SHOW_PLAN_OVERVIEW ? "overview" : "advanced");
 
 	if (!isAuthenticated) {
 		return null;
@@ -393,19 +431,21 @@ function Usage() {
 				<div className="flex justify-between items-center flex-wrap gap-4">
 					<div>
 						<h1 className="text-3xl font-bold">Usage</h1>
-						<p className="text-muted-foreground mt-1">Track your plan allowance and detailed consumption</p>
+						<p className="text-muted-foreground mt-1">Monitor your API usage and costs</p>
 					</div>
-					<div className="inline-flex rounded-lg border border-border p-1 bg-card/50">
-						<Button variant={view === "overview" ? "default" : "ghost"} size="sm" onClick={() => setView("overview")}>
-							Overview
-						</Button>
-						<Button variant={view === "advanced" ? "default" : "ghost"} size="sm" onClick={() => setView("advanced")}>
-							Advanced
-						</Button>
-					</div>
+					{SHOW_PLAN_OVERVIEW && (
+						<div className="inline-flex rounded-lg border border-border p-1 bg-card/50">
+							<Button variant={view === "overview" ? "default" : "ghost"} size="sm" onClick={() => setView("overview")}>
+								Overview
+							</Button>
+							<Button variant={view === "advanced" ? "default" : "ghost"} size="sm" onClick={() => setView("advanced")}>
+								Advanced
+							</Button>
+						</div>
+					)}
 				</div>
 
-				{view === "overview" ? <OverviewView /> : <AdvancedView />}
+				{SHOW_PLAN_OVERVIEW && view === "overview" ? <OverviewView /> : <AdvancedView />}
 			</div>
 		</div>
 	);

@@ -8,6 +8,9 @@ export const Route = createFileRoute("/billing")({
 	component: Billing,
 });
 
+// Subscription plans are hidden for now. Flip to re-enable the plan cards.
+const SHOW_PLANS = false;
+
 function Billing() {
 	const { isAuthenticated } = useRequireAuth();
 	if (!isAuthenticated) return null;
@@ -17,10 +20,10 @@ function Billing() {
 			<div className="flex flex-col space-y-10 max-w-5xl mx-auto">
 				<div>
 					<h1 className="text-3xl font-bold">Billing</h1>
-					<p className="text-muted-foreground mt-1">Manage your plan, buy credits, and review your transactions</p>
+					<p className="text-muted-foreground mt-1">Buy credits and review your transactions</p>
 				</div>
 
-				<PlansSection />
+				{SHOW_PLANS && <PlansSection />}
 				<BuyCreditsSection />
 				<TransactionHistory />
 			</div>
