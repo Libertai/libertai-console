@@ -23,7 +23,7 @@ const developersSidebarItems = [
 ];
 
 // Routes rendered standalone, without the app sidebar/header chrome.
-const CHROMELESS_ROUTES = ["/login", "/auth/callback"];
+const CHROMELESS_ROUTES = ["/login", "/auth/callback", "/auth/verify"];
 
 function RootComponent() {
 	const pathname = useRouterState({ select: (state) => state.location.pathname });

@@ -60,6 +60,7 @@ type AccountStoreState = {
 	accessToken: string | null;
 	loginWithEmail: (email: string) => Promise<boolean>;
 	verifyEmailCode: (email: string, code: string) => Promise<boolean>;
+	verifyMagicLinkToken: (token: string) => Promise<boolean>;
 	loginWithOAuth: (provider: "google" | "github") => void;
 	exchangeOAuthCode: (code: string) => Promise<boolean>;
 	logout: () => Promise<void>;
@@ -331,6 +332,17 @@ export const useAccountStore = create<AccountStoreState>((set, get) => ({
 		const accessToken = response.data?.access_token;
 		if (response.error || !accessToken) {
 			toast.error("Invalid or expired code");
+			return false;
+		}
+		persistTokens(accessToken, response.data?.refresh_token ?? null);
+		set({ accessToken, isAuthenticated: true });
+		get().queryClient?.invalidateQueries();
+		return true;
+	},
+	verifyMagicLinkToken: async (token: string): Promise<boolean> => {
+		const response = await verifyMagicLinkRouteAuthVerifyMagicLinkPost({ body: { token } });
+		const accessToken = response.data?.access_token;
+		if (response.error || !accessToken) {
 			return false;
 		}
 		persistTokens(accessToken, response.data?.refresh_token ?? null);
