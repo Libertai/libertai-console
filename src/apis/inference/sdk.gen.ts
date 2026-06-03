@@ -11,6 +11,9 @@ import type {
 	CheckAuthStatusAuthStatusGetData,
 	CheckAuthStatusAuthStatusGetResponses,
 	CheckAuthStatusAuthStatusGetErrors,
+	GetMeAuthMeGetData,
+	GetMeAuthMeGetResponses,
+	GetMeAuthMeGetErrors,
 	WalletChallengeAuthWalletChallengePostData,
 	WalletChallengeAuthWalletChallengePostResponses,
 	WalletChallengeAuthWalletChallengePostErrors,
@@ -252,6 +255,20 @@ export const checkAuthStatusAuthStatusGet = <ThrowOnError extends boolean = fals
 };
 
 /**
+ * Get Me
+ * Return the authenticated user's profile (email/OAuth or wallet).
+ */
+export const getMeAuthMeGet = <ThrowOnError extends boolean = false>(
+	options?: Options<GetMeAuthMeGetData, ThrowOnError>,
+) => {
+	return (options?.client ?? _heyApiClient).get<GetMeAuthMeGetResponses, GetMeAuthMeGetErrors, ThrowOnError>({
+		responseType: "json",
+		url: "/auth/me",
+		...options,
+	});
+};
+
+/**
  * Wallet Challenge
  * Issue a nonce message for an EVM wallet to sign.
  */
@@ -298,6 +315,9 @@ export const walletVerifyAuthWalletVerifyPost = <ThrowOnError extends boolean = 
 /**
  * Login Email
  * Send a magic-link email (token + 6-digit code).
+ *
+ * The email is dispatched in the background so SMTP latency/failures never block the
+ * login request (the magic link is persisted before we return).
  */
 export const loginEmailAuthLoginEmailPost = <ThrowOnError extends boolean = false>(
 	options: Options<LoginEmailAuthLoginEmailPostData, ThrowOnError>,

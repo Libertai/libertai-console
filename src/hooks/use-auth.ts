@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
 import { useAccountStore } from "@/stores/account.ts";
 
 export function useRequireAuth() {
@@ -21,14 +20,9 @@ export function useRequireAuth() {
 	}, [isInitialLoad, hasWaited]);
 
 	useEffect(() => {
-		// Authenticated via either a bearer token (email/OAuth) or a wallet signature.
+		// Not authenticated (after the initial-load grace window) -> send to login.
+		// No toast: landing on /login via sign-out or an expired session is expected, not an error.
 		if ((hasWaited || !isInitialLoad) && !isAuthenticated) {
-			if (!isInitialLoad) {
-				toast.error("Authentication Required", {
-					description: "Please sign in to access this page",
-					duration: 5000,
-				});
-			}
 			navigate({ to: "/login" });
 		}
 	}, [isAuthenticated, navigate, isInitialLoad, hasWaited]);

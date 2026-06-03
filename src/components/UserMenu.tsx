@@ -12,6 +12,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAccountStore } from "@/stores/account";
+import { useMe } from "@/hooks/data/use-me";
 
 function formatAddress(address: string) {
 	return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
@@ -23,6 +24,7 @@ export default function UserMenu() {
 	const account = useAccountStore((state) => state.account);
 	const formattedLtaiBalance = useAccountStore((state) => state.formattedLTAIBalance());
 	const logout = useAccountStore((state) => state.logout);
+	const { data: me } = useMe();
 
 	const evmWallet = useActiveWallet();
 	const solanaWallet = useSolanaWallet();
@@ -31,6 +33,10 @@ export default function UserMenu() {
 	if (!isAuthenticated) {
 		return <Button onClick={() => navigate({ to: "/login" })}>Connect</Button>;
 	}
+
+	const walletAddress = account?.address ?? me?.address ?? null;
+	const displayLabel =
+		me?.email ?? me?.display_name ?? (walletAddress ? formatAddress(walletAddress) : "Account");
 
 	const handleSignOut = async () => {
 		await logout();
@@ -49,7 +55,7 @@ export default function UserMenu() {
 			<DropdownMenuContent align="end" className="min-w-[220px]">
 				<DropdownMenuLabel className="font-normal">
 					<p className="text-xs text-muted-foreground">Signed in</p>
-					<p className="font-medium truncate">{account?.address ? formatAddress(account.address) : "Account"}</p>
+					<p className="font-medium truncate">{displayLabel}</p>
 				</DropdownMenuLabel>
 				{account?.address && (
 					<>

@@ -368,6 +368,32 @@ export type CreditsUsage = {
 };
 
 /**
+ * CurrentUserResponse
+ */
+export type CurrentUserResponse = {
+	/**
+	 * Id
+	 */
+	id: string;
+	/**
+	 * Email
+	 */
+	email?: string | null;
+	/**
+	 * Display Name
+	 */
+	display_name?: string | null;
+	/**
+	 * Avatar Url
+	 */
+	avatar_url?: string | null;
+	/**
+	 * Address
+	 */
+	address?: string | null;
+};
+
+/**
  * DailyTokens
  * Input and output tokens for a single day.
  */
@@ -1480,6 +1506,37 @@ export type CheckAuthStatusAuthStatusGetResponses = {
 
 export type CheckAuthStatusAuthStatusGetResponse =
 	CheckAuthStatusAuthStatusGetResponses[keyof CheckAuthStatusAuthStatusGetResponses];
+
+export type GetMeAuthMeGetData = {
+	body?: never;
+	headers?: {
+		/**
+		 * Authorization
+		 */
+		authorization?: string | null;
+	};
+	path?: never;
+	query?: never;
+	url: "/auth/me";
+};
+
+export type GetMeAuthMeGetErrors = {
+	/**
+	 * Validation Error
+	 */
+	422: HttpValidationError;
+};
+
+export type GetMeAuthMeGetError = GetMeAuthMeGetErrors[keyof GetMeAuthMeGetErrors];
+
+export type GetMeAuthMeGetResponses = {
+	/**
+	 * Successful Response
+	 */
+	200: CurrentUserResponse;
+};
+
+export type GetMeAuthMeGetResponse = GetMeAuthMeGetResponses[keyof GetMeAuthMeGetResponses];
 
 export type WalletChallengeAuthWalletChallengePostData = {
 	body: WalletChallengeRequest;

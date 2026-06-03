@@ -1,0 +1,20 @@
+import { useQuery } from "@tanstack/react-query";
+import { getMeAuthMeGet } from "@/apis/inference";
+import { useAccountStore } from "@/stores/account";
+
+/** Current user's profile (email/OAuth or wallet). */
+export function useMe() {
+	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
+	return useQuery({
+		queryKey: ["me"],
+		queryFn: async () => {
+			const response = await getMeAuthMeGet();
+			if (response.error) {
+				throw new Error("Failed to load profile");
+			}
+			return response.data;
+		},
+		enabled: isAuthenticated,
+		staleTime: 5 * 60 * 1000,
+	});
+}
