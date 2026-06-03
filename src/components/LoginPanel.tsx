@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { useAccountStore } from "@/stores/account";
 import WalletConnectButtons from "@/components/WalletConnectButtons";
 
+// Google/GitHub OAuth is hidden for now (only email + wallets). Flip to re-enable.
+const SHOW_OAUTH = false;
+
 export default function LoginPanel() {
 	const loginWithEmail = useAccountStore((state) => state.loginWithEmail);
 	const verifyEmailCode = useAccountStore((state) => state.verifyEmailCode);
@@ -87,21 +90,25 @@ export default function LoginPanel() {
 				</form>
 			)}
 
-			<div className="flex items-center gap-3 text-xs text-muted-foreground">
-				<span className="h-px flex-1 bg-border" />
-				OR
-				<span className="h-px flex-1 bg-border" />
-			</div>
+			{SHOW_OAUTH && (
+				<>
+					<div className="flex items-center gap-3 text-xs text-muted-foreground">
+						<span className="h-px flex-1 bg-border" />
+						OR
+						<span className="h-px flex-1 bg-border" />
+					</div>
 
-			<div className="space-y-2">
-				<Button variant="outline" className="w-full" onClick={() => loginWithOAuth("google")}>
-					Continue with Google
-				</Button>
-				<Button variant="outline" className="w-full" onClick={() => loginWithOAuth("github")}>
-					<Github className="h-4 w-4" />
-					Continue with GitHub
-				</Button>
-			</div>
+					<div className="space-y-2">
+						<Button variant="outline" className="w-full" onClick={() => loginWithOAuth("google")}>
+							Continue with Google
+						</Button>
+						<Button variant="outline" className="w-full" onClick={() => loginWithOAuth("github")}>
+							<Github className="h-4 w-4" />
+							Continue with GitHub
+						</Button>
+					</div>
+				</>
+			)}
 
 			<div className="flex items-center gap-3 text-xs text-muted-foreground">
 				<span className="h-px flex-1 bg-border" />
