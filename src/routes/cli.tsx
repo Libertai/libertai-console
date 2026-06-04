@@ -31,12 +31,16 @@ function parseRedirectUri(raw: string | null): URL | null {
 function CliAuthorize() {
 	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
 
-	const { redirectUri, state, challenge } = useMemo(() => {
+	const { redirectUri, state, challenge, client } = useMemo(() => {
 		const params = new URLSearchParams(window.location.search);
+		const clientRaw = params.get("client")?.trim();
 		return {
 			redirectUri: parseRedirectUri(params.get("redirect_uri")),
 			state: params.get("state") ?? "",
 			challenge: params.get("challenge") ?? "",
+			// Human label of the app that started the flow (e.g. "LibertAI CLI",
+			// "LibertAI Desktop"). Length-capped; React escapes it on render.
+			client: clientRaw ? clientRaw.slice(0, 40) : "the LibertAI CLI",
 		};
 	}, []);
 
@@ -65,16 +69,14 @@ function CliAuthorize() {
 		<div className="container mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center px-4 py-12 text-center">
 			<div className="mb-6 flex flex-col items-center gap-3">
 				<img src="/favicon.ico" alt="LibertAI" className="h-14 w-14 rounded-2xl shadow-sm" />
-				<h1 className="text-xl font-semibold">Authorize the LibertAI CLI</h1>
+				<h1 className="text-xl font-semibold">Authorize {client}</h1>
 			</div>
 
 			{!paramsValid ? (
-				<p className="text-sm text-muted-foreground">
-					This link is invalid. Run <code>libertai login</code> again.
-				</p>
+				<p className="text-sm text-muted-foreground">This link is invalid. Try signing in again from the app.</p>
 			) : !isAuthenticated ? (
 				<div className="w-full space-y-4">
-					<p className="text-sm text-muted-foreground">Sign in to connect your terminal.</p>
+					<p className="text-sm text-muted-foreground">Sign in to connect {client} to your account.</p>
 					{/* Stay on /cli after sign-in; the page reacts to isAuthenticated and shows Approve. */}
 					<div className="flex justify-center">
 						<LoginPanel onSuccess={() => {}} />
@@ -88,7 +90,7 @@ function CliAuthorize() {
 						{submitting && <Loader2 className="h-4 w-4 animate-spin" />}
 						Authorize
 					</Button>
-					<p className="text-xs text-muted-foreground">Only continue if you started this from your terminal.</p>
+					<p className="text-xs text-muted-foreground">Only continue if you started this sign-in yourself.</p>
 				</div>
 			)}
 		</div>
