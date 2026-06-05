@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { cliCodeAuthCliCodePost } from "@/apis/inference/sdk.gen";
-import { useAccountStore } from "@/stores/account";
+import { cliCodeAuthCliCodePost } from "@libertai/inference-sdk/sdk.gen";
+import { useAccountStore, LoginPanel } from "@libertai/auth";
 import { Button } from "@/components/ui/button";
-import LoginPanel from "@/components/LoginPanel";
 
 export const Route = createFileRoute("/cli")({
 	component: CliAuthorize,

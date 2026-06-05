@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMeAuthMeGet } from "@/apis/inference";
-import { useAccountStore } from "@/stores/account";
+import { getMeAuthMeGet } from "@libertai/inference-sdk";
+import { useAccountStore } from "@libertai/auth";
 
 /** Current user's profile (email/OAuth or wallet). */
 export function useMe() {

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getDashboardStatsStatsDashboardGet, getUsageStatsStatsUsageGet } from "@/apis/inference";
-import { useAccountStore } from "@/stores/account.ts";
+import { getDashboardStatsStatsDashboardGet, getUsageStatsStatsUsageGet } from "@libertai/inference-sdk";
+import { useAccountStore } from "@libertai/auth";
 
 export function useStats() {
 	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);

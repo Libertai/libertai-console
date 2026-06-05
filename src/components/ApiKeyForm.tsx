@@ -1,4 +1,4 @@
-import { ApiKey } from "@/apis/inference";
+import { ApiKey } from "@libertai/inference-sdk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";

@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useAccountStore } from "@/stores/account";
+import { useAccountStore } from "@libertai/auth";
 import { ArrowRight, Coins, Key, LayoutDashboard, LineChart, MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCredits } from "@/hooks/data/use-credits";

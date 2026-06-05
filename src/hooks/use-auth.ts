@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useAccountStore } from "@/stores/account.ts";
+import { useAccountStore } from "@libertai/auth";
 
 export function useRequireAuth() {
 	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
