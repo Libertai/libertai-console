@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getTransactionHistoryCreditsTransactionsGet } from "@/apis/inference";
-import { useAccountStore } from "@/stores/account";
+import { getTransactionHistoryCreditsTransactionsGet } from "@libertai/inference-sdk";
+import { useAccountStore } from "@libertai/auth";
 
 export function useTransactions() {
 	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);

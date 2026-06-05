@@ -10,7 +10,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ApiKey, ApiKeyCreate } from "@/apis/inference";
+import { ApiKey, ApiKeyCreate } from "@libertai/inference-sdk";
 import { useApiKeys } from "@/hooks/data/use-api-keys";
 import { useUsageStats } from "@/hooks/data/use-stats";
 import { useAlephModels } from "@/hooks/data/use-models";

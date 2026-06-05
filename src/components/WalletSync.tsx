@@ -5,7 +5,7 @@ import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton as SolanaWalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { thirdwebClient } from "@/config/thirdweb";
-import { useAccountStore } from "@/stores/account";
+import { useAccountStore } from "@libertai/auth";
 
 /**
  * Invisible, always-mounted component that keeps the wallet connection in sync with the

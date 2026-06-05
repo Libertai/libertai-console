@@ -11,7 +11,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAccountStore } from "@/stores/account";
+import { useAccountStore } from "@libertai/auth";
 import { useMe } from "@/hooks/data/use-me";
 
 function formatAddress(address: string) {

@@ -9,8 +9,8 @@ import {
 	subscribePaymentsSubscribePost,
 	topupPaymentsTopupPost,
 	upgradePaymentsUpgradePost,
-} from "@/apis/inference";
-import { useAccountStore } from "@/stores/account";
+} from "@libertai/inference-sdk";
+import { useAccountStore } from "@libertai/auth";
 
 const unwrap = <T>(response: { data?: T; error?: unknown }, fallback: string): T => {
 	if (response.error) {

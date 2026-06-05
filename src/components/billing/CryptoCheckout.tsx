@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { TopUpAmountInput } from "@/components/payment/TopUpAmountInput";
 import { PaymentStage } from "@/components/payment/stages/PaymentStage";
 import { useCredits } from "@/hooks/data/use-credits";
-import { useAccountStore } from "@/stores/account";
+import { useAccountStore } from "@libertai/auth";
 
 /** The crypto credit-purchase flow ($LTAI / ERC-20 / Solana), embedded in Billing. */
 export function CryptoCheckout() {

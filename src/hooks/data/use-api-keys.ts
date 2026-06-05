@@ -7,8 +7,8 @@ import {
 	getApiKeysApiKeysGet,
 	updateApiKeyApiKeysKeyIdPut,
 	ValidationError,
-} from "@/apis/inference";
-import { useAccountStore } from "@/stores/account";
+} from "@libertai/inference-sdk";
+import { useAccountStore } from "@libertai/auth";
 
 // Helper function to extract FastAPI error details
 const extractFastAPIError = (error?: ValidationError[] | string | undefined): string => {

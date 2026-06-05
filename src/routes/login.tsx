@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useAccountStore } from "@/stores/account";
-import LoginPanel from "@/components/LoginPanel";
+import { useAccountStore, LoginPanel } from "@libertai/auth";
 
 export const Route = createFileRoute("/login")({
 	component: LoginPage,
@@ -23,7 +22,7 @@ function LoginPage() {
 					<h1 className="text-2xl font-bold">Sign in to LibertAI</h1>
 					<p className="text-sm text-muted-foreground">Use your email, a social account, or a wallet.</p>
 				</div>
-				<LoginPanel />
+				<LoginPanel onSuccess={() => navigate({ to: "/dashboard" })} />
 			</div>
 		</div>
 	);

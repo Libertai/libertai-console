@@ -6,8 +6,24 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import "./styles.css";
 import { NotFoundPage } from "@/components/404.tsx";
-import { client as inferenceClient } from "@/apis/inference/client.gen";
+import { initLibertaiAuth, useAccountStore } from "@libertai/auth";
+import { queryClient } from "@/lib/query-client";
 import env from "@/config/env.ts";
+
+// Configure the shared inference SDK + auth store. Cookie-based auth: in dev we hit a
+// same-origin "/api" proxy (see vite.config.ts) so the httpOnly session cookie works.
+initLibertaiAuth({
+	apiBaseUrl: import.meta.env.DEV ? "/api" : env.LTAI_INFERENCE_API_URL,
+	thirdwebClientId: env.THIRDWEB_CLIENT_ID,
+	solanaRpc: env.SOLANA_RPC,
+	ltaiBaseAddress: env.LTAI_BASE_ADDRESS,
+	ltaiSolanaAddress: env.LTAI_SOLANA_ADDRESS,
+});
+
+// Give the store our query client (for cache invalidation/clearing on auth changes)
+// and hydrate auth state from the session cookie on startup.
+useAccountStore.getState().setQueryClient(queryClient);
+void useAccountStore.getState().checkSession();
 
 // Add theme detection
 function setInitialTheme() {
@@ -41,23 +57,6 @@ declare module "@tanstack/react-router" {
 		router: typeof router;
 	}
 }
-
-// Configure the inference client with cross-origin credentials support
-// This enables sending cookies with requests to different domains (legacy wallet auth)
-inferenceClient.setConfig({
-	baseURL: env.LTAI_INFERENCE_API_URL,
-	withCredentials: true, // Enable sending cookies in cross-origin requests
-});
-
-// Attach the bearer access token (email / OAuth auth) to every request when present.
-// The backend accepts either this header or the legacy wallet cookie.
-inferenceClient.instance.interceptors.request.use((config) => {
-	const token = localStorage.getItem("ltai_access_token");
-	if (token) {
-		config.headers.Authorization = `Bearer ${token}`;
-	}
-	return config;
-});
 
 // Render the app
 const rootElement = document.getElementById("root")!;

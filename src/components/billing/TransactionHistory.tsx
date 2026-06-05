@@ -1,4 +1,4 @@
-import { CreditTransactionProvider, CreditTransactionResponse } from "@/apis/inference";
+import { CreditTransactionProvider, CreditTransactionResponse } from "@libertai/inference-sdk";
 import { useTransactions } from "@/hooks/data/use-transactions";
 import { Skeleton } from "@/components/ui/skeleton";
 import dayjs from "dayjs";
