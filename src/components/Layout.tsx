@@ -1,5 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
+import { LibertaiLogo } from "@libertai/branding";
+import ConnectButton from "./ConnectButton";
 import AccountFooter from "./AccountFooter";
 import {
 	Sidebar,
@@ -90,16 +92,19 @@ export function Layout({
 		<SidebarProvider defaultOpen={true}>
 			<div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row w-full">
 				{/* Mobile Header */}
-				<header className="fixed z-20 top-0 left-0 right-0 h-16 border-b border-border px-4 flex items-center gap-3 md:hidden bg-background">
+				<header className="fixed z-20 top-0 left-0 right-0 h-16 border-b border-border px-4 flex items-center justify-between md:hidden bg-background">
 					<SidebarTrigger />
-					<div className="font-bold text-lg">LibertAI</div>
+					<Link to="/" className="absolute left-1/2 transform -translate-x-1/2">
+						<LibertaiLogo className="h-5 w-auto text-foreground" />
+					</Link>
+					<ConnectButton />
 				</header>
 
 				{/* Desktop Sidebar */}
 				<Sidebar className="border-r-0">
-					<SidebarHeader className="font-bold text-xl h-16 flex items-center justify-between">
+					<SidebarHeader className="h-16 flex items-center justify-center">
 						<Link to="/">
-							<div>LibertAI</div>
+							<LibertaiLogo className="h-6 w-auto text-foreground" />
 						</Link>
 					</SidebarHeader>
 
@@ -125,6 +130,12 @@ export function Layout({
 				</Sidebar>
 
 				<SidebarInset className="w-full">
+					{/* Desktop Header */}
+					<header className="sticky top-0 z-10 h-16 border-b border-border px-4 hidden md:flex items-center justify-between bg-background">
+						<SidebarTrigger />
+						<ConnectButton />
+					</header>
+
 					{/* Main content with padding on mobile for the fixed header */}
 					<main className="flex-1 overflow-auto md:pt-0 pt-16 w-full">{children}</main>
 				</SidebarInset>
