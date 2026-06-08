@@ -311,7 +311,7 @@ function AdvancedView() {
 										fontSize: "0.875rem",
 										boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
 									}}
-									formatter={(value, name) => [value.toLocaleString(), name]}
+									formatter={(value, name) => [(value ?? 0).toLocaleString(), name]}
 									itemStyle={{ padding: "4px 0" }}
 									cursor={{ fill: "rgba(128, 128, 128, 0.1)" }}
 									labelFormatter={(label) => `Date: ${label}`}
