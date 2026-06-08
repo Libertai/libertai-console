@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsageRouteImport } from './routes/usage'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImagesRouteImport } from './routes/images'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -23,6 +24,11 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 const UsageRoute = UsageRouteImport.update({
   id: '/usage',
   path: '/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
   '/login': typeof LoginRoute
+  '/settings': typeof SettingsRoute
   '/usage': typeof UsageRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
   '/login': typeof LoginRoute
+  '/settings': typeof SettingsRoute
   '/usage': typeof UsageRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
   '/login': typeof LoginRoute
+  '/settings': typeof SettingsRoute
   '/usage': typeof UsageRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/images'
     | '/login'
+    | '/settings'
     | '/usage'
     | '/auth/callback'
     | '/auth/verify'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/images'
     | '/login'
+    | '/settings'
     | '/usage'
     | '/auth/callback'
     | '/auth/verify'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/images'
     | '/login'
+    | '/settings'
     | '/usage'
     | '/auth/callback'
     | '/auth/verify'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ImagesRoute: typeof ImagesRoute
   LoginRoute: typeof LoginRoute
+  SettingsRoute: typeof SettingsRoute
   UsageRoute: typeof UsageRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthVerifyRoute: typeof AuthVerifyRoute
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/usage'
       fullPath: '/usage'
       preLoaderRoute: typeof UsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ImagesRoute: ImagesRoute,
   LoginRoute: LoginRoute,
+  SettingsRoute: SettingsRoute,
   UsageRoute: UsageRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthVerifyRoute: AuthVerifyRoute,

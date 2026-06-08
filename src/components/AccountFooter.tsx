@@ -1,3 +1,4 @@
+import { Settings } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { AccountMenu } from "@libertai/auth";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -13,6 +14,13 @@ export default function AccountFooter() {
 
 	return (
 		<AccountMenu
+			items={[
+				{
+					label: "Settings",
+					icon: <Settings className="h-4 w-4" />,
+					onSelect: () => navigate({ to: "/settings" }),
+				},
+			]}
 			onSignIn={() => navigate({ to: "/login" })}
 			onSignedOut={() => navigate({ to: "/" })}
 			onAction={() => {
