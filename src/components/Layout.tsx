@@ -1,5 +1,4 @@
 import { ReactNode, useEffect, useState } from "react";
-import { ThemeToggle } from "./ThemeToggle";
 import { Link, useRouter } from "@tanstack/react-router";
 import AccountFooter from "./AccountFooter";
 import {
@@ -91,12 +90,9 @@ export function Layout({
 		<SidebarProvider defaultOpen={true}>
 			<div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row w-full">
 				{/* Mobile Header */}
-				<header className="fixed z-20 top-0 left-0 right-0 h-16 border-b border-border px-4 flex items-center justify-between md:hidden bg-background">
+				<header className="fixed z-20 top-0 left-0 right-0 h-16 border-b border-border px-4 flex items-center gap-3 md:hidden bg-background">
 					<SidebarTrigger />
 					<div className="font-bold text-lg">LibertAI</div>
-					<div className="flex items-center gap-2">
-						<ThemeToggle />
-					</div>
 				</header>
 
 				{/* Desktop Sidebar */}
@@ -129,13 +125,6 @@ export function Layout({
 				</Sidebar>
 
 				<SidebarInset className="w-full">
-					{/* Desktop Header */}
-					<header className="h-16 border-b border-border px-4 hidden md:flex items-center justify-end">
-						<div className="flex items-center gap-4">
-							<ThemeToggle />
-						</div>
-					</header>
-
 					{/* Main content with padding on mobile for the fixed header */}
 					<main className="flex-1 overflow-auto md:pt-0 pt-16 w-full">{children}</main>
 				</SidebarInset>
