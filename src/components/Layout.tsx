@@ -1,10 +1,11 @@
 import { ReactNode, useEffect, useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Link, useRouter } from "@tanstack/react-router";
-import UserMenu from "./UserMenu";
+import AccountFooter from "./AccountFooter";
 import {
 	Sidebar,
 	SidebarContent,
+	SidebarFooter,
 	SidebarHeader,
 	SidebarInset,
 	SidebarMenu,
@@ -95,7 +96,6 @@ export function Layout({
 					<div className="font-bold text-lg">LibertAI</div>
 					<div className="flex items-center gap-2">
 						<ThemeToggle />
-						<UserMenu />
 					</div>
 				</header>
 
@@ -122,6 +122,10 @@ export function Layout({
 							))}
 						</SidebarMenu>
 					</SidebarContent>
+
+					<SidebarFooter>
+						<AccountFooter />
+					</SidebarFooter>
 				</Sidebar>
 
 				<SidebarInset className="w-full">
@@ -129,7 +133,6 @@ export function Layout({
 					<header className="h-16 border-b border-border px-4 hidden md:flex items-center justify-end">
 						<div className="flex items-center gap-4">
 							<ThemeToggle />
-							<UserMenu />
 						</div>
 					</header>
 
