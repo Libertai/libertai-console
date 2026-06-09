@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { PlansSection } from "@/components/billing/PlansSection";
+import { PlansSection } from "@libertai/auth";
 import { BuyCreditsSection } from "@/components/billing/BuyCreditsSection";
 import { TransactionHistory } from "@/components/billing/TransactionHistory";
 
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/billing")({
 });
 
 // Subscription plans are hidden for now. Flip to re-enable the plan cards.
-const SHOW_PLANS = false;
+const SHOW_PLANS = true;
 
 function Billing() {
 	const { isAuthenticated } = useRequireAuth();

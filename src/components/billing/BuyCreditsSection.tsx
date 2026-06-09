@@ -3,7 +3,7 @@ import { Coins, CreditCard, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CryptoCheckout } from "@/components/billing/CryptoCheckout";
-import { useBillingActions, usePaymentProviders } from "@/hooks/data/use-payments";
+import { useBillingActions, usePaymentProviders } from "@libertai/auth";
 
 export function BuyCreditsSection() {
 	const { data: providers } = usePaymentProviders();
