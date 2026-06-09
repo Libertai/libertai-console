@@ -1,6 +1,6 @@
 import { Settings } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { AccountMenu } from "@libertai/auth";
+import { AccountMenu, PlanBadge } from "@libertai/auth";
 import { useSidebar } from "@/components/ui/sidebar";
 
 /**
@@ -15,6 +15,7 @@ export default function AccountFooter() {
 
 	return (
 		<AccountMenu
+			planBadge={<PlanBadge onUpgrade={() => navigate({ to: "/billing" })} />}
 			items={[
 				{
 					label: "Settings",
