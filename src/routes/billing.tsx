@@ -1,7 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { PlansSection } from "@libertai/auth";
-import { BuyCreditsSection } from "@/components/billing/BuyCreditsSection";
+import { PlansSection, UsageCreditsCard, useSubscription } from "@libertai/auth";
 import { TransactionHistory } from "@/components/billing/TransactionHistory";
 
 export const Route = createFileRoute("/billing")({
@@ -13,6 +12,8 @@ const SHOW_PLANS = true;
 
 function Billing() {
 	const { isAuthenticated } = useRequireAuth();
+	const navigate = useNavigate();
+	const { data: subscription } = useSubscription();
 	if (!isAuthenticated) return null;
 
 	return (
@@ -24,7 +25,12 @@ function Billing() {
 				</div>
 
 				{SHOW_PLANS && <PlansSection />}
-				<BuyCreditsSection />
+				<UsageCreditsCard
+						balance={subscription?.prepaid_balance ?? 0}
+						description="Used once your plan allowance runs out. Top up after you hit a limit."
+						onUpgrade={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+						onBuyCredits={() => navigate({ to: "/top-up" })}
+					/>
 				<TransactionHistory />
 			</div>
 		</div>

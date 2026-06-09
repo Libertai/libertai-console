@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsageRouteImport } from './routes/usage'
+import { Route as TopUpRouteImport } from './routes/top-up'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImagesRouteImport } from './routes/images'
@@ -24,6 +25,11 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 const UsageRoute = UsageRouteImport.update({
   id: '/usage',
   path: '/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TopUpRoute = TopUpRouteImport.update({
+  id: '/top-up',
+  path: '/top-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/images': typeof ImagesRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/top-up': typeof TopUpRoute
   '/usage': typeof UsageRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/images': typeof ImagesRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/top-up': typeof TopUpRoute
   '/usage': typeof UsageRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/images': typeof ImagesRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/top-up': typeof TopUpRoute
   '/usage': typeof UsageRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/verify': typeof AuthVerifyRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/images'
     | '/login'
     | '/settings'
+    | '/top-up'
     | '/usage'
     | '/auth/callback'
     | '/auth/verify'
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
     | '/images'
     | '/login'
     | '/settings'
+    | '/top-up'
     | '/usage'
     | '/auth/callback'
     | '/auth/verify'
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '/images'
     | '/login'
     | '/settings'
+    | '/top-up'
     | '/usage'
     | '/auth/callback'
     | '/auth/verify'
@@ -168,6 +180,7 @@ export interface RootRouteChildren {
   ImagesRoute: typeof ImagesRoute
   LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRoute
+  TopUpRoute: typeof TopUpRoute
   UsageRoute: typeof UsageRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthVerifyRoute: typeof AuthVerifyRoute
@@ -180,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/usage'
       fullPath: '/usage'
       preLoaderRoute: typeof UsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/top-up': {
+      id: '/top-up'
+      path: '/top-up'
+      fullPath: '/top-up'
+      preLoaderRoute: typeof TopUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -264,6 +284,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImagesRoute: ImagesRoute,
   LoginRoute: LoginRoute,
   SettingsRoute: SettingsRoute,
+  TopUpRoute: TopUpRoute,
   UsageRoute: UsageRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthVerifyRoute: AuthVerifyRoute,
