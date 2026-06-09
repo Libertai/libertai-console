@@ -2,10 +2,9 @@ import { useState } from "react";
 import { useQueryState } from "nuqs";
 import { CheckCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TopUpAmountInput } from "@/components/payment/TopUpAmountInput";
-import { PaymentStage } from "@/components/payment/stages/PaymentStage";
+import { PaymentStage, TopUpAmountInput, PaymentConfigProvider, useAccountStore } from "@libertai/auth";
+import { paymentConfig } from "@/config/payment";
 import { useCredits } from "@/hooks/data/use-credits";
-import { useAccountStore } from "@libertai/auth";
 
 /** The crypto credit-purchase flow ($LTAI / ERC-20 / Solana), embedded in Billing. */
 export function CryptoCheckout() {
@@ -23,17 +22,19 @@ export function CryptoCheckout() {
 
 	if (stage === "payment") {
 		return (
-			<PaymentStage
-				usdAmount={Number(amount)}
-				handleGoBackToSelection={() => {
-					setAmount(null);
-					setStage("select");
-				}}
-				handlePaymentSuccess={() => {
-					setStage("success");
-					refreshCredits();
-				}}
-			/>
+			<PaymentConfigProvider config={paymentConfig}>
+				<PaymentStage
+					usdAmount={Number(amount)}
+					handleGoBackToSelection={() => {
+						setAmount(null);
+						setStage("select");
+					}}
+					handlePaymentSuccess={() => {
+						setStage("success");
+						refreshCredits();
+					}}
+				/>
+			</PaymentConfigProvider>
 		);
 	}
 
@@ -83,11 +84,13 @@ export function CryptoCheckout() {
 	}
 
 	return (
-		<TopUpAmountInput
-			onSelectAmount={() => {
-				setLastTransactionHash(null);
-				setStage("payment");
-			}}
-		/>
+		<PaymentConfigProvider config={paymentConfig}>
+			<TopUpAmountInput
+				onSelectAmount={() => {
+					setLastTransactionHash(null);
+					setStage("payment");
+				}}
+			/>
+		</PaymentConfigProvider>
 	);
 }
