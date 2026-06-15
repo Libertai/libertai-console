@@ -56,6 +56,8 @@ jobs:
 
       - name: Deploy preview on Aleph
         if: ${{ github.event_name == 'pull_request' }}
-        uses: aleph-im/web3-hosting-action@v1.1.5
+        uses: aleph-im/web3-hosting-action@v2.0.0
         with:
           path: 'dist'
+          private-key: ${{ secrets.ALEPH_PRIVATE_KEY }}
+          owner-address: ${{ vars.ALEPH_OWNER_ADDRESS }}

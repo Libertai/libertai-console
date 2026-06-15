@@ -35,9 +35,10 @@ jobs:
         run: pnpm run build
 
       - name: Deploy with Aleph
-        uses: aleph-im/web3-hosting-action@v1.1.5
+        uses: aleph-im/web3-hosting-action@v2.0.0
         with:
           path: 'dist'
-          private-key: ${{ secrets.ALEPH_CLOUD_LTAI_CONSOLE_PROD }}
+          private-key: ${{ secrets.ALEPH_PRIVATE_KEY }}
+          owner-address: ${{ vars.ALEPH_OWNER_ADDRESS }}
           domain: console.libertai.io
           retention_days: 1
