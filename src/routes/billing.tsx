@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { PlansSection, UsageCreditsCard, useSubscription } from "@libertai/auth";
-import { TransactionHistory } from "@/components/billing/TransactionHistory";
+import { PlansSection, TransactionHistory, UsageCreditsCard, useSubscription } from "@libertai/auth";
 
 export const Route = createFileRoute("/billing")({
 	component: Billing,
