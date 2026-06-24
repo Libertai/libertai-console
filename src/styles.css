@@ -12,7 +12,7 @@
   /* Light theme colors based on screenshots */
   --background: #F0EFED; /* Match chat */
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
+  --card: #E1E1E1; /* Match chat */
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -38,7 +38,7 @@
 
   /* Other colors */
   --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --input: #FFF; /* Match chat */
   --ring: oklch(0.5 0.18 264); /* Match primary */
 
   /* Chart colors */
@@ -63,7 +63,7 @@
   /* Dark theme colors based on screenshots */
   --background: #0E0F18; /* Match chat */
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.18 0 0); /* Slightly lighter than background */
+  --card: #1F2030; /* Match chat (slightly lighter than background) */
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.18 0 0);
   --popover-foreground: oklch(0.985 0 0);
@@ -89,7 +89,7 @@
 
   /* Other colors */
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --input: #1F2030; /* Match chat */
   --ring: oklch(0.6 0.22 280); /* Match primary */
 
   /* Chart colors */
