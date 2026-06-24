@@ -21,14 +21,13 @@ function Billing() {
 			<div className="flex flex-col space-y-10 max-w-5xl mx-auto">
 				<div>
 					<h1 className="text-3xl font-bold">Billing</h1>
-					<p className="text-muted-foreground mt-1">Buy credits and review your transactions</p>
+					<p className="text-muted-foreground mt-1">Manage your plan, buy credits, and review your transactions</p>
 				</div>
 
 				{SHOW_PLANS && <PlansSection />}
 				<UsageCreditsCard
 						balance={subscription?.prepaid_balance ?? 0}
 						description="Used once your plan allowance runs out. Top up after you hit a limit."
-						onUpgrade={() => window.scrollTo({ top: 0, behavior: "smooth" })}
 						onBuyCredits={() => navigate({ to: "/top-up" })}
 					/>
 				<TransactionHistory />
