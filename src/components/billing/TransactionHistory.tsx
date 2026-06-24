@@ -2,9 +2,18 @@ import { CreditTransactionProvider, CreditTransactionResponse } from "@libertai/
 import { useTransactions } from "@/hooks/data/use-transactions";
 import { Skeleton } from "@/components/ui/skeleton";
 import dayjs from "dayjs";
-import { AlertCircle, Calendar as CalendarIcon, Download, FilterIcon, LucideBrushCleaning, X } from "lucide-react";
+import {
+	AlertCircle,
+	Calendar as CalendarIcon,
+	ChevronLeft,
+	ChevronRight,
+	Download,
+	FilterIcon,
+	LucideBrushCleaning,
+	X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -22,6 +31,8 @@ type FilterState = {
 	dateRange: { from?: Date; to?: Date };
 	timeRange: "None" | "7d" | "30d" | "custom";
 };
+
+const PAGE_SIZE = 10;
 
 function formatDate(date: Date): string {
 	return dayjs(date).format("YYYY-MM-DD");
@@ -255,6 +266,15 @@ export function TransactionHistory() {
 
 	const handleClearFilters = () => setFilters({ statuses: [], types: [], dateRange: {}, timeRange: "None" });
 
+	// Client-side pagination over the already-loaded, filtered set. Reset to page 1 whenever the
+	// filtered result changes (filter edit) so we never land on a now-empty page.
+	const [page, setPage] = useState(1);
+	useEffect(() => setPage(1), [filters]);
+	const pageCount = Math.max(1, Math.ceil(filteredTransactions.length / PAGE_SIZE));
+	const safePage = Math.min(page, pageCount);
+	const pageStart = (safePage - 1) * PAGE_SIZE;
+	const pageTransactions = filteredTransactions.slice(pageStart, pageStart + PAGE_SIZE);
+
 	const handleExportData = () => {
 		const headers = ["Date", "Type", "Amount", "Remaining", "Expires", "Status"];
 		const csvRows = [
@@ -390,7 +410,7 @@ export function TransactionHistory() {
 									</td>
 								</tr>
 							) : (
-								filteredTransactions.map((transaction) => {
+								pageTransactions.map((transaction) => {
 									const status = getTransactionStatus(transaction);
 									return (
 										<tr key={transaction.id} className="border-b border-border/50 hover:bg-card/70">
@@ -425,6 +445,38 @@ export function TransactionHistory() {
 					</table>
 				</div>
 			</div>
+
+			{!isLoading && !isError && filteredTransactions.length > PAGE_SIZE && (
+				<div className="flex items-center justify-between flex-wrap gap-3">
+					<span className="text-sm text-muted-foreground">
+						Showing {pageStart + 1}–{Math.min(pageStart + PAGE_SIZE, filteredTransactions.length)} of{" "}
+						{filteredTransactions.length}
+					</span>
+					<div className="flex items-center gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setPage((p) => Math.max(1, p - 1))}
+							disabled={safePage <= 1}
+						>
+							<ChevronLeft className="h-4 w-4 mr-1" />
+							Previous
+						</Button>
+						<span className="text-sm text-muted-foreground">
+							Page {safePage} of {pageCount}
+						</span>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+							disabled={safePage >= pageCount}
+						>
+							Next
+							<ChevronRight className="h-4 w-4 ml-1" />
+						</Button>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
