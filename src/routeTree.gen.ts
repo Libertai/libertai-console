@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsageRouteImport } from './routes/usage'
 import { Route as TopUpRouteImport } from './routes/top-up'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PlansRouteImport } from './routes/plans'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImagesRouteImport } from './routes/images'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -36,6 +37,11 @@ const TopUpRoute = TopUpRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlansRoute = PlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
   '/login': typeof LoginRoute
+  '/plans': typeof PlansRoute
   '/settings': typeof SettingsRoute
   '/top-up': typeof TopUpRoute
   '/usage': typeof UsageRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
   '/login': typeof LoginRoute
+  '/plans': typeof PlansRoute
   '/settings': typeof SettingsRoute
   '/top-up': typeof TopUpRoute
   '/usage': typeof UsageRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
   '/login': typeof LoginRoute
+  '/plans': typeof PlansRoute
   '/settings': typeof SettingsRoute
   '/top-up': typeof TopUpRoute
   '/usage': typeof UsageRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/images'
     | '/login'
+    | '/plans'
     | '/settings'
     | '/top-up'
     | '/usage'
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/images'
     | '/login'
+    | '/plans'
     | '/settings'
     | '/top-up'
     | '/usage'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/images'
     | '/login'
+    | '/plans'
     | '/settings'
     | '/top-up'
     | '/usage'
@@ -191,6 +203,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ImagesRoute: typeof ImagesRoute
   LoginRoute: typeof LoginRoute
+  PlansRoute: typeof PlansRoute
   SettingsRoute: typeof SettingsRoute
   TopUpRoute: typeof TopUpRoute
   UsageRoute: typeof UsageRoute
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plans': {
+      id: '/plans'
+      path: '/plans'
+      fullPath: '/plans'
+      preLoaderRoute: typeof PlansRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -303,6 +323,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ImagesRoute: ImagesRoute,
   LoginRoute: LoginRoute,
+  PlansRoute: PlansRoute,
   SettingsRoute: SettingsRoute,
   TopUpRoute: TopUpRoute,
   UsageRoute: UsageRoute,
