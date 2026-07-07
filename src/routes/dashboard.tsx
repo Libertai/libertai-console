@@ -8,6 +8,7 @@ import { useStats } from "@/hooks/data/use-stats";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isValidElement } from "react";
+import { formatCompactNumber } from "@/lib/utils";
 
 export const Route = createFileRoute("/dashboard")({
 	component: Dashboard,
@@ -67,7 +68,7 @@ function Dashboard() {
 			id: "apiCalls",
 			title: "API Calls",
 			icon: <Zap className="h-5 w-5 text-primary" />,
-			value: areStatsLoading ? <Skeleton className="h-10 w-32" /> : apiCalls,
+			value: areStatsLoading ? <Skeleton className="h-10 w-32" /> : formatCompactNumber(apiCalls),
 			footer: "This month",
 		},
 		{
@@ -85,7 +86,7 @@ function Dashboard() {
 			id: "tokensUsed",
 			title: "Tokens Used",
 			icon: <LineChart className="h-5 w-5 text-primary" />,
-			value: areStatsLoading ? <Skeleton className="h-10 w-32" /> : tokensUsed,
+			value: areStatsLoading ? <Skeleton className="h-10 w-32" /> : formatCompactNumber(tokensUsed),
 			footer: "This month",
 		},
 	];

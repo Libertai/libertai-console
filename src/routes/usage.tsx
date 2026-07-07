@@ -19,6 +19,7 @@ import { useSubscription, AllowanceBar } from "@libertai/auth";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatCompactNumber } from "@/lib/utils";
 import dayjs from "dayjs";
 
 export const Route = createFileRoute("/usage")({
@@ -189,7 +190,7 @@ function AdvancedView() {
 						<BarChart4 className="h-5 w-5 text-primary" />
 						<h2 className="text-lg font-medium">Total Requests</h2>
 					</div>
-					{isLoading ? <Skeleton className="h-10 w-32" /> : <p className="text-3xl font-bold">{totalRequests.toLocaleString()}</p>}
+					{isLoading ? <Skeleton className="h-10 w-32" /> : <p className="text-3xl font-bold">{formatCompactNumber(totalRequests)}</p>}
 				</div>
 
 				<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -197,7 +198,7 @@ function AdvancedView() {
 						<LineChart className="h-5 w-5 text-primary" />
 						<h2 className="text-lg font-medium">Input tokens</h2>
 					</div>
-					{isLoading ? <Skeleton className="h-10 w-32" /> : <p className="text-3xl font-bold">{inputTokens.toLocaleString()}</p>}
+					{isLoading ? <Skeleton className="h-10 w-32" /> : <p className="text-3xl font-bold">{formatCompactNumber(inputTokens)}</p>}
 				</div>
 
 				<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -205,7 +206,7 @@ function AdvancedView() {
 						<Rocket className="h-5 w-5 text-primary" />
 						<h2 className="text-lg font-medium">Output Tokens</h2>
 					</div>
-					{isLoading ? <Skeleton className="h-10 w-32" /> : <p className="text-3xl font-bold">{outputTokens.toLocaleString()}</p>}
+					{isLoading ? <Skeleton className="h-10 w-32" /> : <p className="text-3xl font-bold">{formatCompactNumber(outputTokens)}</p>}
 				</div>
 
 				<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
@@ -256,7 +257,7 @@ function AdvancedView() {
 									tick={{ fontSize: 12 }}
 									tickLine={false}
 									axisLine={{ stroke: "var(--border)" }}
-									tickFormatter={(value) => value.toLocaleString()}
+									tickFormatter={(value) => formatCompactNumber(value)}
 								/>
 								<YAxis
 									yAxisId="right"
@@ -264,7 +265,7 @@ function AdvancedView() {
 									tick={{ fontSize: 12 }}
 									tickLine={false}
 									axisLine={{ stroke: "var(--border)" }}
-									tickFormatter={(value) => value.toLocaleString()}
+									tickFormatter={(value) => formatCompactNumber(value)}
 								/>
 								<Tooltip
 									contentStyle={{
@@ -318,8 +319,8 @@ function AdvancedView() {
 									{modelUsage.map((model, index) => (
 										<tr key={index} className="border-b border-border/50 hover:bg-card/70">
 											<td className="px-4 py-3 text-sm font-medium">{model.name}</td>
-											<td className="px-4 py-3 text-sm text-right">{model.calls}</td>
-											<td className="px-4 py-3 text-sm text-right">{model.total_tokens}</td>
+											<td className="px-4 py-3 text-sm text-right">{formatCompactNumber(model.calls)}</td>
+											<td className="px-4 py-3 text-sm text-right">{formatCompactNumber(model.total_tokens)}</td>
 											<td className="px-4 py-3 text-sm text-right">
 												${model.cost.toLocaleString(undefined, { maximumFractionDigits: 4 })}
 											</td>
@@ -359,8 +360,8 @@ function AdvancedView() {
 									{apiKeyUsage.map((key, index) => (
 										<tr key={index} className="border-b border-border/50 hover:bg-card/70">
 											<td className="px-4 py-3 text-sm font-medium">{key.name}</td>
-											<td className="px-4 py-3 text-sm text-right">{key.calls}</td>
-											<td className="px-4 py-3 text-sm text-right">{key.total_tokens}</td>
+											<td className="px-4 py-3 text-sm text-right">{formatCompactNumber(key.calls)}</td>
+											<td className="px-4 py-3 text-sm text-right">{formatCompactNumber(key.total_tokens)}</td>
 											<td className="px-4 py-3 text-sm text-right">
 												${key.cost.toLocaleString(undefined, { maximumFractionDigits: 4 })}
 											</td>
