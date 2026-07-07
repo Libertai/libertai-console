@@ -46,13 +46,12 @@ jobs:
           cache-dependency-path: 'pnpm-lock.yaml'
       - name: Install dependencies
         run: pnpm install
-      - name: Create .env file
-        run: |
-          echo "VITE_THIRDWEB_CLIENT_ID=${{ secrets.THIRDWEB_CLIENT_ID }}" >> .env
-          echo "VITE_LTAI_INFERENCE_API_URL=${{ secrets.LTAI_INFERENCE_API_URL }}" >> .env
-          echo "VITE_SOLANA_RPC=${{ secrets.SOLANA_RPC }}" >> .env
       - name: Build project
         run: pnpm run build
+        env:
+          VITE_THIRDWEB_CLIENT_ID: ${{ secrets.THIRDWEB_CLIENT_ID }}
+          VITE_LTAI_INFERENCE_API_URL: ${{ secrets.LTAI_INFERENCE_API_URL }}
+          VITE_SOLANA_RPC: ${{ secrets.SOLANA_RPC }}
 
       - name: Deploy preview on Aleph
         if: ${{ github.event_name == 'pull_request' }}
