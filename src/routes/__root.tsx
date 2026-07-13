@@ -1,7 +1,6 @@
 import { createRootRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import Providers from "@/components/Providers";
 import { Layout } from "@/components/Layout";
-import WalletSync from "@/components/WalletSync";
 import { CreditCard, Image, Key, LayoutDashboard, LineChart, PieChart } from "lucide-react";
 
 const developersSidebarItems = [
@@ -36,8 +35,6 @@ function RootComponent() {
 
 	return (
 		<Providers>
-			{/* Keeps wallet sessions in sync globally, independent of the chrome */}
-			<WalletSync />
 			{chromeless ? (
 				<Outlet />
 			) : (
