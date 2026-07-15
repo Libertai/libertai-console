@@ -1,6 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Copy, Eye, EyeOff, Key, MoreHorizontal, Plus, Settings, Trash, X } from "lucide-react";
+import {
+	ChevronDown,
+	ChevronsUpDown,
+	ChevronUp,
+	Copy,
+	Eye,
+	EyeOff,
+	Key,
+	MoreHorizontal,
+	Plus,
+	Settings,
+	Trash,
+	X,
+} from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -21,6 +34,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import dayjs from "dayjs";
 
 type CodeLang = "curl" | "python" | "typescript";
+
+type SortColumn = "name" | "created" | "limit" | "usage" | "status";
+type SortDirection = "asc" | "desc";
+
+// Direction applied when a column is first selected. `status` desc puts active keys first.
+const DEFAULT_SORT_DIRECTION: Record<SortColumn, SortDirection> = {
+	name: "asc",
+	created: "desc",
+	limit: "desc",
+	usage: "desc",
+	status: "desc",
+};
 
 const CODE_LANG_LABELS: Record<CodeLang, string> = {
 	curl: "cURL",
@@ -167,6 +192,35 @@ function ApiKeys() {
 	const { apiKeyUsage, isLoading: isLoadingUsage } = useUsageStats(startDate, endDate);
 	const usageByName = useMemo(() => new Map(apiKeyUsage.map((u) => [u.name, u.cost])), [apiKeyUsage]);
 
+	// Table sorting — defaults to status with active keys first.
+	const [sort, setSort] = useState<{ column: SortColumn; direction: SortDirection }>({
+		column: "status",
+		direction: "desc",
+	});
+
+	const handleSort = (column: SortColumn) => {
+		setSort((prev) =>
+			prev.column === column
+				? { column, direction: prev.direction === "asc" ? "desc" : "asc" }
+				: { column, direction: DEFAULT_SORT_DIRECTION[column] },
+		);
+	};
+
+	const sortedApiKeys = useMemo(() => {
+		const factor = sort.direction === "asc" ? 1 : -1;
+		const compare: Record<SortColumn, (a: ApiKey, b: ApiKey) => number> = {
+			name: (a, b) => a.name.localeCompare(b.name),
+			created: (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+			limit: (a, b) => (a.monthly_limit ?? 0) - (b.monthly_limit ?? 0),
+			usage: (a, b) => (usageByName.get(a.name) ?? 0) - (usageByName.get(b.name) ?? 0),
+			status: (a, b) => Number(a.is_active) - Number(b.is_active),
+		};
+		return [...apiKeys].sort((a, b) => {
+			const primary = compare[sort.column](a, b) * factor;
+			return primary !== 0 ? primary : a.name.localeCompare(b.name);
+		});
+	}, [apiKeys, sort, usageByName]);
+
 	// Return null if not authenticated (redirect is handled by the hook)
 	if (!isAuthenticated) {
 		return null;
@@ -234,6 +288,24 @@ function ApiKeys() {
 		}
 	};
 
+	const renderSortableHeader = (column: SortColumn, label: string) => {
+		const active = sort.column === column;
+		const Icon = !active ? ChevronsUpDown : sort.direction === "asc" ? ChevronUp : ChevronDown;
+		return (
+			<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
+				<button
+					type="button"
+					onClick={() => handleSort(column)}
+					className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+					aria-label={`Sort by ${label}`}
+				>
+					{label}
+					<Icon className={`h-3.5 w-3.5 ${active ? "text-foreground" : "opacity-40"}`} />
+				</button>
+			</th>
+		);
+	};
+
 	return (
 		<div className="container mx-auto px-4 py-8">
 			<div className="flex flex-col space-y-8">
@@ -254,12 +326,12 @@ function ApiKeys() {
 						<table className="w-full">
 							<thead>
 								<tr className="border-b border-border">
-									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Name</th>
+									{renderSortableHeader("name", "Name")}
 									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Prefix</th>
-									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Created</th>
-									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Limit</th>
-									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">30d Usage</th>
-									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Status</th>
+									{renderSortableHeader("created", "Created")}
+									{renderSortableHeader("limit", "Limit")}
+									{renderSortableHeader("usage", "30d Usage")}
+									{renderSortableHeader("status", "Status")}
 									<th className="px-6 py-4 text-right text-sm font-medium text-muted-foreground">Actions</th>
 								</tr>
 							</thead>
@@ -289,7 +361,7 @@ function ApiKeys() {
 										</tr>
 									</>
 								) : (
-									apiKeys.map((key) => (
+									sortedApiKeys.map((key) => (
 										<tr key={key.id} className="border-b border-border/50 hover:bg-card/70">
 											<td className="px-6 py-4 text-sm font-medium">{key.name}</td>
 											<td className="px-6 py-4 text-sm font-mono">{key.key}</td>
