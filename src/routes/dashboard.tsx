@@ -174,6 +174,7 @@ function Dashboard() {
 												})}`,
 												"Credits used",
 											]}
+											labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ""}
 											labelStyle={{ marginBottom: "5px", fontWeight: "bold" }}
 										/>
 										<Area

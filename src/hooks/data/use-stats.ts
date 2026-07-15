@@ -22,11 +22,19 @@ export function useStats() {
 		enabled: isAuthenticated, // Run for any authenticated user (wallet or email/OAuth)
 	});
 
-	// Transform monthly_usage data for chart
-	const chartData = Object.entries(statsQuery.data?.monthly_usage || {}).map(([month, cost]) => ({
-		month,
-		cost,
-	}));
+	// Transform monthly_usage data for chart. Keys are sortable "YYYY-MM"; derive a
+	// short month for the axis and a full "Month YYYY" label for the tooltip.
+	const chartData = Object.entries(statsQuery.data?.monthly_usage || {})
+		.sort(([a], [b]) => a.localeCompare(b))
+		.map(([key, cost]) => {
+			const [year, month] = key.split("-").map(Number);
+			const date = new Date(year, month - 1, 1);
+			return {
+				month: date.toLocaleString(undefined, { month: "short" }),
+				label: date.toLocaleString(undefined, { month: "long", year: "numeric" }),
+				cost,
+			};
+		});
 
 	return {
 		stats: statsQuery.data,
