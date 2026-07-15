@@ -6,13 +6,12 @@ import {
 	Calendar as CalendarIcon,
 	CreditCard,
 	Download,
-	HelpCircle,
 	LineChart,
 	Rocket,
 	Zap,
 } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useUsageStats } from "@/hooks/data/use-stats";
 import { useSubscription, AllowanceBar } from "@libertai/auth";
@@ -105,8 +104,10 @@ function AdvancedView() {
 	const [startDate, setStartDate] = useState<string>(formatDate(dayjs().subtract(7, "day").toDate()));
 	const [endDate, setEndDate] = useState<string>(formatDate(new Date()));
 
-	const { dailyChartData, totalRequests, inputTokens, outputTokens, totalCost, modelUsage, apiKeyUsage, isLoading } =
+	const { dailyChartData, totalRequests, inputTokens, outputTokens, totalCost, modelUsage, isLoading } =
 		useUsageStats(startDate, endDate);
+
+	const sortedModelUsage = useMemo(() => [...modelUsage].sort((a, b) => b.cost - a.cost), [modelUsage]);
 
 	useEffect(() => {
 		const now = new Date();
@@ -289,12 +290,11 @@ function AdvancedView() {
 				</div>
 			</div>
 
-			{/* Usage by Model and API Key */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+			{/* Usage by model */}
+			<div className="grid grid-cols-1 gap-6">
 				<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
-					<div className="flex items-center justify-between mb-6">
-						<h2 className="text-xl font-semibold">Usage by Model</h2>
-						<HelpCircle className="h-4 w-4 text-muted-foreground" />
+					<div className="flex items-center mb-6">
+						<h2 className="text-xl font-semibold">Usage by model</h2>
 					</div>
 					<div className="overflow-x-auto">
 						{isLoading ? (
@@ -316,54 +316,13 @@ function AdvancedView() {
 									</tr>
 								</thead>
 								<tbody>
-									{modelUsage.map((model, index) => (
+									{sortedModelUsage.map((model, index) => (
 										<tr key={index} className="border-b border-border/50 hover:bg-card/70">
 											<td className="px-4 py-3 text-sm font-medium">{model.name}</td>
 											<td className="px-4 py-3 text-sm text-right">{formatCompactNumber(model.calls)}</td>
 											<td className="px-4 py-3 text-sm text-right">{formatCompactNumber(model.total_tokens)}</td>
 											<td className="px-4 py-3 text-sm text-right">
 												${model.cost.toLocaleString(undefined, { maximumFractionDigits: 4 })}
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						)}
-					</div>
-				</div>
-
-				<div className="bg-card/50 backdrop-blur-sm p-6 rounded-xl border border-border">
-					<div className="flex items-center justify-between mb-6">
-						<h2 className="text-xl font-semibold">Usage by API Key</h2>
-						<HelpCircle className="h-4 w-4 text-muted-foreground" />
-					</div>
-					<div className="overflow-x-auto">
-						{isLoading ? (
-							<div className="space-y-2 py-1">
-								<Skeleton className="h-8 w-full" />
-								<Skeleton className="h-8 w-full" />
-								<Skeleton className="h-8 w-full" />
-							</div>
-						) : apiKeyUsage.length === 0 ? (
-							<p>No data available for the selected date range</p>
-						) : (
-							<table className="w-full">
-								<thead>
-									<tr className="border-b border-border">
-										<th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">API Key</th>
-										<th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Requests</th>
-										<th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Tokens</th>
-										<th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Cost</th>
-									</tr>
-								</thead>
-								<tbody>
-									{apiKeyUsage.map((key, index) => (
-										<tr key={index} className="border-b border-border/50 hover:bg-card/70">
-											<td className="px-4 py-3 text-sm font-medium">{key.name}</td>
-											<td className="px-4 py-3 text-sm text-right">{formatCompactNumber(key.calls)}</td>
-											<td className="px-4 py-3 text-sm text-right">{formatCompactNumber(key.total_tokens)}</td>
-											<td className="px-4 py-3 text-sm text-right">
-												${key.cost.toLocaleString(undefined, { maximumFractionDigits: 4 })}
 											</td>
 										</tr>
 									))}

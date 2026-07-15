@@ -16,7 +16,7 @@ const developersSidebarItems = [
 			</span>
 		),
 	},
-	{ to: "/api-keys", icon: <Key className="h-4 w-4" />, label: "API Keys" },
+	{ to: "/api-keys", icon: <Key className="h-4 w-4" />, label: "API keys" },
 	{ to: "/usage", icon: <LineChart className="h-4 w-4" />, label: "Usage" },
 	{ to: "/billing", icon: <CreditCard className="h-4 w-4" />, label: "Billing" },
 ];
