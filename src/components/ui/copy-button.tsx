@@ -3,13 +3,22 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-export function CopyButton({ value, label = "Copy to clipboard" }: { value: string; label?: string }) {
+export function CopyButton({
+	value,
+	label = "Copy to clipboard",
+	onCopied,
+}: {
+	value: string;
+	label?: string;
+	onCopied?: () => void;
+}) {
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = async () => {
 		try {
 			await navigator.clipboard.writeText(value);
 			setCopied(true);
+			onCopied?.();
 			setTimeout(() => setCopied(false), 2000);
 		} catch {
 			toast.error("Couldn't copy to clipboard");
