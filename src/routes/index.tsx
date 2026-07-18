@@ -25,11 +25,13 @@ function LandingPage() {
 	const navigate = useNavigate();
 
 	return (
-		<div className="mx-auto max-w-5xl px-4 py-16 lg:py-24">
-			<div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+		<div className="mx-auto max-w-6xl px-4 py-16 lg:py-24">
+			<div className="grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:items-center">
 				<div className="space-y-6">
-					<LibertaiLogo className="h-8 w-auto text-foreground" />
-					<h1 className="text-4xl font-bold tracking-tight">LibertAI console</h1>
+					<div className="space-y-2">
+						<LibertaiLogo className="h-8 w-auto text-foreground" />
+						<h1 className="text-4xl font-bold tracking-tight">Console</h1>
+					</div>
 					<p className="text-lg text-muted-foreground">
 						API keys, usage, and billing for LibertAI's confidential, OpenAI-compatible inference API.
 					</p>
@@ -55,7 +57,7 @@ function LandingPage() {
 						</li>
 						<li className="flex items-center gap-3">
 							<Coins className="h-5 w-5 text-primary" aria-hidden />
-							<span>Buy prepaid credits — no subscription required</span>
+							<span>Buy prepaid credits or use a subscription to reduce costs</span>
 						</li>
 					</ul>
 				</div>
