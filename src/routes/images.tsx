@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 
 export const Route = createFileRoute("/images")({
 	component: Images,
@@ -60,13 +61,18 @@ function Images() {
 	const [responseSeed, setResponseSeed] = useState<number | null>(null);
 
 	// Use auth hook to require authentication
-	const { isAuthenticated } = useRequireAuth();
+	const { isAuthenticated, isPending } = useRequireAuth();
 
 	// Use API keys query hook
 	const { apiKeys, isLoading: isLoadingKeys } = useApiKeys();
 
 	// Fetch image models from Aleph
-	const { data: models, isLoading: isLoadingModels } = useAlephModels("image");
+	const {
+		data: models,
+		isLoading: isLoadingModels,
+		isError: isErrorModels,
+		refetch: refetchModels,
+	} = useAlephModels("image");
 
 	// Set default model when models load
 	useEffect(() => {
@@ -98,6 +104,10 @@ function Images() {
 			}
 		}
 	}, [models, selectedModel]);
+
+	if (isPending) {
+		return <PageSkeleton />;
+	}
 
 	// Return null if not authenticated (redirect is handled by the hook)
 	if (!isAuthenticated) {
@@ -275,7 +285,14 @@ function Images() {
 							<Label htmlFor="model-select" className="mb-4">
 								Model
 							</Label>
-							{isLoadingModels ? (
+							{isErrorModels ? (
+								<div className="flex items-center gap-3">
+									<p className="text-sm text-muted-foreground">Couldn't load models.</p>
+									<Button variant="outline" size="sm" onClick={() => refetchModels()}>
+										Retry
+									</Button>
+								</div>
+							) : isLoadingModels ? (
 								<Skeleton className="h-10 w-full" />
 							) : models && models.length > 0 ? (
 								<>

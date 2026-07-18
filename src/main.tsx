@@ -6,6 +6,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import "./styles.css";
 import { NotFoundPage } from "@/components/404.tsx";
+import { ErrorPage } from "@/components/error-page.tsx";
 import { initLibertaiAuth, useAccountStore } from "@libertai/auth";
 import { queryClient } from "@/lib/query-client";
 import env from "@/config/env.ts";
@@ -50,6 +51,7 @@ setInitialTheme();
 const router = createRouter({
 	routeTree,
 	defaultNotFoundComponent: NotFoundPage,
+	defaultErrorComponent: ErrorPage,
 });
 
 // Register the router instance for type safety
