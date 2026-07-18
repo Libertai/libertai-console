@@ -37,6 +37,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import dayjs from "dayjs";
+import { routeHead } from "@/lib/route-titles";
 
 type CodeLang = "curl" | "python" | "typescript";
 
@@ -161,6 +162,7 @@ Model:    ${model}`,
 ];
 
 export const Route = createFileRoute("/api-keys")({
+	head: () => routeHead("/api-keys"),
 	component: ApiKeys,
 });
 

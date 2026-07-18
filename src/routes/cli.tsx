@@ -3,9 +3,12 @@ import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { cliCodeAuthCliCodePost } from "@libertai/inference-sdk/sdk.gen";
 import { useAccountStore, LoginPanel } from "@libertai/auth";
+import { LibertaiLogo } from "@libertai/branding";
 import { Button } from "@/components/ui/button";
+import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/cli")({
+	head: () => routeHead("/cli"),
 	component: CliAuthorize,
 });
 
@@ -67,7 +70,7 @@ function CliAuthorize() {
 	return (
 		<div className="container mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center px-4 py-12 text-center">
 			<div className="mb-6 flex flex-col items-center gap-3">
-				<img src="/favicon.ico" alt="LibertAI" className="h-14 w-14 rounded-2xl shadow-sm" />
+				<LibertaiLogo className="h-10 w-auto text-foreground" />
 				<h1 className="text-xl font-semibold">Authorize {client}</h1>
 			</div>
 

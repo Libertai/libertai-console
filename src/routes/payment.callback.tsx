@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { PaymentCallback } from "@libertai/auth";
+import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/payment/callback")({
+	head: () => routeHead("/payment/callback"),
 	component: PaymentCallbackPage,
 });
 

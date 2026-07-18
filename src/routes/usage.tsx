@@ -26,8 +26,10 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ErrorCard } from "@/components/ui/error-card";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { SortableTableHead, Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
+import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/usage")({
+	head: () => routeHead("/usage"),
 	component: Usage,
 });
 
