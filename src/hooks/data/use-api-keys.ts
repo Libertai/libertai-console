@@ -6,26 +6,19 @@ import {
 	deleteApiKeyApiKeysKeyIdDelete,
 	getApiKeysApiKeysGet,
 	updateApiKeyApiKeysKeyIdPut,
-	ValidationError,
 } from "@libertai/inference-sdk";
 import { useAccountStore } from "@libertai/auth";
 
-// Helper function to extract FastAPI error details
-const extractFastAPIError = (error?: ValidationError[] | string | undefined): string => {
-	// Check for simple error message in detail field
-	if (error && typeof error === "string") {
-		return error;
+// Maps an HTTP status to user-facing copy. Never surfaces raw backend `detail` text —
+// FastAPI validation/DB error messages aren't meant for end users.
+const extractFastAPIError = (status?: number): string => {
+	if (status === 400 || status === 409) {
+		return "A key with this name already exists.";
 	}
-
-	// FastAPI validation errors are in detail array
-	if (Array.isArray(error)) {
-		const details: ValidationError[] = error;
-		// Get the first error message or join multiple messages
-		if (details.length > 0) {
-			return details.map((d) => d.msg).join(", ");
-		}
+	if (status === 422) {
+		return "That input isn't valid.";
 	}
-	return "An unknown error occurred";
+	return "Something went wrong. Try again.";
 };
 
 export function useApiKeys() {
@@ -39,7 +32,7 @@ export function useApiKeys() {
 			const response = await getApiKeysApiKeysGet();
 
 			if (response.error) {
-				throw new Error(extractFastAPIError(response.error.detail));
+				throw new Error(extractFastAPIError(response.status));
 			}
 
 			return response.data;
@@ -55,7 +48,7 @@ export function useApiKeys() {
 			});
 
 			if (response.error) {
-				throw new Error(extractFastAPIError(response.error.detail));
+				throw new Error(extractFastAPIError(response.status));
 			}
 
 			return response.data;
@@ -96,7 +89,7 @@ export function useApiKeys() {
 			});
 
 			if (response.error) {
-				throw new Error(extractFastAPIError(response.error.detail));
+				throw new Error(extractFastAPIError(response.status));
 			}
 
 			return response.data;
@@ -122,7 +115,7 @@ export function useApiKeys() {
 			});
 
 			if (response.error) {
-				throw new Error(extractFastAPIError(response.error.detail));
+				throw new Error(extractFastAPIError(response.status));
 			}
 
 			return true;

@@ -174,6 +174,8 @@ function ApiKeys() {
 	const [selectedModel, setSelectedModel] = useState<string | null>(null);
 	const [activeLang, setActiveLang] = useState<CodeLang>("curl");
 	const [keyPendingDelete, setKeyPendingDelete] = useState<ApiKey | null>(null);
+	// Survives the dialog's close animation so the description doesn't flash "undefined" while it fades out.
+	const [deleteTargetName, setDeleteTargetName] = useState<string | null>(null);
 
 	// Fetch available text models from Aleph
 	const {
@@ -198,7 +200,17 @@ function ApiKeys() {
 	const { isAuthenticated, isPending } = useRequireAuth();
 
 	// Use API keys query hook
-	const { apiKeys, isLoading, isError, refetch, createApiKey, updateApiKey, deleteApiKey } = useApiKeys();
+	const {
+		apiKeys,
+		isLoading,
+		isError,
+		refetch,
+		createApiKey,
+		updateApiKey,
+		deleteApiKey,
+		createApiKeyStatus,
+		updateApiKeyStatus,
+	} = useApiKeys();
 
 	// Rolling 30-day usage stats
 	const endDate = dayjs().format("YYYY-MM-DD");
@@ -390,7 +402,9 @@ function ApiKeys() {
 								) : (
 									sortedApiKeys.map((key) => (
 										<TableRow key={key.id}>
-											<TableCell className="font-medium">{key.name}</TableCell>
+											<TableCell className="font-medium max-w-[28ch] truncate" title={key.name}>
+												{key.name}
+											</TableCell>
 											<TableCell className="font-mono">{key.key}</TableCell>
 											<TableCell className="text-muted-foreground">
 												{dayjs(key.created_at).format("YYYY-MM-DD")}
@@ -426,8 +440,12 @@ function ApiKeys() {
 														</DropdownMenuItem>
 														<DropdownMenuSeparator />
 														<DropdownMenuItem
-															onClick={() => setKeyPendingDelete(key)}
-															className="cursor-pointer text-destructive"
+															onClick={() => {
+																setKeyPendingDelete(key);
+																setDeleteTargetName(key.name);
+															}}
+															variant="destructive"
+															className="cursor-pointer"
 														>
 															<Trash className="h-4 w-4 mr-2" />
 															<span>Delete</span>
@@ -576,7 +594,7 @@ function ApiKeys() {
 								mode="create"
 								onSubmit={handleCreateKey}
 								onCancel={() => setShowNewKeyModal(false)}
-								isLoading={isLoading}
+								isLoading={createApiKeyStatus === "pending"}
 							/>
 						</>
 					) : (
@@ -602,7 +620,7 @@ function ApiKeys() {
 										size="icon"
 										onClick={() => setShowKey(!showKey)}
 										className="ml-2"
-										aria-label="Show key"
+										aria-label={showKey ? "Hide key" : "Show key"}
 									>
 										{showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
 									</Button>
@@ -638,7 +656,7 @@ function ApiKeys() {
 							onSubmit={handleUpdateKey}
 							onCancel={() => setShowEditModal(false)}
 							initialData={currentKey}
-							isLoading={isLoading}
+							isLoading={updateApiKeyStatus === "pending"}
 						/>
 					)}
 				</DialogContent>
@@ -648,7 +666,7 @@ function ApiKeys() {
 				open={!!keyPendingDelete}
 				onOpenChange={(open) => !open && setKeyPendingDelete(null)}
 				title="Delete API key"
-				description={`"${keyPendingDelete?.name}" will stop working immediately. This can't be undone.`}
+				description={`"${deleteTargetName}" will stop working immediately. This can't be undone.`}
 				confirmLabel="Delete key"
 				destructive
 				onConfirm={() => keyPendingDelete && handleDeleteKey(keyPendingDelete.id)}

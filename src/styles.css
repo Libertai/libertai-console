@@ -7,12 +7,3 @@
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
-
-/* The shared theme sets --input to the card surface color, so input/select/switch/outline
-   borders and fills vanish against cards. Override with a surface-independent border token. */
-:root {
-	--input: oklch(0.78 0 0);
-}
-.dark {
-	--input: oklch(1 0 0 / 18%);
-}
