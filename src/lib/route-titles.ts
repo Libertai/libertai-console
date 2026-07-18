@@ -26,6 +26,6 @@ export function documentTitle(pathname: string): string {
 	return label && pathname !== "/" ? `${label} — LibertAI console` : "LibertAI console";
 }
 
-export function routeHead(pathname: string): { meta: [{ title: string }] } {
+export function routeHead(pathname: string): { meta: Array<{ title: string }> } {
 	return { meta: [{ title: documentTitle(pathname) }] };
 }

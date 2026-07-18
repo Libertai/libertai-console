@@ -110,7 +110,7 @@ export function Layout({
 								<SidebarMenuItemWithAutoClose
 									to={item.to}
 									tooltip={item.label}
-									isActive={item.to === "/" ? currentPath === "/" : currentPath.startsWith(item.to)}
+									isActive={currentPath === item.to || currentPath.startsWith(item.to + "/")}
 									icon={item.icon}
 									label={item.label}
 									key={item.to}
