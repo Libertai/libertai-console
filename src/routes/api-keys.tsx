@@ -1,19 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import {
-	ChevronDown,
-	ChevronsUpDown,
-	ChevronUp,
-	Copy,
-	Eye,
-	EyeOff,
-	Key,
-	MoreHorizontal,
-	Plus,
-	Settings,
-	Trash,
-	X,
-} from "lucide-react";
+import { Eye, EyeOff, Key, MoreHorizontal, Plus, Settings, Trash } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -31,6 +18,23 @@ import { toast } from "sonner";
 import { ApiKeyForm } from "@/components/ApiKeyForm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { Badge } from "@/components/ui/badge";
+import { ErrorCard } from "@/components/ui/error-card";
+import {
+	SortableTableHead,
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
+import { CopyButton } from "@/components/ui/copy-button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import dayjs from "dayjs";
 
 type CodeLang = "curl" | "python" | "typescript";
@@ -164,10 +168,9 @@ function ApiKeys() {
 	const [showEditModal, setShowEditModal] = useState(false);
 	const [newGeneratedKey, setNewGeneratedKey] = useState<string | null>(null);
 	const [showKey, setShowKey] = useState(false);
-	const [showCopiedTooltip, setShowCopiedTooltip] = useState(false);
 	const [selectedModel, setSelectedModel] = useState<string | null>(null);
 	const [activeLang, setActiveLang] = useState<CodeLang>("curl");
-	const [copiedTool, setCopiedTool] = useState<string | null>(null);
+	const [keyPendingDelete, setKeyPendingDelete] = useState<ApiKey | null>(null);
 
 	// Fetch available text models from Aleph
 	const { data: models, isLoading: isLoadingModels } = useAlephModels("text");
@@ -187,7 +190,7 @@ function ApiKeys() {
 	const { isAuthenticated } = useRequireAuth();
 
 	// Use API keys query hook
-	const { apiKeys, isLoading, createApiKey, updateApiKey, deleteApiKey } = useApiKeys();
+	const { apiKeys, isLoading, isError, refetch, createApiKey, updateApiKey, deleteApiKey } = useApiKeys();
 
 	// Rolling 30-day usage stats
 	const endDate = dayjs().format("YYYY-MM-DD");
@@ -248,16 +251,18 @@ function ApiKeys() {
 		}
 	};
 
-	const handleCopyKey = () => {
-		if (newGeneratedKey) {
-			navigator.clipboard.writeText(newGeneratedKey);
-			toast.success("API key copied to clipboard");
-		}
-	};
-
 	const handleDoneWithKey = () => {
 		setNewGeneratedKey(null);
 		setShowNewKeyModal(false);
+	};
+
+	// Closing the modal (ESC/overlay/Done) after a key was generated must also clear the one-time secret.
+	const handleNewKeyModalOpenChange = (open: boolean) => {
+		setShowNewKeyModal(open);
+		if (!open) {
+			setNewGeneratedKey(null);
+			setShowKey(false);
+		}
 	};
 
 	const handleDeleteKey = async (keyId: string) => {
@@ -291,113 +296,113 @@ function ApiKeys() {
 		}
 	};
 
-	const renderSortableHeader = (column: SortColumn, label: string) => {
-		const active = sort.column === column;
-		const Icon = !active ? ChevronsUpDown : sort.direction === "asc" ? ChevronUp : ChevronDown;
-		return (
-			<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">
-				<button
-					type="button"
-					onClick={() => handleSort(column)}
-					className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
-					aria-label={`Sort by ${label}`}
-				>
-					{label}
-					<Icon className={`h-3.5 w-3.5 ${active ? "text-foreground" : "opacity-40"}`} />
-				</button>
-			</th>
-		);
-	};
-
 	return (
 		<div className="container mx-auto px-4 py-8">
 			<div className="flex flex-col space-y-8">
-				<div className="flex justify-between items-center">
-					<div>
-						<h1 className="text-3xl font-bold">API Keys</h1>
-						<p className="text-muted-foreground mt-1">Manage your API keys for LLM inference</p>
-					</div>
-					<Button onClick={() => setShowNewKeyModal(true)}>
-						<Plus className="h-4 w-4 mr-2" />
-						Create API Key
-					</Button>
-				</div>
+				<PageHeader
+					title="API keys"
+					description="Manage your API keys for LLM inference"
+					action={
+						<Button onClick={() => setShowNewKeyModal(true)}>
+							<Plus className="h-4 w-4 mr-2" />
+							Create API key
+						</Button>
+					}
+				/>
 
-				{/* API Keys List */}
-				<div className="bg-card/50 backdrop-blur-sm rounded-xl border border-border overflow-hidden">
-					<div className="overflow-x-auto">
-						<table className="w-full">
-							<thead>
-								<tr className="border-b border-border">
-									{renderSortableHeader("name", "Name")}
-									<th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Prefix</th>
-									{renderSortableHeader("created", "Created")}
-									{renderSortableHeader("limit", "Limit")}
-									{renderSortableHeader("usage", "30d Usage")}
-									{renderSortableHeader("status", "Status")}
-									<th className="px-6 py-4 text-right text-sm font-medium text-muted-foreground">Actions</th>
-								</tr>
-							</thead>
-							<tbody>
+				{isError ? (
+					<ErrorCard message="Couldn't load your API keys." onRetry={refetch} />
+				) : (
+					<Card className="p-0 overflow-hidden">
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<SortableTableHead
+										label="Name"
+										active={sort.column === "name"}
+										direction={sort.direction}
+										onSort={() => handleSort("name")}
+									/>
+									<TableHead>Prefix</TableHead>
+									<SortableTableHead
+										label="Created"
+										active={sort.column === "created"}
+										direction={sort.direction}
+										onSort={() => handleSort("created")}
+									/>
+									<SortableTableHead
+										label="Limit"
+										active={sort.column === "limit"}
+										direction={sort.direction}
+										onSort={() => handleSort("limit")}
+									/>
+									<SortableTableHead
+										label="Usage (30d)"
+										active={sort.column === "usage"}
+										direction={sort.direction}
+										onSort={() => handleSort("usage")}
+									/>
+									<SortableTableHead
+										label="Status"
+										active={sort.column === "status"}
+										direction={sort.direction}
+										onSort={() => handleSort("status")}
+									/>
+									<TableHead className="text-right">Actions</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
 								{apiKeys.length === 0 && !isLoading ? (
-									<tr className="border-b border-border/50">
-										<td colSpan={7} className="px-6 py-8 text-center text-muted-foreground">
+									<TableRow>
+										<TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
 											No API keys found. Create one to get started.
-										</td>
-									</tr>
+										</TableCell>
+									</TableRow>
 								) : isLoading ? (
 									<>
-										<tr className="border-b border-border/50">
-											<td colSpan={7} className="px-6 py-2">
+										<TableRow>
+											<TableCell colSpan={7} className="py-2">
 												<Skeleton className="h-10 w-full my-1" />
-											</td>
-										</tr>
-										<tr className="border-b border-border/50">
-											<td colSpan={7} className="px-6 py-2">
+											</TableCell>
+										</TableRow>
+										<TableRow>
+											<TableCell colSpan={7} className="py-2">
 												<Skeleton className="h-10 w-full my-1" />
-											</td>
-										</tr>
-										<tr className="border-b border-border/50">
-											<td colSpan={7} className="px-6 py-2">
+											</TableCell>
+										</TableRow>
+										<TableRow>
+											<TableCell colSpan={7} className="py-2">
 												<Skeleton className="h-10 w-full my-1" />
-											</td>
-										</tr>
+											</TableCell>
+										</TableRow>
 									</>
 								) : (
 									sortedApiKeys.map((key) => (
-										<tr key={key.id} className="border-b border-border/50 hover:bg-card/70">
-											<td className="px-6 py-4 text-sm font-medium">{key.name}</td>
-											<td className="px-6 py-4 text-sm font-mono">{key.key}</td>
-											<td className="px-6 py-4 text-sm text-muted-foreground">
+										<TableRow key={key.id}>
+											<TableCell className="font-medium">{key.name}</TableCell>
+											<TableCell className="font-mono">{key.key}</TableCell>
+											<TableCell className="text-muted-foreground">
 												{dayjs(key.created_at).format("YYYY-MM-DD")}
-											</td>
-											<td className="px-6 py-4 text-sm text-muted-foreground">
+											</TableCell>
+											<TableCell className="text-muted-foreground">
 												{key.monthly_limit ? `$${key.monthly_limit}` : "None"}
-											</td>
-											<td className="px-6 py-4 text-sm text-muted-foreground">
+											</TableCell>
+											<TableCell className="text-muted-foreground">
 												{isLoadingUsage ? (
 													<Skeleton className="h-4 w-12" />
 												) : (
 													`$${(usageByName.get(key.name) ?? 0).toFixed(2)}`
 												)}
-											</td>
-											<td className="px-6 py-4 text-sm">
-												<span
-													className={`px-2 py-1 rounded-full text-xs font-medium
-                          ${
-														key.is_active
-															? "dark:bg-emerald-900/30 bg-emerald-900/5 text-emerald-400"
-															: "bg-red-900/30 text-red-400"
-													}
-                        `}
-												>
+											</TableCell>
+											<TableCell>
+												<Badge variant={key.is_active ? "success" : "destructive"}>
 													{key.is_active ? "Active" : "Disabled"}
-												</span>
-											</td>
-											<td className="px-6 py-4 text-right">
+												</Badge>
+											</TableCell>
+											<TableCell className="text-right">
 												<DropdownMenu>
 													<DropdownMenuTrigger asChild>
-														<Button variant="ghost" size="icon" className="h-8 w-8">
+														<Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Key actions">
 															<MoreHorizontal className="h-4 w-4" />
 														</Button>
 													</DropdownMenuTrigger>
@@ -408,7 +413,7 @@ function ApiKeys() {
 														</DropdownMenuItem>
 														<DropdownMenuSeparator />
 														<DropdownMenuItem
-															onClick={() => handleDeleteKey(key.id)}
+															onClick={() => setKeyPendingDelete(key)}
 															className="cursor-pointer text-destructive"
 														>
 															<Trash className="h-4 w-4 mr-2" />
@@ -416,27 +421,22 @@ function ApiKeys() {
 														</DropdownMenuItem>
 													</DropdownMenuContent>
 												</DropdownMenu>
-											</td>
-										</tr>
+											</TableCell>
+										</TableRow>
 									))
 								)}
-							</tbody>
-						</table>
-					</div>
-				</div>
+							</TableBody>
+						</Table>
+					</Card>
+				)}
 
-				<div className="p-6 bg-card/50 backdrop-blur-sm rounded-xl border border-border">
-					<div className="flex items-center gap-3 mb-4">
-						<Key className="h-5 w-5 text-primary" />
-						<h2 className="text-xl font-semibold">API Usage Instructions</h2>
-					</div>
+				<Card>
+					<CardHeader title="API usage instructions" icon={<Key className="h-5 w-5 text-primary" />} />
 					<div className="space-y-4 text-card-foreground">
 						<p>To use LibertAI's LLM inference API, make requests using your API key:</p>
 
 						<div className="space-y-2">
-							<label htmlFor="model-select" className="block text-sm font-medium text-muted-foreground">
-								Model
-							</label>
+							<Label htmlFor="model-select">Model</Label>
 							{isLoadingModels ? (
 								<Skeleton className="h-9 w-full max-w-xs" />
 							) : (
@@ -474,23 +474,9 @@ function ApiKeys() {
 									<pre id="code-example" className="text-sm font-mono overflow-x-auto whitespace-pre-wrap">
 										{buildCodeSnippet(activeLang, selectedModel)}
 									</pre>
-									<Button
-										variant="outline"
-										size="icon"
-										className="absolute top-2 right-2"
-										onClick={() => {
-											navigator.clipboard.writeText(buildCodeSnippet(activeLang, selectedModel));
-											setShowCopiedTooltip(true);
-											setTimeout(() => setShowCopiedTooltip(false), 1000);
-										}}
-									>
-										<Copy className="h-4 w-4" />
-									</Button>
-									{showCopiedTooltip && (
-										<div className="absolute top-2 right-12 bg-primary text-primary-foreground px-2 py-1 rounded text-xs">
-											Copied!
-										</div>
-									)}
+									<div className="absolute top-2 right-2">
+										<CopyButton value={buildCodeSnippet(activeLang, selectedModel)} label="Copy code example" />
+									</div>
 								</>
 							) : (
 								<Skeleton className="h-32 w-full" />
@@ -505,13 +491,10 @@ function ApiKeys() {
 							.
 						</p>
 					</div>
-				</div>
+				</Card>
 
-				<div className="p-6 bg-card/50 backdrop-blur-sm rounded-xl border border-border">
-					<div className="flex items-center gap-3 mb-2">
-						<Settings className="h-5 w-5 text-primary" />
-						<h2 className="text-xl font-semibold">Use with your tools</h2>
-					</div>
+				<Card>
+					<CardHeader title="Use with your tools" icon={<Settings className="h-5 w-5 text-primary" />} />
 					<p className="text-sm text-muted-foreground mb-4">
 						Drop LibertAI into popular coding agents and IDEs. Snippets update with the selected model above.
 					</p>
@@ -530,23 +513,9 @@ function ApiKeys() {
 												<pre className="text-xs font-mono overflow-x-auto whitespace-pre-wrap bg-background/60 p-3 rounded-md border border-border/50 pr-10">
 													{snippet}
 												</pre>
-												<Button
-													variant="outline"
-													size="icon"
-													className="absolute top-2 right-2 h-7 w-7"
-													onClick={() => {
-														navigator.clipboard.writeText(snippet);
-														setCopiedTool(tool.name);
-														setTimeout(() => setCopiedTool((current) => (current === tool.name ? null : current)), 1000);
-													}}
-												>
-													<Copy className="h-3.5 w-3.5" />
-												</Button>
-												{copiedTool === tool.name && (
-													<div className="absolute top-2 right-11 bg-primary text-primary-foreground px-2 py-0.5 rounded text-xs">
-														Copied!
-													</div>
-												)}
+												<div className="absolute top-2 right-2">
+													<CopyButton value={snippet} label={`Copy ${tool.name} snippet`} />
+												</div>
 											</>
 										) : (
 											<Skeleton className="h-24 w-full" />
@@ -556,77 +525,82 @@ function ApiKeys() {
 							);
 						})}
 					</div>
-				</div>
+				</Card>
 			</div>
 
-			{/* Create New API Key Modal */}
-			{showNewKeyModal && (
-				<div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-					<div className="bg-card rounded-xl border border-border p-6 max-w-md w-full">
-						{!newGeneratedKey ? (
-							<>
-								<div className="flex items-center gap-3 mb-6">
+			{/* Create New API Key dialog */}
+			<Dialog open={showNewKeyModal} onOpenChange={handleNewKeyModalOpenChange}>
+				<DialogContent className="sm:max-w-md">
+					{!newGeneratedKey ? (
+						<>
+							<DialogHeader>
+								<DialogTitle className="flex items-center gap-3">
 									<Key className="h-5 w-5 text-primary" />
-									<h2 className="text-xl font-semibold">Create New API Key</h2>
-								</div>
+									Create API key
+								</DialogTitle>
+							</DialogHeader>
 
-								<ApiKeyForm
-									mode="create"
-									onSubmit={handleCreateKey}
-									onCancel={() => setShowNewKeyModal(false)}
-									isLoading={isLoading}
-								/>
-							</>
-						) : (
-							<>
-								<div className="flex items-center gap-3 mb-6">
+							<ApiKeyForm
+								mode="create"
+								onSubmit={handleCreateKey}
+								onCancel={() => setShowNewKeyModal(false)}
+								isLoading={isLoading}
+							/>
+						</>
+					) : (
+						<>
+							<DialogHeader>
+								<DialogTitle className="flex items-center gap-3">
 									<Key className="h-5 w-5 text-primary" />
-									<h2 className="text-xl font-semibold">API Key Created</h2>
+									API key created
+								</DialogTitle>
+							</DialogHeader>
+
+							<div className="space-y-4">
+								<p className="text-sm text-muted-foreground">
+									Your new API key has been created. Make sure to copy it now as you won't be able to see it again.
+								</p>
+
+								<div className="flex items-center p-3 bg-secondary border border-border rounded-md">
+									<pre className="text-sm font-mono overflow-x-auto flex-1">
+										{showKey ? newGeneratedKey : "••••••••••••••••••••••••••••••••••••••••"}
+									</pre>
+									<Button
+										variant="ghost"
+										size="icon"
+										onClick={() => setShowKey(!showKey)}
+										className="ml-2"
+										aria-label="Show key"
+									>
+										{showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+									</Button>
+									<CopyButton
+										value={newGeneratedKey}
+										label="Copy API key"
+										onCopied={() => toast.success("API key copied to clipboard")}
+									/>
 								</div>
-
-								<div className="space-y-4">
-									<p className="text-sm text-muted-foreground">
-										Your new API key has been created. Make sure to copy it now as you won't be able to see it again.
-									</p>
-
-									<div className="relative">
-										<div className="flex items-center p-3 bg-secondary border border-border rounded-md">
-											<pre className="text-sm font-mono overflow-x-auto flex-1">
-												{showKey ? newGeneratedKey : "••••••••••••••••••••••••••••••••••••••••"}
-											</pre>
-											<Button variant="ghost" size="icon" onClick={() => setShowKey(!showKey)} className="ml-2">
-												{showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-											</Button>
-											<Button variant="ghost" size="icon" onClick={handleCopyKey} className="ml-2">
-												<Copy className="h-4 w-4" />
-											</Button>
-										</div>
-									</div>
-								</div>
-
-								<div className="flex justify-end mt-6">
-									<Button onClick={handleDoneWithKey}>Done</Button>
-								</div>
-							</>
-						)}
-					</div>
-				</div>
-			)}
-
-			{/* Edit API Key Modal */}
-			{showEditModal && currentKey && (
-				<div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-					<div className="bg-card rounded-xl border border-border p-6 max-w-md w-full">
-						<div className="flex justify-between items-center mb-6">
-							<div className="flex items-center gap-3">
-								<Settings className="h-5 w-5 text-primary" />
-								<h2 className="text-xl font-semibold">Edit API Key</h2>
 							</div>
-							<Button variant="ghost" size="icon" onClick={() => setShowEditModal(false)}>
-								<X className="h-4 w-4" />
-							</Button>
-						</div>
 
+							<DialogFooter>
+								<Button onClick={handleDoneWithKey}>Done</Button>
+							</DialogFooter>
+						</>
+					)}
+				</DialogContent>
+			</Dialog>
+
+			{/* Edit API Key dialog */}
+			<Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle className="flex items-center gap-3">
+							<Settings className="h-5 w-5 text-primary" />
+							Edit API key
+						</DialogTitle>
+					</DialogHeader>
+
+					{currentKey && (
 						<ApiKeyForm
 							mode="edit"
 							onSubmit={handleUpdateKey}
@@ -634,9 +608,19 @@ function ApiKeys() {
 							initialData={currentKey}
 							isLoading={isLoading}
 						/>
-					</div>
-				</div>
-			)}
+					)}
+				</DialogContent>
+			</Dialog>
+
+			<ConfirmDialog
+				open={!!keyPendingDelete}
+				onOpenChange={(open) => !open && setKeyPendingDelete(null)}
+				title="Delete API key"
+				description={`"${keyPendingDelete?.name}" will stop working immediately. This can't be undone.`}
+				confirmLabel="Delete key"
+				destructive
+				onConfirm={() => keyPendingDelete && handleDeleteKey(keyPendingDelete.id)}
+			/>
 		</div>
 	);
 }

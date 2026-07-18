@@ -1,6 +1,7 @@
 import { ApiKey } from "@libertai/inference-sdk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -80,9 +81,7 @@ export function ApiKeyForm({ mode, onSubmit, onCancel, initialData, isLoading = 
 	return (
 		<div className="space-y-4">
 			<div className="space-y-2">
-				<label htmlFor="key-name" className="block text-sm font-medium text-muted-foreground">
-					Key Name
-				</label>
+				<Label htmlFor="key-name">Key name</Label>
 				<Input
 					id="key-name"
 					type="text"
@@ -99,9 +98,7 @@ export function ApiKeyForm({ mode, onSubmit, onCancel, initialData, isLoading = 
 			</div>
 
 			<div className="space-y-2">
-				<label htmlFor="monthly-limit" className="block text-sm font-medium text-muted-foreground">
-					Monthly Usage Limit (Optional)
-				</label>
+				<Label htmlFor="monthly-limit">Monthly usage limit (optional)</Label>
 				<Input
 					id="monthly-limit"
 					type="text"
@@ -119,9 +116,7 @@ export function ApiKeyForm({ mode, onSubmit, onCancel, initialData, isLoading = 
 			{isEditMode && (
 				<div className="flex items-center justify-between pt-2">
 					<div className="space-y-0.5">
-						<label htmlFor="key-status" className="text-sm font-medium">
-							Key Status
-						</label>
+						<Label htmlFor="key-status">Key status</Label>
 						<p className="text-xs text-muted-foreground">Enable or disable this API key</p>
 					</div>
 					<Switch id="key-status" checked={isActive} onCheckedChange={setIsActive} />
@@ -133,7 +128,7 @@ export function ApiKeyForm({ mode, onSubmit, onCancel, initialData, isLoading = 
 					Cancel
 				</Button>
 				<Button onClick={handleSubmit} disabled={isLoading}>
-					{isLoading ? (isEditMode ? "Saving..." : "Creating...") : isEditMode ? "Save Changes" : "Create Key"}
+					{isLoading ? (isEditMode ? "Saving..." : "Creating...") : isEditMode ? "Save changes" : "Create Key"}
 				</Button>
 			</div>
 		</div>
