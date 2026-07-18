@@ -203,7 +203,7 @@ function ApiKeys() {
 	// Rolling 30-day usage stats
 	const endDate = dayjs().format("YYYY-MM-DD");
 	const startDate = dayjs().subtract(30, "day").format("YYYY-MM-DD");
-	const { apiKeyUsage, isLoading: isLoadingUsage } = useUsageStats(startDate, endDate);
+	const { apiKeyUsage, isLoading: isLoadingUsage, isError: isUsageError } = useUsageStats(startDate, endDate);
 	const usageByName = useMemo(() => new Map(apiKeyUsage.map((u) => [u.name, u.cost])), [apiKeyUsage]);
 
 	// Table sorting — defaults to status with active keys first.
@@ -401,6 +401,8 @@ function ApiKeys() {
 											<TableCell className="text-muted-foreground">
 												{isLoadingUsage ? (
 													<Skeleton className="h-4 w-12" />
+												) : isUsageError ? (
+													<span title="Couldn't load usage">—</span>
 												) : (
 													`$${(usageByName.get(key.name) ?? 0).toFixed(2)}`
 												)}
@@ -505,7 +507,12 @@ function ApiKeys() {
 
 						<p className="text-sm">
 							For more detailed instructions and example code in various programming languages, see our{" "}
-							<a href="https://docs.libertai.io/apis/text" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+							<a
+								href="https://docs.libertai.io/apis/text"
+								className="text-primary hover:underline"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
 								API documentation
 							</a>
 							.
@@ -522,7 +529,10 @@ function ApiKeys() {
 						{TOOL_INTEGRATIONS.map((tool) => {
 							const snippet = selectedModel ? tool.snippet(selectedModel) : null;
 							return (
-								<div key={tool.name} className="bg-secondary/50 p-4 rounded-md border border-border/50 flex flex-col gap-3">
+								<div
+									key={tool.name}
+									className="bg-secondary/50 p-4 rounded-md border border-border/50 flex flex-col gap-3"
+								>
 									<div>
 										<h3 className="font-semibold">{tool.name}</h3>
 										<p className="text-xs text-muted-foreground mt-1">{tool.description}</p>
