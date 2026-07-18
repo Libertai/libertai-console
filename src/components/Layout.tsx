@@ -3,7 +3,6 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { LibertaiLogo } from "@libertai/branding";
 import ConnectButton from "./ConnectButton";
 import AccountFooter from "./AccountFooter";
-import { routeLabel } from "@/lib/route-titles";
 import {
 	Sidebar,
 	SidebarContent,
@@ -127,10 +126,7 @@ export function Layout({
 				<SidebarInset className="w-full">
 					{/* Desktop Header */}
 					<header className="sticky top-0 z-10 h-16 border-b border-border px-4 hidden md:flex items-center justify-between bg-background">
-						<div className="flex items-center gap-3">
-							<SidebarTrigger />
-							<h1 className="text-sm font-medium text-foreground">{routeLabel(currentPath)}</h1>
-						</div>
+						<SidebarTrigger />
 						<ConnectButton />
 					</header>
 
