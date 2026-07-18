@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
+import { Button } from "@libertai/ui/button";
 import {
 	ArrowDownToLine,
 	ArrowUpFromLine,
@@ -15,17 +15,17 @@ import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useUsageStats } from "@/hooks/data/use-stats";
 import { useSubscription, AllowanceBar } from "@libertai/auth";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Calendar } from "@libertai/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@libertai/ui/popover";
+import { Skeleton } from "@libertai/ui/skeleton";
 import { formatCompactNumber } from "@/lib/utils";
 import dayjs from "dayjs";
-import { Card, CardHeader } from "@/components/ui/card";
-import { StatCard } from "@/components/ui/stat-card";
-import { PageHeader } from "@/components/ui/page-header";
-import { ErrorCard } from "@/components/ui/error-card";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
-import { SortableTableHead, Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardHeader } from "@libertai/ui/card";
+import { StatCard } from "@libertai/ui/stat-card";
+import { PageHeader } from "@libertai/ui/page-header";
+import { ErrorCard } from "@libertai/ui/error-card";
+import { PageSkeleton } from "@libertai/ui/page-skeleton";
+import { SortableTableHead, Table, TableBody, TableCell, TableHeader, TableRow } from "@libertai/ui/table";
 import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/usage")({

@@ -1,8 +1,8 @@
 import { ApiKey } from "@libertai/inference-sdk";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@libertai/ui/button";
+import { Input } from "@libertai/ui/input";
+import { Label } from "@libertai/ui/label";
+import { Switch } from "@libertai/ui/switch";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
