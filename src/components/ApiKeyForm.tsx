@@ -128,7 +128,7 @@ export function ApiKeyForm({ mode, onSubmit, onCancel, initialData, isLoading = 
 					Cancel
 				</Button>
 				<Button onClick={handleSubmit} disabled={isLoading}>
-					{isLoading ? (isEditMode ? "Saving..." : "Creating...") : isEditMode ? "Save changes" : "Create Key"}
+					{isLoading ? (isEditMode ? "Saving..." : "Creating...") : isEditMode ? "Save changes" : "Create key"}
 				</Button>
 			</div>
 		</div>

@@ -28,7 +28,7 @@ function LandingPage() {
 		<div className="mx-auto max-w-5xl px-4 py-16 lg:py-24">
 			<div className="grid gap-12 lg:grid-cols-2 lg:items-center">
 				<div className="space-y-6">
-					<LibertaiLogo className="h-10 w-10" />
+					<LibertaiLogo className="h-8 w-auto text-foreground" />
 					<h1 className="text-4xl font-bold tracking-tight">LibertAI console</h1>
 					<p className="text-lg text-muted-foreground">
 						API keys, usage, and billing for LibertAI's confidential, OpenAI-compatible inference API.

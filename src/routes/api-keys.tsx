@@ -264,8 +264,7 @@ function ApiKeys() {
 	};
 
 	const handleDoneWithKey = () => {
-		setNewGeneratedKey(null);
-		setShowNewKeyModal(false);
+		handleNewKeyModalOpenChange(false);
 	};
 
 	// Closing the modal (ESC/overlay/Done) after a key was generated must also clear the one-time secret.
@@ -506,8 +505,8 @@ function ApiKeys() {
 
 						<p className="text-sm">
 							For more detailed instructions and example code in various programming languages, see our{" "}
-							<a href="https://docs.libertai.io/apis/text" className="text-primary hover:underline" target="_blank">
-								API Documentation
+							<a href="https://docs.libertai.io/apis/text" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+								API documentation
 							</a>
 							.
 						</p>
