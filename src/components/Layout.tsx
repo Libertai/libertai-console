@@ -24,14 +24,12 @@ function SidebarMenuItemWithAutoClose({
 	isActive,
 	icon,
 	label,
-	badge,
 }: Readonly<{
 	to: string;
 	tooltip: string;
 	isActive: boolean;
 	icon: ReactNode;
 	label: string;
-	badge?: ReactNode;
 }>) {
 	const { isMobile, setOpenMobile } = useSidebar();
 
@@ -46,9 +44,7 @@ function SidebarMenuItemWithAutoClose({
 			<Link to={to} onClick={handleClick} disabled={isActive}>
 				<SidebarMenuButton tooltip={tooltip} isActive={isActive}>
 					{icon}
-					<span>
-						{label} {badge ? <span className="ml-2">{badge}</span> : null}
-					</span>
+					<span>{label}</span>
 				</SidebarMenuButton>
 			</Link>
 		</SidebarMenuItem>
@@ -59,7 +55,6 @@ type SidebarItem = {
 	to: string;
 	icon: ReactNode;
 	label: string;
-	badge?: ReactNode;
 };
 
 export function Layout({
@@ -114,10 +109,9 @@ export function Layout({
 								<SidebarMenuItemWithAutoClose
 									to={item.to}
 									tooltip={item.label}
-									isActive={currentPath === item.to}
+									isActive={item.to === "/" ? currentPath === "/" : currentPath.startsWith(item.to)}
 									icon={item.icon}
 									label={item.label}
-									badge={item.badge}
 									key={item.to}
 								/>
 							))}

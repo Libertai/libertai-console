@@ -1,21 +1,11 @@
 import { createRootRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import Providers from "@/components/Providers";
 import { Layout } from "@/components/Layout";
-import { CreditCard, Image, Key, LayoutDashboard, LineChart, PieChart } from "lucide-react";
+import { CreditCard, Image, Key, LayoutDashboard, LineChart } from "lucide-react";
 
 const developersSidebarItems = [
-	{ to: "/", icon: <LayoutDashboard className="h-4 w-4" />, label: "Home" },
-	{ to: "/dashboard", icon: <PieChart className="h-4 w-4" />, label: "Dashboard" },
-	{
-		to: "/images",
-		icon: <Image className="h-4 w-4" />,
-		label: "Images",
-		badge: (
-			<span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary text-primary-foreground rounded-full ml-auto">
-				NEW
-			</span>
-		),
-	},
+	{ to: "/", icon: <LayoutDashboard className="h-4 w-4" />, label: "Dashboard" },
+	{ to: "/images", icon: <Image className="h-4 w-4" />, label: "Images" },
 	{ to: "/api-keys", icon: <Key className="h-4 w-4" />, label: "API keys" },
 	{ to: "/usage", icon: <LineChart className="h-4 w-4" />, label: "Usage" },
 	{ to: "/billing", icon: <CreditCard className="h-4 w-4" />, label: "Billing" },

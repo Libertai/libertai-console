@@ -44,6 +44,7 @@ export function useStats() {
 		isLoading: statsQuery.isLoading,
 		isError: statsQuery.isError,
 		error: statsQuery.error,
+		refetch: statsQuery.refetch,
 	};
 }
 
