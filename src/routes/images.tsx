@@ -1,17 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
+import { Button } from "@libertai/ui/button";
 import { Download, Globe, Image as ImageIcon, RefreshCw } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
 import { useApiKeys } from "@/hooks/data/use-api-keys";
 import { useAlephModels } from "@/hooks/data/use-models";
 import { toast } from "sonner";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardHeader } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { Skeleton } from "@libertai/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@libertai/ui/select";
+import { Card, CardHeader } from "@libertai/ui/card";
+import { Textarea } from "@libertai/ui/textarea";
+import { Label } from "@libertai/ui/label";
+import { PageSkeleton } from "@libertai/ui/page-skeleton";
 import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/images")({

@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { cliCodeAuthCliCodePost } from "@libertai/inference-sdk/sdk.gen";
 import { useAccountStore, LoginPanel } from "@libertai/auth";
 import { LibertaiLogo } from "@libertai/branding";
-import { Button } from "@/components/ui/button";
+import { Button } from "@libertai/ui/button";
 import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/cli")({

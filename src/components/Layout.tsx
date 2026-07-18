@@ -15,7 +15,7 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 	useSidebar,
-} from "./ui/sidebar";
+} from "@libertai/ui/sidebar";
 
 // Component that wraps menu items to auto-close sidebar on mobile
 function SidebarMenuItemWithAutoClose({

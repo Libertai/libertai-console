@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
+import { Button } from "@libertai/ui/button";
 import { Eye, EyeOff, Key, MoreHorizontal, Plus, Settings, Trash } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useEffect, useMemo, useState } from "react";
@@ -9,20 +9,20 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@libertai/ui/dropdown-menu";
 import { ApiKey, ApiKeyCreate } from "@libertai/inference-sdk";
 import { useApiKeys } from "@/hooks/data/use-api-keys";
 import { useUsageStats } from "@/hooks/data/use-stats";
 import { useAlephModels } from "@/hooks/data/use-models";
 import { toast } from "sonner";
 import { ApiKeyForm } from "@/components/ApiKeyForm";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardHeader } from "@/components/ui/card";
-import { PageHeader } from "@/components/ui/page-header";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
-import { Badge } from "@/components/ui/badge";
-import { ErrorCard } from "@/components/ui/error-card";
+import { Skeleton } from "@libertai/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@libertai/ui/select";
+import { Card, CardHeader } from "@libertai/ui/card";
+import { PageHeader } from "@libertai/ui/page-header";
+import { PageSkeleton } from "@libertai/ui/page-skeleton";
+import { Badge } from "@libertai/ui/badge";
+import { ErrorCard } from "@libertai/ui/error-card";
 import {
 	SortableTableHead,
 	Table,
@@ -31,11 +31,11 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table";
-import { CopyButton } from "@/components/ui/copy-button";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+} from "@libertai/ui/table";
+import { CopyButton } from "@libertai/ui/copy-button";
+import { ConfirmDialog } from "@libertai/ui/confirm-dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@libertai/ui/dialog";
+import { Label } from "@libertai/ui/label";
 import dayjs from "dayjs";
 import { routeHead } from "@/lib/route-titles";
 

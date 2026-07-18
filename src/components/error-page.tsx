@@ -1,7 +1,7 @@
 // Router-level error boundary: rendered by defaultErrorComponent when a route throws during
 // render/load. Must not rely on router context (useNavigate/useRouter etc.) — that context may be
 // exactly what's broken. A full page reload is the one recovery path guaranteed to work.
-import { Button } from "@/components/ui/button.tsx";
+import { Button } from "@libertai/ui/button";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
 export const ErrorPage = ({ error }: ErrorComponentProps) => {

@@ -24,6 +24,7 @@ export default defineConfig({
 			"@libertai/auth": path.resolve(__dirname, "./src/shared/auth"),
 			"@libertai/branding": path.resolve(__dirname, "./src/shared/branding"),
 			"@libertai/inference-sdk": path.resolve(__dirname, "./src/shared/inference-sdk"),
+			"@libertai/ui": path.resolve(__dirname, "./src/shared/ui"),
 		},
 	},
 });

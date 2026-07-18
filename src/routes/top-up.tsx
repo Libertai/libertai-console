@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { TopUpFlow, PaymentConfigProvider } from "@libertai/auth";
 import { paymentConfig } from "@/config/payment";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { PageSkeleton } from "@libertai/ui/page-skeleton";
 import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/top-up")({

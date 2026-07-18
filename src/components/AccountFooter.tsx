@@ -1,7 +1,7 @@
 import { Settings } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { AccountMenu } from "@libertai/auth";
-import { useSidebar } from "@/components/ui/sidebar";
+import { useSidebar } from "@libertai/ui/sidebar";
 
 /**
  * Console's sidebar-footer account menu. Thin adapter over the shared <AccountMenu> (same component the
