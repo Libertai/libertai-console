@@ -24,6 +24,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/stat-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { ErrorCard } from "@/components/ui/error-card";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { SortableTableHead, Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 
 export const Route = createFileRoute("/usage")({
@@ -419,8 +420,12 @@ function AdvancedView() {
 const SHOW_PLAN_OVERVIEW = true;
 
 function Usage() {
-	const { isAuthenticated } = useRequireAuth();
+	const { isAuthenticated, isPending } = useRequireAuth();
 	const [view, setView] = useState<"overview" | "advanced">(SHOW_PLAN_OVERVIEW ? "overview" : "advanced");
+
+	if (isPending) {
+		return <PageSkeleton />;
+	}
 
 	if (!isAuthenticated) {
 		return null;

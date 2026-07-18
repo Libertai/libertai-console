@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ErrorCard } from "@/components/ui/error-card";
 import {
@@ -173,7 +174,12 @@ function ApiKeys() {
 	const [keyPendingDelete, setKeyPendingDelete] = useState<ApiKey | null>(null);
 
 	// Fetch available text models from Aleph
-	const { data: models, isLoading: isLoadingModels } = useAlephModels("text");
+	const {
+		data: models,
+		isLoading: isLoadingModels,
+		isError: isErrorModels,
+		refetch: refetchModels,
+	} = useAlephModels("text");
 
 	// Default to GLM-5.2 when available, else the first available model
 	useEffect(() => {
@@ -187,7 +193,7 @@ function ApiKeys() {
 	const [currentKey, setCurrentKey] = useState<ApiKey | null>(null);
 
 	// Use auth hook to require authentication
-	const { isAuthenticated } = useRequireAuth();
+	const { isAuthenticated, isPending } = useRequireAuth();
 
 	// Use API keys query hook
 	const { apiKeys, isLoading, isError, refetch, createApiKey, updateApiKey, deleteApiKey } = useApiKeys();
@@ -226,6 +232,10 @@ function ApiKeys() {
 			return primary !== 0 ? primary : a.name.localeCompare(b.name);
 		});
 	}, [apiKeys, sort, usageByName]);
+
+	if (isPending) {
+		return <PageSkeleton />;
+	}
 
 	// Return null if not authenticated (redirect is handled by the hook)
 	if (!isAuthenticated) {
@@ -437,7 +447,14 @@ function ApiKeys() {
 
 						<div className="space-y-2">
 							<Label htmlFor="model-select">Model</Label>
-							{isLoadingModels ? (
+							{isErrorModels ? (
+								<div className="flex items-center gap-3">
+									<p className="text-sm text-muted-foreground">Couldn't load models.</p>
+									<Button variant="outline" size="sm" onClick={() => refetchModels()}>
+										Retry
+									</Button>
+								</div>
+							) : isLoadingModels ? (
 								<Skeleton className="h-9 w-full max-w-xs" />
 							) : (
 								<Select value={selectedModel ?? ""} onValueChange={setSelectedModel}>
@@ -478,6 +495,8 @@ function ApiKeys() {
 										<CopyButton value={buildCodeSnippet(activeLang, selectedModel)} label="Copy code example" />
 									</div>
 								</>
+							) : isErrorModels ? (
+								<p className="text-sm text-muted-foreground">Example unavailable until models load.</p>
 							) : (
 								<Skeleton className="h-32 w-full" />
 							)}
@@ -517,6 +536,8 @@ function ApiKeys() {
 													<CopyButton value={snippet} label={`Copy ${tool.name} snippet`} />
 												</div>
 											</>
+										) : isErrorModels ? (
+											<p className="text-sm text-muted-foreground">Snippet unavailable until models load.</p>
 										) : (
 											<Skeleton className="h-24 w-full" />
 										)}

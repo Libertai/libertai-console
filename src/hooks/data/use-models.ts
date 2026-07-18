@@ -31,10 +31,13 @@ const ALEPH_PRICING_URL =
 	"https://api2.aleph.im/api/v0/aggregates/0xe1F7220D201C64871Cefb25320a8a588393eE508.json?keys=LTAI_PRICING";
 
 export function useAlephModels(capability?: Capability) {
-	return useQuery({
+	const query = useQuery({
 		queryKey: ["aleph-pricing"],
 		queryFn: async (): Promise<AlephModel[]> => {
 			const response = await fetch(ALEPH_PRICING_URL);
+			if (!response.ok) {
+				throw new Error(`Aleph pricing request failed with status ${response.status}`);
+			}
 			const data = await response.json();
 			return data.data.LTAI_PRICING.models as AlephModel[];
 		},
@@ -43,4 +46,11 @@ export function useAlephModels(capability?: Capability) {
 			? (models) => models.filter((model) => model.capabilities[capability] !== undefined)
 			: undefined,
 	});
+
+	return {
+		data: query.data,
+		isLoading: query.isLoading,
+		isError: query.isError,
+		refetch: query.refetch,
+	};
 }

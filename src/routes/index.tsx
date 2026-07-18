@@ -9,6 +9,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { ErrorCard } from "@/components/ui/error-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { useCredits } from "@/hooks/data/use-credits";
 import { useStats } from "@/hooks/data/use-stats";
 import { useApiKeys } from "@/hooks/data/use-api-keys";
@@ -259,6 +260,13 @@ function DashboardPage() {
 
 function Index() {
 	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
+	// Store hydration flag: while pending, isAuthenticated is always still false, so rendering
+	// LandingPage here would flash it for a returning authenticated user before the dashboard swaps in.
+	const isPending = useAccountStore((state) => state.isInitialLoad);
+
+	if (isPending) {
+		return <PageSkeleton />;
+	}
 
 	return isAuthenticated ? <DashboardPage /> : <LandingPage />;
 }

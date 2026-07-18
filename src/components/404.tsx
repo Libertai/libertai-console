@@ -7,7 +7,7 @@ export const NotFoundPage = () => {
 			<div className="space-y-6">
 				<div className="space-y-2">
 					<h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-primary">404</h1>
-					<h2 className="text-2xl font-bold tracking-tight">Page Not Found</h2>
+					<h2 className="text-2xl font-bold tracking-tight">Page not found</h2>
 					<p className="text-muted-foreground">
 						We couldn't find the page you're looking for. The page may have been moved or deleted.
 					</p>
