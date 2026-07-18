@@ -47,6 +47,8 @@ const DEFAULT_SORT_DIRECTION: Record<SortColumn, SortDirection> = {
 	status: "desc",
 };
 
+const DEFAULT_EXAMPLE_MODEL = "glm-5.2";
+
 const CODE_LANG_LABELS: Record<CodeLang, string> = {
 	curl: "cURL",
 	python: "Python",
@@ -170,10 +172,11 @@ function ApiKeys() {
 	// Fetch available text models from Aleph
 	const { data: models, isLoading: isLoadingModels } = useAlephModels("text");
 
-	// Default to the first available model
+	// Default to GLM-5.2 when available, else the first available model
 	useEffect(() => {
 		if (models && models.length > 0 && !selectedModel) {
-			setSelectedModel(models[0].id);
+			const preferred = models.find((model) => model.id === DEFAULT_EXAMPLE_MODEL);
+			setSelectedModel((preferred ?? models[0]).id);
 		}
 	}, [models, selectedModel]);
 
