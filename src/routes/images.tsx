@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Download, Image as ImageIcon, RefreshCw } from "lucide-react";
+import { Download, Globe, Image as ImageIcon, RefreshCw } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
 import { useApiKeys } from "@/hooks/data/use-api-keys";
@@ -8,12 +8,27 @@ import { useAlephModels } from "@/hooks/data/use-models";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardHeader } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/images")({
 	component: Images,
 });
 
 type EndpointType = "sdapi" | "openai";
+
+// Human-readable status text for the image generation endpoint; thrown as ImageGenerationError so the catch block can trust it's already user-facing.
+class ImageGenerationError extends Error {}
+
+const messageForStatus = (status: number): string => {
+	if (status === 401 || status === 403) return "That API key isn't authorized. Pick another key.";
+	if (status === 429) return "Rate limit reached. Try again in a moment.";
+	if (status >= 500) return "Image service is unavailable right now. Try again shortly.";
+	return "Something went wrong generating the image. Please try again.";
+};
+
+const NO_IMAGE_MESSAGE = "The service didn't return an image. Try again.";
 
 const DEFAULT_TEMPLATES = {
 	sdapi: {
@@ -124,8 +139,7 @@ function Images() {
 			});
 
 			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}));
-				throw new Error(errorData.detail || errorData.error || `HTTP ${response.status}`);
+				throw new ImageGenerationError(messageForStatus(response.status));
 			}
 
 			const data = await response.json();
@@ -134,21 +148,21 @@ function Images() {
 			let imageB64: string | undefined;
 			if (endpoint === "sdapi") {
 				if (!data.images || !Array.isArray(data.images) || data.images.length === 0) {
-					throw new Error("No image returned from API");
+					throw new ImageGenerationError(NO_IMAGE_MESSAGE);
 				}
 				imageB64 = data.images[0];
 				// Extract seed from response if available
 				setResponseSeed(data.parameters?.seed !== undefined && data.parameters.seed >= 0 ? data.parameters.seed : null);
 			} else {
 				if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
-					throw new Error("No image returned from API");
+					throw new ImageGenerationError(NO_IMAGE_MESSAGE);
 				}
 				imageB64 = data.data[0]?.b64_json;
 				setResponseSeed(null);
 			}
 
 			if (!imageB64) {
-				throw new Error("Invalid image data received");
+				throw new ImageGenerationError(NO_IMAGE_MESSAGE);
 			}
 
 			setGeneratedImage(`data:image/png;base64,${imageB64}`);
@@ -160,9 +174,13 @@ function Images() {
 				toast.error("Invalid JSON", {
 					description: "Please check your JSON syntax",
 				});
+			} else if (error instanceof ImageGenerationError) {
+				toast.error("Failed to generate image", {
+					description: error.message,
+				});
 			} else {
 				toast.error("Failed to generate image", {
-					description: error instanceof Error ? error.message : "Unknown error occurred",
+					description: "Something went wrong generating the image. Please try again.",
 				});
 			}
 		} finally {
@@ -186,7 +204,7 @@ function Images() {
 		<div className="container mx-auto px-4 py-8">
 			<div className="flex flex-col space-y-8">
 				<div>
-					<h1 className="text-3xl font-bold">Image Generation</h1>
+					<h1 className="text-3xl font-bold">Image generation</h1>
 					<p className="text-muted-foreground mt-1">Test the image generation API live from the console</p>
 				</div>
 
@@ -194,22 +212,22 @@ function Images() {
 					{/* Left Column - Configuration */}
 					<div className="space-y-6">
 						{/* Endpoint Selector */}
-						<div className="bg-card/50 backdrop-blur-sm rounded-xl border border-border p-6">
-							<h2 className="text-lg font-semibold mb-4">API Endpoint</h2>
-							<div className="flex gap-3">
+						<Card>
+							<CardHeader title="API endpoint" icon={<Globe className="h-5 w-5 text-primary" />} />
+							<div className="flex gap-1 rounded-lg border border-border bg-card p-1">
 								<Button
-									variant={endpoint === "sdapi" ? "default" : "outline"}
+									variant={endpoint === "sdapi" ? "default" : "ghost"}
 									onClick={() => setEndpoint("sdapi")}
 									className="flex-1"
 								>
 									Stable Diffusion (sdapi)
 								</Button>
 								<Button
-									variant={endpoint === "openai" ? "default" : "outline"}
+									variant={endpoint === "openai" ? "default" : "ghost"}
 									onClick={() => setEndpoint("openai")}
 									className="flex-1"
 								>
-									OpenAI Compatible
+									OpenAI-compatible
 								</Button>
 							</div>
 							<p className="text-xs text-muted-foreground mt-3">
@@ -217,11 +235,13 @@ function Images() {
 									? "POST https://api.libertai.io/sdapi/v1/txt2img"
 									: "POST https://api.libertai.io/v1/images/generations"}
 							</p>
-						</div>
+						</Card>
 
 						{/* API Key Selector */}
-						<div className="bg-card/50 backdrop-blur-sm rounded-xl border border-border p-6">
-							<h2 className="text-lg font-semibold mb-4">API Key</h2>
+						<Card>
+							<Label htmlFor="api-key-select" className="mb-4">
+								API key
+							</Label>
 							{isLoadingKeys ? (
 								<Skeleton className="h-10 w-full" />
 							) : apiKeys.length === 0 ? (
@@ -236,7 +256,7 @@ function Images() {
 								</div>
 							) : (
 								<Select value={selectedKeyId || ""} onValueChange={setSelectedKeyId}>
-									<SelectTrigger>
+									<SelectTrigger id="api-key-select">
 										<SelectValue placeholder="Select an API key" />
 									</SelectTrigger>
 									<SelectContent>
@@ -248,17 +268,19 @@ function Images() {
 									</SelectContent>
 								</Select>
 							)}
-						</div>
+						</Card>
 
 						{/* Model Selector */}
-						<div className="bg-card/50 backdrop-blur-sm rounded-xl border border-border p-6">
-							<h2 className="text-lg font-semibold mb-4">Model</h2>
+						<Card>
+							<Label htmlFor="model-select" className="mb-4">
+								Model
+							</Label>
 							{isLoadingModels ? (
 								<Skeleton className="h-10 w-full" />
 							) : models && models.length > 0 ? (
 								<>
 									<Select value={selectedModel || ""} onValueChange={setSelectedModel}>
-										<SelectTrigger>
+										<SelectTrigger id="model-select">
 											<SelectValue placeholder="Select a model" />
 										</SelectTrigger>
 										<SelectContent>
@@ -280,15 +302,18 @@ function Images() {
 							) : (
 								<p className="text-sm text-muted-foreground">No image models available</p>
 							)}
-						</div>
+						</Card>
 
 						{/* JSON Editor */}
-						<div className="bg-card/50 backdrop-blur-sm rounded-xl border border-border p-6">
-							<h2 className="text-lg font-semibold mb-4">Request Body (JSON)</h2>
-							<textarea
+						<Card>
+							<Label htmlFor="json-body" className="mb-4">
+								Request body (JSON)
+							</Label>
+							<Textarea
+								id="json-body"
 								value={jsonBody}
 								onChange={(e) => setJsonBody(e.target.value)}
-								className="w-full p-3 font-mono text-sm bg-background border border-border rounded-md"
+								className="font-mono text-sm"
 								rows={14}
 								placeholder="Enter JSON request body..."
 							/>
@@ -304,7 +329,7 @@ function Images() {
 								</a>{" "}
 								for parameter details.
 							</p>
-						</div>
+						</Card>
 
 						{/* Generate Button */}
 						<Button
@@ -313,14 +338,14 @@ function Images() {
 							className="w-full"
 							size="lg"
 						>
-							{isGenerating ? "Generating..." : "Generate Image"}
+							{isGenerating ? "Generating..." : "Generate image"}
 						</Button>
 					</div>
 
 					{/* Right Column - Image Display */}
 					<div className="space-y-6">
-						<div className="bg-card/50 backdrop-blur-sm rounded-xl border border-border p-6">
-							<h2 className="text-lg font-semibold mb-4">Generated Image</h2>
+						<Card>
+							<CardHeader title="Generated image" icon={<ImageIcon className="h-5 w-5 text-primary" />} />
 
 							{isGenerating ? (
 								<div className="space-y-4">
@@ -349,11 +374,11 @@ function Images() {
 									<div className="text-center">
 										<ImageIcon className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
 										<p className="text-muted-foreground">Generated images will appear here</p>
-										<p className="text-sm text-muted-foreground mt-1">Configure settings and click Generate</p>
+										<p className="text-sm text-muted-foreground mt-1">Configure the request and click Generate image</p>
 									</div>
 								</div>
 							)}
-						</div>
+						</Card>
 					</div>
 				</div>
 			</div>
