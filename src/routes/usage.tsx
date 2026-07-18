@@ -105,6 +105,7 @@ function OverviewView() {
 
 			<Card>
 				<CardHeader
+					className="mb-0"
 					icon={<CreditCard className="h-5 w-5 text-primary" />}
 					title={
 						<div>
