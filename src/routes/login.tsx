@@ -1,12 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAccountStore, LoginPanel } from "@libertai/auth";
+import { LibertaiLogo } from "@libertai/branding";
 import { rememberPostLoginRedirect, usePostLoginRedirect } from "@/hooks/use-post-login-redirect";
+import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/login")({
 	validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
 		redirect: typeof search.redirect === "string" ? search.redirect : undefined,
 	}),
+	head: () => routeHead("/login"),
 	component: LoginPage,
 });
 
@@ -29,7 +32,7 @@ function LoginPage() {
 		<div className="container mx-auto flex min-h-[80vh] flex-col items-center justify-center px-4 py-12">
 			<div className="w-full max-w-sm space-y-6">
 				<div className="flex flex-col items-center space-y-3 text-center">
-					<img src="/favicon.ico" alt="LibertAI" className="h-14 w-14 rounded-2xl shadow-sm" />
+					<LibertaiLogo className="h-10 w-auto text-foreground" />
 					<h1 className="text-2xl font-bold">Sign in to LibertAI</h1>
 					<p className="text-sm text-muted-foreground">Use your email, a social account, or a wallet.</p>
 				</div>

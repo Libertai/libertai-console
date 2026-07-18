@@ -14,8 +14,10 @@ import { useCredits } from "@/hooks/data/use-credits";
 import { useStats } from "@/hooks/data/use-stats";
 import { useApiKeys } from "@/hooks/data/use-api-keys";
 import { formatCompactNumber } from "@/lib/utils";
+import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/")({
+	head: () => routeHead("/"),
 	component: Index,
 });
 

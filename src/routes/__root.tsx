@@ -1,4 +1,4 @@
-import { createRootRoute, Outlet, useRouterState } from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Outlet, useRouterState } from "@tanstack/react-router";
 import Providers from "@/components/Providers";
 import { Layout } from "@/components/Layout";
 import { CreditCard, Image, Key, LayoutDashboard, LineChart } from "lucide-react";
@@ -25,6 +25,7 @@ function RootComponent() {
 
 	return (
 		<Providers>
+			<HeadContent />
 			{chromeless ? (
 				<Outlet />
 			) : (

@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AccountSettings } from "@libertai/auth";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/settings")({
+	head: () => routeHead("/settings"),
 	component: SettingsPage,
 });
 

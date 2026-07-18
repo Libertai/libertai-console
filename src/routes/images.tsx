@@ -12,8 +12,10 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/images")({
+	head: () => routeHead("/images"),
 	component: Images,
 });
 
