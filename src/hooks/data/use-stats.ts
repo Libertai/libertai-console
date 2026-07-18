@@ -95,5 +95,6 @@ export function useUsageStats(startDate: string, endDate: string) {
 		isLoading: usageQuery.isLoading,
 		isError: usageQuery.isError,
 		error: usageQuery.error,
+		refetch: usageQuery.refetch,
 	};
 }
