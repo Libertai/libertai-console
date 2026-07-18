@@ -251,103 +251,103 @@ function Images() {
 
 						{/* API Key Selector */}
 						<Card>
-							<Label htmlFor="api-key-select" className="mb-4">
-								API key
-							</Label>
-							{isLoadingKeys ? (
-								<Skeleton className="h-10 w-full" />
-							) : apiKeys.length === 0 ? (
-								<div className="bg-amber-500/10 text-amber-500 p-4 rounded-md">
-									<p className="text-sm">
-										No API keys found.{" "}
-										<Link to="/api-keys" className="underline font-medium">
-											Create one first
-										</Link>
-										.
-									</p>
-								</div>
-							) : (
-								<Select value={selectedKeyId || ""} onValueChange={setSelectedKeyId}>
-									<SelectTrigger id="api-key-select">
-										<SelectValue placeholder="Select an API key" />
-									</SelectTrigger>
-									<SelectContent>
-										{apiKeys.map((key) => (
-											<SelectItem key={key.id} value={key.id}>
-												{key.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							)}
-						</Card>
-
-						{/* Model Selector */}
-						<Card>
-							<Label htmlFor="model-select" className="mb-4">
-								Model
-							</Label>
-							{isErrorModels ? (
-								<div className="flex items-center gap-3">
-									<p className="text-sm text-muted-foreground">Couldn't load models.</p>
-									<Button variant="outline" size="sm" onClick={() => refetchModels()}>
-										Retry
-									</Button>
-								</div>
-							) : isLoadingModels ? (
-								<Skeleton className="h-10 w-full" />
-							) : models && models.length > 0 ? (
-								<>
-									<Select value={selectedModel || ""} onValueChange={setSelectedModel}>
-										<SelectTrigger id="model-select">
-											<SelectValue placeholder="Select a model" />
+							<div className="space-y-2">
+								<Label htmlFor="api-key-select">API key</Label>
+								{isLoadingKeys ? (
+									<Skeleton className="h-10 w-full" />
+								) : apiKeys.length === 0 ? (
+									<div className="bg-amber-500/10 text-amber-500 p-4 rounded-md">
+										<p className="text-sm">
+											No API keys found.{" "}
+											<Link to="/api-keys" className="underline font-medium">
+												Create one first
+											</Link>
+											.
+										</p>
+									</div>
+								) : (
+									<Select value={selectedKeyId || ""} onValueChange={setSelectedKeyId}>
+										<SelectTrigger id="api-key-select">
+											<SelectValue placeholder="Select an API key" />
 										</SelectTrigger>
 										<SelectContent>
-											{models.map((model) => (
-												<SelectItem key={model.id} value={model.id}>
-													{model.name} ({model.id})
+											{apiKeys.map((key) => (
+												<SelectItem key={key.id} value={key.id}>
+													{key.name}
 												</SelectItem>
 											))}
 										</SelectContent>
 									</Select>
-									{selectedModel && models.find((m) => m.id === selectedModel) && (
-										<div className="mt-3 p-3 bg-secondary/50 rounded-md">
-											<p className="text-sm font-medium">
-												Cost: {cost !== null ? `$${cost.toFixed(4)} per image` : "Unknown"}
-											</p>
-										</div>
-									)}
-								</>
-							) : (
-								<p className="text-sm text-muted-foreground">No image models available</p>
-							)}
+								)}
+							</div>
+						</Card>
+
+						{/* Model Selector */}
+						<Card>
+							<div className="space-y-2">
+								<Label htmlFor="model-select">Model</Label>
+								{isErrorModels ? (
+									<div className="flex items-center gap-3">
+										<p className="text-sm text-muted-foreground">Couldn't load models.</p>
+										<Button variant="outline" size="sm" onClick={() => refetchModels()}>
+											Retry
+										</Button>
+									</div>
+								) : isLoadingModels ? (
+									<Skeleton className="h-10 w-full" />
+								) : models && models.length > 0 ? (
+									<>
+										<Select value={selectedModel || ""} onValueChange={setSelectedModel}>
+											<SelectTrigger id="model-select">
+												<SelectValue placeholder="Select a model" />
+											</SelectTrigger>
+											<SelectContent>
+												{models.map((model) => (
+													<SelectItem key={model.id} value={model.id}>
+														{model.name} ({model.id})
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										{selectedModel && models.find((m) => m.id === selectedModel) && (
+											<div className="mt-3 p-3 bg-secondary/50 rounded-md">
+												<p className="text-sm font-medium">
+													Cost: {cost !== null ? `$${cost.toFixed(4)} per image` : "Unknown"}
+												</p>
+											</div>
+										)}
+									</>
+								) : (
+									<p className="text-sm text-muted-foreground">No image models available</p>
+								)}
+							</div>
 						</Card>
 
 						{/* JSON Editor */}
 						<Card>
-							<Label htmlFor="json-body" className="mb-4">
-								Request body (JSON)
-							</Label>
-							<Textarea
-								id="json-body"
-								value={jsonBody}
-								onChange={(e) => setJsonBody(e.target.value)}
-								className="font-mono text-sm"
-								rows={14}
-								placeholder="Enter JSON request body..."
-							/>
-							<p className="text-xs text-muted-foreground mt-2">
-								Edit the JSON directly. See{" "}
-								<a
-									href="https://docs.libertai.io/apis/image"
-									target="_blank"
-									rel="noopener noreferrer"
-									className="text-primary hover:underline"
-								>
-									API docs
-								</a>{" "}
-								for parameter details.
-							</p>
+							<div className="space-y-2">
+								<Label htmlFor="json-body">Request body (JSON)</Label>
+								<Textarea
+									id="json-body"
+									value={jsonBody}
+									onChange={(e) => setJsonBody(e.target.value)}
+									className="font-mono text-sm"
+									rows={14}
+									placeholder="Enter JSON request body..."
+								/>
+								<p className="text-xs text-muted-foreground mt-2">
+									Edit the JSON directly. See{" "}
+									<a
+										href="https://docs.libertai.io/apis/image"
+										target="_blank"
+										rel="noopener noreferrer"
+										className="text-primary hover:underline"
+									>
+										API docs
+									</a>{" "}
+									for parameter details.
+								</p>
+							</div>
 						</Card>
 
 						{/* Generate Button */}
