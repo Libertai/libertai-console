@@ -191,6 +191,10 @@ function AdvancedView() {
 	}, [timeRange]);
 
 	const handleExportData = () => {
+		// No per-day Cost column: the API only returns an aggregate cost for the range, not
+		// per-day (daily_usage/DailyTokens has input/output tokens only) — a prorated estimate
+		// would read as authoritative to spreadsheet consumers despite being inaccurate whenever
+		// the model mix varies day to day. Needs a backend field before this can be added for real.
 		const headers = ["Date", "Input Tokens", "Output Tokens", "Total Tokens"];
 		const csvRows = [
 			headers.join(","),
@@ -257,8 +261,8 @@ function AdvancedView() {
 								mode="range"
 								defaultMonth={new Date()}
 								selected={{
-									from: startDate ? new Date(startDate) : undefined,
-									to: endDate ? new Date(endDate) : undefined,
+									from: startDate ? dayjs(startDate).toDate() : undefined,
+									to: endDate ? dayjs(endDate).toDate() : undefined,
 								}}
 								onSelect={(range) => {
 									if (range?.from) {

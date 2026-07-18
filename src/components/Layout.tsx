@@ -41,12 +41,12 @@ function SidebarMenuItemWithAutoClose({
 
 	return (
 		<SidebarMenuItem>
-			<Link to={to} onClick={handleClick} disabled={isActive}>
-				<SidebarMenuButton tooltip={tooltip} isActive={isActive}>
+			<SidebarMenuButton asChild tooltip={tooltip} isActive={isActive}>
+				<Link to={to} onClick={handleClick} disabled={isActive}>
 					{icon}
 					<span>{label}</span>
-				</SidebarMenuButton>
-			</Link>
+				</Link>
+			</SidebarMenuButton>
 		</SidebarMenuItem>
 	);
 }
