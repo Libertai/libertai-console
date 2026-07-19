@@ -55,7 +55,13 @@ type SidebarItem = {
 	to: string;
 	icon: ReactNode;
 	label: string;
+	// Extra paths that should also highlight this item (e.g. sibling routes under the same section).
+	activePaths?: string[];
 };
+
+function isPathActive(currentPath: string, path: string): boolean {
+	return currentPath === path || currentPath.startsWith(path + "/");
+}
 
 export function Layout({
 	children,
@@ -109,7 +115,7 @@ export function Layout({
 								<SidebarMenuItemWithAutoClose
 									to={item.to}
 									tooltip={item.label}
-									isActive={currentPath === item.to || currentPath.startsWith(item.to + "/")}
+									isActive={[item.to, ...(item.activePaths ?? [])].some((path) => isPathActive(currentPath, path))}
 									icon={item.icon}
 									label={item.label}
 									key={item.to}
