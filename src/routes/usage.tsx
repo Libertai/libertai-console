@@ -244,6 +244,7 @@ function AdvancedView() {
 					<PopoverAnchor>
 						<div ref={rangeToggleRef}>
 							<ToggleGroup
+								className="flex-wrap"
 								value={timeRange}
 								onValueChange={(value) => {
 									if (value === "custom") {

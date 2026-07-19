@@ -12,10 +12,10 @@ import { useAccountStore } from "@libertai/auth";
 // Maps an HTTP status to user-facing copy. Never surfaces raw backend `detail` text —
 // FastAPI validation/DB error messages aren't meant for end users.
 const extractFastAPIError = (status?: number): string => {
-	if (status === 400 || status === 409) {
+	if (status === 409) {
 		return "A key with this name already exists.";
 	}
-	if (status === 422) {
+	if (status === 400 || status === 422) {
 		return "That input isn't valid.";
 	}
 	return "Something went wrong. Try again.";
