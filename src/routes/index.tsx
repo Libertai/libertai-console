@@ -25,7 +25,7 @@ function LandingPage() {
 	const navigate = useNavigate();
 
 	return (
-		<div className="mx-auto max-w-6xl px-4 py-16 lg:py-24">
+		<div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center px-4 py-16">
 			<div className="grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:items-center">
 				<div className="space-y-6">
 					<div className="space-y-2">
@@ -61,13 +61,13 @@ function LandingPage() {
 						</li>
 					</ul>
 				</div>
-				<Card className="bg-zinc-950 border-zinc-800 p-0 overflow-hidden">
-					<div className="flex items-center gap-1.5 px-4 py-3 border-b border-zinc-800">
-						<span className="h-3 w-3 rounded-full bg-zinc-700" />
-						<span className="h-3 w-3 rounded-full bg-zinc-700" />
-						<span className="h-3 w-3 rounded-full bg-zinc-700" />
+				<Card className="bg-zinc-950 dark:bg-secondary border-zinc-800 dark:border-border p-0 overflow-hidden">
+					<div className="flex items-center gap-1.5 px-4 py-3 border-b border-zinc-800 dark:border-border">
+						<span className="h-3 w-3 rounded-full bg-zinc-700 dark:bg-hover" />
+						<span className="h-3 w-3 rounded-full bg-zinc-700 dark:bg-hover" />
+						<span className="h-3 w-3 rounded-full bg-zinc-700 dark:bg-hover" />
 					</div>
-					<pre className="p-4 text-sm text-zinc-100 font-mono overflow-x-auto">{`curl https://api.libertai.io/v1/chat/completions \\
+					<pre className="p-4 text-sm text-zinc-100 dark:text-foreground font-mono overflow-x-auto">{`curl https://api.libertai.io/v1/chat/completions \\
   -H "Authorization: Bearer $LIBERTAI_API_KEY" \\
   -d '{
     "model": "glm-5.2",
@@ -82,7 +82,7 @@ function LandingPage() {
 function DashboardPage() {
 	const navigate = useNavigate();
 	const { formattedCredits, isLoading: areCreditsLoading, isError: isCreditsError } = useCredits();
-	const { apiKeys, isLoading: areApiKeysLoading } = useApiKeys();
+	const { apiKeys, isLoading: areApiKeysLoading, isError: isApiKeysError } = useApiKeys();
 	const {
 		apiCalls,
 		tokensUsed,
@@ -138,14 +138,20 @@ function DashboardPage() {
 						title="API calls"
 						icon={<Zap className="h-5 w-5 text-primary" />}
 						isLoading={areStatsLoading}
-						value={formatCompactNumber(apiCalls)}
+						value={isStatsError ? <span title="Couldn't load">—</span> : formatCompactNumber(apiCalls)}
 						footer="This month"
 					/>
 					<StatCard
 						title="Active keys"
 						icon={<Key className="h-5 w-5 text-primary" />}
 						isLoading={areApiKeysLoading}
-						value={apiKeys.filter((key) => key.is_active).length}
+						value={
+							isApiKeysError ? (
+								<span title="Couldn't load">—</span>
+							) : (
+								apiKeys.filter((key) => key.is_active).length
+							)
+						}
 						action={
 							<Button size="sm" variant="outline" onClick={() => navigate({ to: "/api-keys" })}>
 								Manage
@@ -156,7 +162,7 @@ function DashboardPage() {
 						title="Tokens used"
 						icon={<LineChart className="h-5 w-5 text-primary" />}
 						isLoading={areStatsLoading}
-						value={formatCompactNumber(tokensUsed)}
+						value={isStatsError ? <span title="Couldn't load">—</span> : formatCompactNumber(tokensUsed)}
 						footer="This month"
 					/>
 				</div>
@@ -166,7 +172,7 @@ function DashboardPage() {
 						<CardHeader title="Usage trends" icon={<BarChart4 className="h-5 w-5 text-primary" />} />
 
 						{isStatsError ? (
-							<ErrorCard message="Couldn't load usage stats." onRetry={refetchStats} />
+							<ErrorCard plain message="Couldn't load usage stats." onRetry={refetchStats} />
 						) : (
 							<div className="h-64">
 								{areStatsLoading ? (

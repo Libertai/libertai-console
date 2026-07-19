@@ -469,14 +469,14 @@ function ApiKeys() {
 						<div className="space-y-2">
 							<Label htmlFor="model-select">Model</Label>
 							{isErrorModels ? (
-								<div className="flex items-center gap-3">
+								<div id="model-select" className="flex items-center gap-3">
 									<p className="text-sm text-muted-foreground">Couldn't load models.</p>
 									<Button variant="outline" size="sm" onClick={() => refetchModels()}>
 										Retry
 									</Button>
 								</div>
 							) : isLoadingModels ? (
-								<Skeleton className="h-9 w-full max-w-xs" />
+								<Skeleton id="model-select" className="h-9 w-full max-w-xs" />
 							) : (
 								<Select value={selectedModel ?? ""} onValueChange={setSelectedModel}>
 									<SelectTrigger id="model-select" className="w-full max-w-xs">
@@ -527,7 +527,7 @@ function ApiKeys() {
 							For more detailed instructions and example code in various programming languages, see our{" "}
 							<a
 								href="https://docs.libertai.io/apis/text"
-								className="text-primary hover:underline"
+								className="text-primary-text hover:underline"
 								target="_blank"
 								rel="noopener noreferrer"
 							>

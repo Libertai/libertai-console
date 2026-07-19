@@ -38,7 +38,7 @@ function AuthCallback() {
 				<div className="space-y-4">
 					<p className="text-lg font-medium">Sign-in failed</p>
 					<p className="text-muted-foreground">This sign-in link is invalid or has expired.</p>
-					<Button onClick={() => navigate({ to: "/" })}>Back to sign in</Button>
+					<Button onClick={() => navigate({ to: "/login" })}>Back to sign in</Button>
 				</div>
 			) : (
 				<div className="flex items-center gap-3 text-muted-foreground">

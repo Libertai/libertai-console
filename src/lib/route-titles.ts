@@ -1,5 +1,4 @@
-// Single source for route labels — feeds both the document <title> (via each route's
-// `head` option) and the desktop header's current-page label in Layout.tsx.
+// Single source for route labels — feeds the document <title> via each route's `head` option.
 export const ROUTE_TITLES: Record<string, string> = {
 	"/": "Dashboard",
 	"/api-keys": "API keys",

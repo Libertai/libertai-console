@@ -12,6 +12,7 @@ import { Card, CardHeader } from "@libertai/ui/card";
 import { Textarea } from "@libertai/ui/textarea";
 import { Label } from "@libertai/ui/label";
 import { PageSkeleton } from "@libertai/ui/page-skeleton";
+import { ToggleGroup } from "@libertai/ui/toggle-group";
 import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/images")({
@@ -226,22 +227,15 @@ function Images() {
 						{/* Endpoint Selector */}
 						<Card>
 							<CardHeader title="API endpoint" icon={<Globe className="h-5 w-5 text-primary" />} />
-							<div className="flex gap-1 rounded-lg border border-border bg-card p-1">
-								<Button
-									variant={endpoint === "sdapi" ? "default" : "ghost"}
-									onClick={() => setEndpoint("sdapi")}
-									className="flex-1"
-								>
-									Stable Diffusion (sdapi)
-								</Button>
-								<Button
-									variant={endpoint === "openai" ? "default" : "ghost"}
-									onClick={() => setEndpoint("openai")}
-									className="flex-1"
-								>
-									OpenAI-compatible
-								</Button>
-							</div>
+							<ToggleGroup
+								value={endpoint}
+								onValueChange={(value) => setEndpoint(value as EndpointType)}
+								className="w-full"
+								options={[
+									{ value: "sdapi", label: "Stable Diffusion (sdapi)" },
+									{ value: "openai", label: "OpenAI-compatible" },
+								]}
+							/>
 							<p className="text-xs text-muted-foreground mt-3">
 								{endpoint === "sdapi"
 									? "POST https://api.libertai.io/sdapi/v1/txt2img"
@@ -254,9 +248,9 @@ function Images() {
 							<div className="space-y-2">
 								<Label htmlFor="api-key-select">API key</Label>
 								{isLoadingKeys ? (
-									<Skeleton className="h-10 w-full" />
+									<Skeleton id="api-key-select" className="h-10 w-full" />
 								) : apiKeys.length === 0 ? (
-									<div className="bg-amber-500/10 text-amber-500 p-4 rounded-md">
+									<div id="api-key-select" className="bg-amber-500/10 text-amber-500 p-4 rounded-md">
 										<p className="text-sm">
 											No API keys found.{" "}
 											<Link to="/api-keys" className="underline font-medium">
@@ -287,14 +281,14 @@ function Images() {
 							<div className="space-y-2">
 								<Label htmlFor="model-select">Model</Label>
 								{isErrorModels ? (
-									<div className="flex items-center gap-3">
+									<div id="model-select" className="flex items-center gap-3">
 										<p className="text-sm text-muted-foreground">Couldn't load models.</p>
 										<Button variant="outline" size="sm" onClick={() => refetchModels()}>
 											Retry
 										</Button>
 									</div>
 								) : isLoadingModels ? (
-									<Skeleton className="h-10 w-full" />
+									<Skeleton id="model-select" className="h-10 w-full" />
 								) : models && models.length > 0 ? (
 									<>
 										<Select value={selectedModel || ""} onValueChange={setSelectedModel}>
@@ -318,7 +312,9 @@ function Images() {
 										)}
 									</>
 								) : (
-									<p className="text-sm text-muted-foreground">No image models available</p>
+									<p id="model-select" className="text-sm text-muted-foreground">
+										No image models available
+									</p>
 								)}
 							</div>
 						</Card>
@@ -341,7 +337,7 @@ function Images() {
 										href="https://docs.libertai.io/apis/image"
 										target="_blank"
 										rel="noopener noreferrer"
-										className="text-primary hover:underline"
+										className="text-primary-text hover:underline"
 									>
 										API docs
 									</a>{" "}

@@ -8,7 +8,12 @@ const developersSidebarItems = [
 	{ to: "/images", icon: <Image className="h-4 w-4" />, label: "Images" },
 	{ to: "/api-keys", icon: <Key className="h-4 w-4" />, label: "API keys" },
 	{ to: "/usage", icon: <LineChart className="h-4 w-4" />, label: "Usage" },
-	{ to: "/billing", icon: <CreditCard className="h-4 w-4" />, label: "Billing" },
+	{
+		to: "/billing",
+		icon: <CreditCard className="h-4 w-4" />,
+		label: "Billing",
+		activePaths: ["/plans", "/top-up"],
+	},
 ];
 
 // Routes rendered standalone, without the app sidebar/header chrome.

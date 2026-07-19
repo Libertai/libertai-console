@@ -11,12 +11,13 @@ import {
 	Zap,
 } from "lucide-react";
 import { useRequireAuth } from "@/hooks/use-auth";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useUsageStats } from "@/hooks/data/use-stats";
 import { useSubscription, AllowanceBar } from "@libertai/auth";
 import { Calendar } from "@libertai/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@libertai/ui/popover";
+import { Popover, PopoverAnchor, PopoverContent } from "@libertai/ui/popover";
+import { ToggleGroup } from "@libertai/ui/toggle-group";
 import { Skeleton } from "@libertai/ui/skeleton";
 import { formatCompactNumber } from "@/lib/utils";
 import dayjs from "dayjs";
@@ -76,7 +77,7 @@ function OverviewView() {
 					icon={<Zap className="h-5 w-5 text-primary" />}
 					title={
 						<>
-							Current plan: <span className="capitalize text-primary">{currentTier}</span>
+							Current plan: <span className="capitalize text-primary-text">{currentTier}</span>
 							{subscription?.cancel_at_period_end && (
 								<span className="text-sm font-normal text-muted-foreground ml-2">(cancels at period end)</span>
 							)}
@@ -142,6 +143,11 @@ function AdvancedView() {
 	const [timeRange, setTimeRange] = useState<"7d" | "30d" | "custom">("7d");
 	const [startDate, setStartDate] = useState<string>(formatDate(dayjs().subtract(7, "day").toDate()));
 	const [endDate, setEndDate] = useState<string>(formatDate(new Date()));
+	const [isCustomRangeOpen, setIsCustomRangeOpen] = useState(false);
+	// PopoverAnchor isn't a real PopoverTrigger, so Radix's dismissable layer doesn't know to
+	// exempt clicks on it — without this ref + onInteractOutside below, a pointerdown on the
+	// toggle closes the popover a beat before our own onValueChange re-opens it.
+	const rangeToggleRef = useRef<HTMLDivElement>(null);
 
 	const {
 		dailyChartData,
@@ -234,49 +240,70 @@ function AdvancedView() {
 	return (
 		<div className="flex flex-col space-y-8">
 			<div className="flex justify-end">
-				<div className="inline-flex flex-wrap gap-1 rounded-lg border border-border p-1 bg-card">
-					<Button variant={timeRange === "7d" ? "default" : "ghost"} size="sm" onClick={() => setTimeRange("7d")}>
-						7 days
-					</Button>
-					<Button variant={timeRange === "30d" ? "default" : "ghost"} size="sm" onClick={() => setTimeRange("30d")}>
-						30 days
-					</Button>
-					<Popover>
-						<PopoverTrigger asChild>
-							<Button
-								variant={timeRange === "custom" ? "default" : "ghost"}
-								size="sm"
-								className="w-auto justify-start text-left font-normal"
-							>
-								<CalendarIcon className="mr-2 h-4 w-4" />
-								{timeRange === "custom"
-									? startDate === endDate
-										? startDate
-										: `${startDate} - ${endDate}`
-									: "Custom range"}
-							</Button>
-						</PopoverTrigger>
-						<PopoverContent className="w-auto p-0" align="start">
-							<Calendar
-								mode="range"
-								defaultMonth={new Date()}
-								selected={{
-									from: startDate ? dayjs(startDate).toDate() : undefined,
-									to: endDate ? dayjs(endDate).toDate() : undefined,
-								}}
-								onSelect={(range) => {
-									if (range?.from) {
+				<Popover open={isCustomRangeOpen} onOpenChange={setIsCustomRangeOpen}>
+					<PopoverAnchor>
+						<div ref={rangeToggleRef}>
+							<ToggleGroup
+								value={timeRange}
+								onValueChange={(value) => {
+									if (value === "custom") {
 										setTimeRange("custom");
-										setStartDate(formatDate(range.from));
-										setEndDate(formatDate(range.to || range.from));
+										setIsCustomRangeOpen((open) => !open);
+										return;
 									}
+									setTimeRange(value as "7d" | "30d");
+									setIsCustomRangeOpen(false);
 								}}
-								initialFocus
-								disabled={(date) => date > new Date()}
+								options={[
+									{ value: "7d", label: "7 days" },
+									{ value: "30d", label: "30 days" },
+									{
+										value: "custom",
+										label: (
+											<span className="flex items-center">
+												<CalendarIcon className="mr-2 h-4 w-4" />
+												{timeRange === "custom"
+													? startDate === endDate
+														? startDate
+														: `${startDate} - ${endDate}`
+													: "Custom range"}
+											</span>
+										),
+									},
+								]}
 							/>
-						</PopoverContent>
-					</Popover>
-				</div>
+						</div>
+					</PopoverAnchor>
+					<PopoverContent
+						className="w-auto p-0"
+						align="start"
+						onInteractOutside={(e) => {
+							// Let clicks on the toggle go through onValueChange instead of the layer's
+							// default outside-dismiss, so re-clicking "custom" can close the popover.
+							if (rangeToggleRef.current?.contains(e.target as Node)) {
+								e.preventDefault();
+							}
+						}}
+					>
+						<Calendar
+							mode="range"
+							defaultMonth={new Date()}
+							selected={{
+								from: startDate ? dayjs(startDate).toDate() : undefined,
+								to: endDate ? dayjs(endDate).toDate() : undefined,
+							}}
+							onSelect={(range) => {
+								if (range?.from) {
+									setTimeRange("custom");
+									setStartDate(formatDate(range.from));
+									setEndDate(formatDate(range.to || range.from));
+								}
+							}}
+							initialFocus
+							disabled={(date) => date > new Date()}
+						/>
+					</PopoverContent>
+				</Popover>
 			</div>
 
 			{isError ? (
@@ -446,14 +473,14 @@ function Usage() {
 					description="Monitor your API usage and costs"
 					action={
 						SHOW_PLAN_OVERVIEW && (
-							<div className="inline-flex rounded-lg border border-border p-1 bg-card">
-								<Button variant={view === "overview" ? "default" : "ghost"} size="sm" onClick={() => setView("overview")}>
-									Overview
-								</Button>
-								<Button variant={view === "advanced" ? "default" : "ghost"} size="sm" onClick={() => setView("advanced")}>
-									Advanced
-								</Button>
-							</div>
+							<ToggleGroup
+								value={view}
+								onValueChange={(value) => setView(value as "overview" | "advanced")}
+								options={[
+									{ value: "overview", label: "Overview" },
+									{ value: "advanced", label: "Advanced" },
+								]}
+							/>
 						)
 					}
 				/>
