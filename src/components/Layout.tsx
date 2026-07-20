@@ -22,14 +22,12 @@ function SidebarMenuItemWithAutoClose({
 	to,
 	tooltip,
 	isActive,
-	disabled,
 	icon,
 	label,
 }: Readonly<{
 	to: string;
 	tooltip: string;
 	isActive: boolean;
-	disabled: boolean;
 	icon: ReactNode;
 	label: string;
 }>) {
@@ -44,7 +42,7 @@ function SidebarMenuItemWithAutoClose({
 	return (
 		<SidebarMenuItem>
 			<SidebarMenuButton asChild tooltip={tooltip} isActive={isActive}>
-				<Link to={to} onClick={handleClick} disabled={disabled}>
+				<Link to={to} onClick={handleClick}>
 					{icon}
 					<span>{label}</span>
 				</Link>
@@ -118,7 +116,6 @@ export function Layout({
 									to={item.to}
 									tooltip={item.label}
 									isActive={[item.to, ...(item.activePaths ?? [])].some((path) => isPathActive(currentPath, path))}
-									disabled={isPathActive(currentPath, item.to)}
 									icon={item.icon}
 									label={item.label}
 									key={item.to}
