@@ -230,7 +230,6 @@ function Images() {
 							<ToggleGroup
 								value={endpoint}
 								onValueChange={(value) => setEndpoint(value as EndpointType)}
-								className="w-full"
 								options={[
 									{ value: "sdapi", label: "Stable Diffusion (sdapi)" },
 									{ value: "openai", label: "OpenAI-compatible" },
