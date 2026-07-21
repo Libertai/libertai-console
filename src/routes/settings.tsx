@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AccountSettings } from "@libertai/auth";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeToggle } from "@libertai/ui/theme-toggle";
 import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/settings")({

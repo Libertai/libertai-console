@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { ThemeProvider } from "./ThemeProvider";
+import { ThemeProvider } from "@libertai/ui/theme-provider";
 import { Toaster } from "@libertai/ui/sonner";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { NuqsAdapter } from "nuqs/adapters/react";
