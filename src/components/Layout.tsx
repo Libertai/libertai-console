@@ -90,7 +90,7 @@ export function Layout({
 	}, [router]);
 
 	return (
-		<SidebarProvider defaultOpen={true}>
+		<SidebarProvider>
 			<div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row w-full">
 				{/* Mobile Header */}
 				<header className="fixed z-20 top-0 left-0 right-0 h-16 border-b border-border px-4 flex items-center justify-between md:hidden bg-background">
