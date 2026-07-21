@@ -136,8 +136,8 @@ export function Layout({
 						<ConnectButton />
 					</header>
 
-					{/* Main content with padding on mobile for the fixed header */}
-					<main className="flex-1 overflow-auto md:pt-0 pt-16 w-full">{children}</main>
+					{/* Content wrapper (SidebarInset is the <main> landmark); mobile padding clears the fixed header */}
+					<div className="flex-1 overflow-auto md:pt-0 pt-16 w-full">{children}</div>
 				</SidebarInset>
 			</div>
 		</SidebarProvider>
