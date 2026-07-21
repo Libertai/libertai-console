@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { LibertaiLogo } from "@libertai/branding";
 import ConnectButton from "./ConnectButton";
@@ -89,6 +89,13 @@ export function Layout({
 		};
 	}, [router]);
 
+	// The content div (not the window) is the scroll container and survives route
+	// changes, so its scroll position must be reset explicitly on navigation.
+	const contentRef = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		contentRef.current?.scrollTo(0, 0);
+	}, [currentPath]);
+
 	return (
 		<SidebarProvider>
 			<div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row w-full">
@@ -137,7 +144,9 @@ export function Layout({
 					</header>
 
 					{/* Content wrapper (SidebarInset is the <main> landmark); mobile padding clears the fixed header */}
-					<div className="flex-1 overflow-auto md:pt-0 pt-16 w-full">{children}</div>
+					<div ref={contentRef} className="flex-1 overflow-auto md:pt-0 pt-16 w-full">
+						{children}
+					</div>
 				</SidebarInset>
 			</div>
 		</SidebarProvider>
