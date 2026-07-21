@@ -50,6 +50,7 @@ setInitialTheme();
 // Create a new router instance
 const router = createRouter({
 	routeTree,
+	scrollRestoration: true,
 	defaultNotFoundComponent: NotFoundPage,
 	defaultErrorComponent: ErrorPage,
 });
