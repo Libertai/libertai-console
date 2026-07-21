@@ -54,7 +54,7 @@ jobs:
           VITE_SOLANA_RPC: ${{ secrets.SOLANA_RPC }}
 
       - name: Deploy preview on Aleph
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' }}
         uses: aleph-im/web3-hosting-action@v2.0.0
         with:
           path: 'dist'
