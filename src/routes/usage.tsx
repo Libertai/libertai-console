@@ -403,18 +403,21 @@ function AdvancedView() {
 										/>
 										<SortableTableHead
 											label="Requests"
+											align="right"
 											active={modelSort.column === "requests"}
 											direction={modelSort.direction}
 											onSort={() => handleModelSort("requests")}
 										/>
 										<SortableTableHead
 											label="Tokens"
+											align="right"
 											active={modelSort.column === "tokens"}
 											direction={modelSort.direction}
 											onSort={() => handleModelSort("tokens")}
 										/>
 										<SortableTableHead
 											label="Cost"
+											align="right"
 											active={modelSort.column === "cost"}
 											direction={modelSort.direction}
 											onSort={() => handleModelSort("cost")}
