@@ -8,7 +8,7 @@ dayjs.extend(relativeTime);
 type Timestamp = string | null | undefined;
 
 // Backend timestamps are naive TIMESTAMP columns holding UTC, serialized without an
-// offset — a bare dayjs() would read them as browser-local. Every consumer must go
+// offset, a bare dayjs() would read them as browser-local. Every consumer must go
 // through these helpers. Scope: new code; existing date-only formats are unaffected.
 const at = (value: string) => dayjs.utc(value).local();
 
