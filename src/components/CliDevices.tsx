@@ -160,7 +160,10 @@ export function CliDevices() {
 			) : isError && devices.length === 0 ? (
 				// react-query keeps data on a failed background refetch, so an unguarded
 				// isError would replace a working list with an error card.
-				<ErrorCard plain message="Couldn't load your connected devices." onRetry={refetch} />
+				// ErrorCard's plain mode has no horizontal padding of its own — supply it here.
+				<div className="px-6">
+					<ErrorCard plain message="Couldn't load your connected devices." onRetry={refetch} />
+				</div>
 			) : sorted.length === 0 ? (
 				<EmptyState />
 			) : (
