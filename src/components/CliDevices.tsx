@@ -57,7 +57,7 @@ function InstallBlock() {
 		<div className="space-y-3">
 			{windows && (
 				<p className="text-sm text-muted-foreground">
-					No native Windows install yet — use WSL with the Linux / macOS command, or grab the{" "}
+					No native Windows install yet. Use WSL with the Linux / macOS command, or grab the{" "}
 					<a
 						href={WINDOWS_RELEASES_URL}
 						className="text-primary-text underline"
@@ -87,9 +87,10 @@ function EmptyState() {
 		<div className="space-y-4 px-6 py-4">
 			<h3 className="text-lg font-semibold">Your agent. Your inference. Your machine.</h3>
 			<p className="text-sm text-muted-foreground">
-				Keep the coding agent you already use — <strong className="text-foreground">Claude Code, OpenCode</strong> —
-				and run it on <strong className="text-foreground">open-weights models you control</strong>. Private by
-				default, no vendor lock-in, no wallet. We don't replace your agent; we just swap the backend. One command.
+				Keep the coding agent you already use, like{" "}
+				<strong className="text-foreground">Claude Code, OpenCode</strong>, and run it on{" "}
+				<strong className="text-foreground">open-weights models you control</strong>. Private by default, no vendor
+				lock-in, no wallet. We don't replace your agent; we just swap the backend. One command.
 			</p>
 			<InstallBlock />
 			<p className="text-sm text-muted-foreground">
@@ -114,7 +115,7 @@ function DeviceRow({
 	const expiresIn = daysUntil(device.expires_at);
 
 	return (
-		<li className="flex flex-wrap items-start justify-between gap-3 px-6 py-4">
+		<li className="flex flex-wrap items-start gap-3 px-6 py-4">
 			<div className="flex min-w-0 items-start gap-3">
 				<Terminal className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
 				<div className="min-w-0 space-y-1">
@@ -127,8 +128,8 @@ function DeviceRow({
 					</p>
 					{expiresIn !== null && expiresIn <= EXPIRY_WARNING_DAYS && (
 						<p className="text-sm text-amber-500">
-							Expires in {expiresIn} {expiresIn === 1 ? "day" : "days"} — run {LOGIN_COMMAND} on that machine to
-							renew
+							Expires in {expiresIn} {expiresIn === 1 ? "day" : "days"}. Run {LOGIN_COMMAND} on that machine to
+							renew.
 						</p>
 					)}
 				</div>
@@ -139,6 +140,7 @@ function DeviceRow({
 				onClick={onDisconnect}
 				disabled={disconnecting}
 				aria-label={`Disconnect ${name}`}
+				className="ml-auto"
 			>
 				{disconnecting ? "Disconnecting…" : "Disconnect"}
 			</Button>
@@ -152,7 +154,7 @@ export function CliDevices() {
 	// Survives the dialog's close animation so the description doesn't flash while it fades.
 	const [pendingName, setPendingName] = useState<string | null>(null);
 	// ConfirmDialog clears pendingDisconnect the instant onConfirm fires, so an in-flight row
-	// needs its own id — and a set, not a scalar, since the mutation allows concurrent calls
+	// needs its own id, and a set, not a scalar, since the mutation allows concurrent calls
 	// (disconnect A, then B before A settles) and each row's disabled state is independent.
 	const [disconnectingIds, setDisconnectingIds] = useState<ReadonlySet<string>>(new Set());
 
@@ -178,7 +180,7 @@ export function CliDevices() {
 			) : isError && devices.length === 0 ? (
 				// react-query keeps data on a failed background refetch, so an unguarded
 				// isError would replace a working list with an error card.
-				// ErrorCard's plain mode has no horizontal padding of its own — supply it here.
+				// ErrorCard's plain mode has no horizontal padding of its own, supply it here.
 				<div className="px-6">
 					<ErrorCard plain message="Couldn't load your connected devices." onRetry={refetch} />
 				</div>

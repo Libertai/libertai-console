@@ -1,7 +1,7 @@
 import { ts } from "./time";
 
 const CLI_KEY_PREFIX = "libertai-cli@";
-// The CLI appends hex::encode of 4 random bytes — always lowercase, always 8 chars. The
+// The CLI appends hex::encode of 4 random bytes, always lowercase, always 8 chars. The
 // pattern is case-sensitive so an uppercase hostname segment like DEADBEEF is not eaten.
 const INSTALL_ID = /^(.*)-([0-9a-f]{8})$/;
 
