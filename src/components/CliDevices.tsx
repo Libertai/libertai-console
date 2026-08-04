@@ -99,7 +99,15 @@ function EmptyState() {
 	);
 }
 
-function DeviceRow({ device, onDisconnect }: { device: CliApiKey; onDisconnect: () => void }) {
+function DeviceRow({
+	device,
+	onDisconnect,
+	disconnecting,
+}: {
+	device: CliApiKey;
+	onDisconnect: () => void;
+	disconnecting: boolean;
+}) {
 	const { name, installId } = parseDeviceName(device.name);
 	const lastUsed = fromNow(device.last_used_at);
 	const connected = shortDate(device.created_at);
@@ -125,25 +133,34 @@ function DeviceRow({ device, onDisconnect }: { device: CliApiKey; onDisconnect: 
 					)}
 				</div>
 			</div>
-			<Button variant="outline" size="sm" onClick={onDisconnect} aria-label={`Disconnect ${name}`}>
-				Disconnect
+			<Button
+				variant="outline"
+				size="sm"
+				onClick={onDisconnect}
+				disabled={disconnecting}
+				aria-label={`Disconnect ${name}`}
+			>
+				{disconnecting ? "Disconnecting…" : "Disconnect"}
 			</Button>
 		</li>
 	);
 }
 
 export function CliDevices() {
-	const { devices, isLoading, isError, refetch, disconnectDevice } = useCliDevices();
+	const { devices, isLoading, isError, refetch, disconnectDevice, disconnectStatus } = useCliDevices();
 	const [pendingDisconnect, setPendingDisconnect] = useState<CliApiKey | null>(null);
 	// Survives the dialog's close animation so the description doesn't flash while it fades.
 	const [pendingName, setPendingName] = useState<string | null>(null);
+	// ConfirmDialog clears pendingDisconnect the instant onConfirm fires, so the row that's
+	// mid-disconnect needs its own id to stay disabled until the mutation settles.
+	const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
 
 	const sorted = useMemo(() => sortDevices(devices), [devices]);
 
 	return (
 		<Card className="p-0 overflow-hidden">
 			{/* Card hardcodes p-6, so every block inside a p-0 card carries its own padding. */}
-			<div className="px-6 pt-6">
+			<div className="px-6 pt-6 pb-4">
 				<CardHeader
 					title="Connected devices"
 					icon={<Terminal className="h-5 w-5 text-primary" />}
@@ -173,6 +190,7 @@ export function CliDevices() {
 							<DeviceRow
 								key={device.id}
 								device={device}
+								disconnecting={disconnectingId === device.id && disconnectStatus === "pending"}
 								onDisconnect={() => {
 									setPendingDisconnect(device);
 									setPendingName(parseDeviceName(device.name).name);
@@ -180,15 +198,14 @@ export function CliDevices() {
 							/>
 						))}
 					</ul>
-					<div className="flex flex-wrap gap-3 border-t border-border px-6 py-4 text-sm text-muted-foreground">
-						<span>
-							Install on another machine →{" "}
-							<a href={CODE_URL} className="text-primary-text underline" target="_blank" rel="noopener noreferrer">
-								code.libertai.io
-							</a>
-						</span>
+					<div className="border-t border-border px-6 py-4 text-sm text-muted-foreground">
+						Install on another machine →{" "}
+						<a href={CODE_URL} className="text-primary-text underline" target="_blank" rel="noopener noreferrer">
+							code.libertai.io
+						</a>
 					</div>
-					<div className="px-6 pb-6">
+					<div className="space-y-2 px-6 pb-6">
+						<p className="text-sm text-muted-foreground">Already installed? Renew or connect this machine:</p>
 						<CodeBlock value={LOGIN_COMMAND} copyLabel="Copy login command" />
 					</div>
 				</>
@@ -201,7 +218,16 @@ export function CliDevices() {
 				description={`${pendingName} will stop making requests. Sign in again with libertai login on that machine to reconnect.`}
 				confirmLabel="Disconnect"
 				destructive
-				onConfirm={() => pendingDisconnect && disconnectDevice(pendingDisconnect.id)}
+				onConfirm={() => {
+					if (!pendingDisconnect) return;
+					const id = pendingDisconnect.id;
+					setDisconnectingId(id);
+					// mutateAsync rejects even with onError set (react-query v5); the hook's
+					// onError already toasts, so swallow the rejection here.
+					void disconnectDevice(id)
+						.catch(() => {})
+						.finally(() => setDisconnectingId((current) => (current === id ? null : current)));
+				}}
 			/>
 		</Card>
 	);
