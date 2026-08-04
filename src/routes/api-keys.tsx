@@ -16,6 +16,7 @@ import { useUsageStats } from "@/hooks/data/use-stats";
 import { useAlephModels } from "@/hooks/data/use-models";
 import { toast } from "sonner";
 import { ApiKeyForm } from "@/components/ApiKeyForm";
+import { CliDevices } from "@/components/CliDevices";
 import { Skeleton } from "@libertai/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@libertai/ui/select";
 import { Card, CardHeader } from "@libertai/ui/card";
@@ -106,60 +107,6 @@ const response = await client.chat.completions.create({
 console.log(response.choices[0].message.content);`;
 	}
 };
-
-type ToolIntegration = {
-	name: string;
-	description: string;
-	snippet: (model: string) => string;
-	language: string;
-};
-
-const TOOL_INTEGRATIONS: ToolIntegration[] = [
-	{
-		name: "Claude Code",
-		description: "Point the Anthropic-compatible endpoint at LibertAI via environment variables.",
-		language: "bash",
-		snippet: (model) => `export ANTHROPIC_BASE_URL="https://api.libertai.io"
-export ANTHROPIC_AUTH_TOKEN="YOUR_API_KEY"
-export ANTHROPIC_DEFAULT_OPUS_MODEL="${model}"
-export ANTHROPIC_DEFAULT_SONNET_MODEL="${model}"
-export ANTHROPIC_DEFAULT_HAIKU_MODEL="${model}"
-export CLAUDE_CODE_ATTRIBUTION_HEADER=0
-export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
-
-claude`,
-	},
-	{
-		name: "Cursor",
-		description:
-			"In Settings → Models, enable “Override OpenAI Base URL”, paste the URL and your key, then add the model name below.",
-		language: "text",
-		snippet: (model) => `Base URL: https://api.libertai.io/v1
-API Key:  YOUR_API_KEY
-Model:    ${model}`,
-	},
-	{
-		name: "OpenCode",
-		description: "Add LibertAI as an OpenAI-compatible provider in ~/.config/opencode/opencode.json.",
-		language: "json",
-		snippet: (model) => `{
-  "$schema": "https://opencode.ai/config.json",
-  "provider": {
-    "libertai": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "LibertAI",
-      "options": {
-        "baseURL": "https://api.libertai.io/v1",
-        "apiKey": "{env:LIBERTAI_API_KEY}"
-      },
-      "models": {
-        "${model}": {}
-      }
-    }
-  }
-}`,
-	},
-];
 
 export const Route = createFileRoute("/api-keys")({
 	head: () => routeHead("/api-keys"),
@@ -324,7 +271,7 @@ function ApiKeys() {
 			<div className="flex flex-col space-y-8">
 				<PageHeader
 					title="API keys"
-					description="Manage your API keys for LLM inference"
+					description="Manage your API keys and connected devices"
 					action={
 						<Button onClick={() => setShowNewKeyModal(true)}>
 							<Plus className="h-4 w-4 mr-2" />
@@ -461,6 +408,8 @@ function ApiKeys() {
 					</Card>
 				)}
 
+				<CliDevices />
+
 				<Card>
 					<CardHeader title="API usage instructions" icon={<Key className="h-5 w-5 text-primary" />} />
 					<div className="space-y-4 text-card-foreground">
@@ -535,45 +484,6 @@ function ApiKeys() {
 							</a>
 							.
 						</p>
-					</div>
-				</Card>
-
-				<Card>
-					<CardHeader title="Use with your tools" icon={<Settings className="h-5 w-5 text-primary" />} />
-					<p className="text-sm text-muted-foreground mb-4">
-						Drop LibertAI into popular coding agents and IDEs. Snippets update with the selected model above.
-					</p>
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						{TOOL_INTEGRATIONS.map((tool) => {
-							const snippet = selectedModel ? tool.snippet(selectedModel) : null;
-							return (
-								<div
-									key={tool.name}
-									className="bg-secondary/50 p-4 rounded-md border border-border/50 flex flex-col gap-3"
-								>
-									<div>
-										<h3 className="font-semibold">{tool.name}</h3>
-										<p className="text-xs text-muted-foreground mt-1">{tool.description}</p>
-									</div>
-									<div className="relative">
-										{snippet ? (
-											<>
-												<pre className="text-xs font-mono overflow-x-auto whitespace-pre-wrap bg-background/60 p-3 rounded-md border border-border/50 pr-10">
-													{snippet}
-												</pre>
-												<div className="absolute top-2 right-2">
-													<CopyButton value={snippet} label={`Copy ${tool.name} snippet`} />
-												</div>
-											</>
-										) : isErrorModels ? (
-											<p className="text-sm text-muted-foreground">Snippet unavailable until models load.</p>
-										) : (
-											<Skeleton className="h-24 w-full" />
-										)}
-									</div>
-								</div>
-							);
-						})}
 					</div>
 				</Card>
 			</div>
