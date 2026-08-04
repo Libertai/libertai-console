@@ -147,13 +147,14 @@ function DeviceRow({
 }
 
 export function CliDevices() {
-	const { devices, isLoading, isError, refetch, disconnectDevice, disconnectStatus } = useCliDevices();
+	const { devices, isLoading, isError, refetch, disconnectDevice } = useCliDevices();
 	const [pendingDisconnect, setPendingDisconnect] = useState<CliApiKey | null>(null);
 	// Survives the dialog's close animation so the description doesn't flash while it fades.
 	const [pendingName, setPendingName] = useState<string | null>(null);
-	// ConfirmDialog clears pendingDisconnect the instant onConfirm fires, so the row that's
-	// mid-disconnect needs its own id to stay disabled until the mutation settles.
-	const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
+	// ConfirmDialog clears pendingDisconnect the instant onConfirm fires, so an in-flight row
+	// needs its own id — and a set, not a scalar, since the mutation allows concurrent calls
+	// (disconnect A, then B before A settles) and each row's disabled state is independent.
+	const [disconnectingIds, setDisconnectingIds] = useState<ReadonlySet<string>>(new Set());
 
 	const sorted = useMemo(() => sortDevices(devices), [devices]);
 
@@ -190,7 +191,7 @@ export function CliDevices() {
 							<DeviceRow
 								key={device.id}
 								device={device}
-								disconnecting={disconnectingId === device.id && disconnectStatus === "pending"}
+								disconnecting={disconnectingIds.has(device.id)}
 								onDisconnect={() => {
 									setPendingDisconnect(device);
 									setPendingName(parseDeviceName(device.name).name);
@@ -221,12 +222,18 @@ export function CliDevices() {
 				onConfirm={() => {
 					if (!pendingDisconnect) return;
 					const id = pendingDisconnect.id;
-					setDisconnectingId(id);
+					setDisconnectingIds((current) => new Set(current).add(id));
 					// mutateAsync rejects even with onError set (react-query v5); the hook's
 					// onError already toasts, so swallow the rejection here.
 					void disconnectDevice(id)
 						.catch(() => {})
-						.finally(() => setDisconnectingId((current) => (current === id ? null : current)));
+						.finally(() =>
+							setDisconnectingIds((current) => {
+								const next = new Set(current);
+								next.delete(id);
+								return next;
+							}),
+						);
 				}}
 			/>
 		</Card>
