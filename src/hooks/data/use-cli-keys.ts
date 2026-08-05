@@ -52,6 +52,5 @@ export function useCliDevices() {
 		isError: query.isError,
 		refetch: query.refetch,
 		disconnectDevice: disconnectMutation.mutateAsync,
-		disconnectStatus: disconnectMutation.status,
 	};
 }
