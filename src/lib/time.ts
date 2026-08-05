@@ -21,5 +21,10 @@ export const fromNow = (value: Timestamp) => (value ? at(value).fromNow() : null
 export const daysUntil = (value: Timestamp) =>
 	value ? Math.max(0, Math.ceil((at(value).valueOf() - Date.now()) / 86_400_000)) : null;
 
-export const shortDate = (value: Timestamp) =>
-	value ? at(value).format(at(value).isSame(dayjs(), "year") ? "MMM D" : "MMM D, YYYY") : null;
+// The year is only shown outside the current one: device keys live 90 days, so
+// created_at legitimately crosses a year boundary.
+export const shortDate = (value: Timestamp) => {
+	if (!value) return null;
+	const date = at(value);
+	return date.format(date.isSame(dayjs(), "year") ? "MMM D" : "MMM D, YYYY");
+};
