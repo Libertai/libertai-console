@@ -39,6 +39,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Label } from "@libertai/ui/label";
 import dayjs from "dayjs";
 import { routeHead } from "@/lib/route-titles";
+import { isoDate } from "@/lib/time";
 
 type CodeLang = "curl" | "python" | "typescript";
 
@@ -353,9 +354,7 @@ function ApiKeys() {
 												{key.name}
 											</TableCell>
 											<TableCell className="font-mono">{key.key}</TableCell>
-											<TableCell className="text-muted-foreground">
-												{dayjs(key.created_at).format("YYYY-MM-DD")}
-											</TableCell>
+											<TableCell className="text-muted-foreground">{isoDate(key.created_at)}</TableCell>
 											<TableCell className="text-muted-foreground">
 												{key.monthly_limit ? `$${key.monthly_limit}` : "None"}
 											</TableCell>

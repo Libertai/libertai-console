@@ -16,6 +16,8 @@ export const ts = (value: Timestamp) => (value ? at(value).valueOf() : null);
 
 export const fromNow = (value: Timestamp) => (value ? at(value).fromNow() : null);
 
+export const isoDate = (value: Timestamp) => (value ? at(value).format("YYYY-MM-DD") : null);
+
 // Whole days, rounded up, floored at 0. Not dayjs's toNow(): it renders everything from
 // roughly 25 to 46 days as "a month".
 export const daysUntil = (value: Timestamp) =>
