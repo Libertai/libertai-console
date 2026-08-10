@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useAccountStore } from "@libertai/auth";
+import { ACCOUNT_SUSPENDED, useAccountStore } from "@libertai/auth";
 import { Button } from "@libertai/ui/button";
 import { usePostLoginRedirect } from "@/hooks/use-post-login-redirect";
 import { routeHead } from "@/lib/route-titles";
@@ -15,7 +15,9 @@ function AuthVerify() {
 	const verifyMagicLinkToken = useAccountStore((state) => state.verifyMagicLinkToken);
 	const navigate = useNavigate();
 	const redirectAfterLogin = usePostLoginRedirect();
+	const loginError = useAccountStore((state) => state.loginError);
 	const [failed, setFailed] = useState(false);
+	const suspended = failed && loginError === ACCOUNT_SUSPENDED;
 
 	useEffect(() => {
 		const token = new URLSearchParams(window.location.search).get("token");
@@ -36,8 +38,12 @@ function AuthVerify() {
 		<div className="container mx-auto flex flex-col items-center justify-center px-4 py-24 text-center">
 			{failed ? (
 				<div className="space-y-4">
-					<p className="text-lg font-medium">Sign-in failed</p>
-					<p className="text-muted-foreground">This sign-in link is invalid or has expired.</p>
+					<p className="text-lg font-medium">{suspended ? "Account suspended" : "Sign-in failed"}</p>
+					<p className="text-muted-foreground">
+						{suspended
+							? "This account has been suspended. Contact support if you believe this is a mistake."
+							: "This sign-in link is invalid or has expired."}
+					</p>
 					<Button onClick={() => navigate({ to: "/login" })}>Back to sign in</Button>
 				</div>
 			) : (
