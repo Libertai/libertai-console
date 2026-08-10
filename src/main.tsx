@@ -10,13 +10,14 @@ import { ErrorPage } from "@/components/error-page.tsx";
 import { initLibertaiAuth, useAccountStore } from "@libertai/auth";
 import { queryClient } from "@/lib/query-client";
 import env from "@/config/env.ts";
+import { thirdwebClient } from "@/config/thirdweb";
 
 // Configure the shared inference SDK + auth store. Cookie-based auth: the backend, the
 // console and chat are all same-site (*.libertai.io; localhost in dev), so the httpOnly
 // SameSite=Lax session cookie is sent on credentialed cross-origin requests (CORS allows it).
 initLibertaiAuth({
 	apiBaseUrl: env.LTAI_INFERENCE_API_URL,
-	thirdwebClientId: env.THIRDWEB_CLIENT_ID,
+	thirdwebClient,
 	solanaRpc: env.SOLANA_RPC,
 	ltaiBaseAddress: env.LTAI_BASE_ADDRESS,
 	ltaiSolanaAddress: env.LTAI_SOLANA_ADDRESS,
