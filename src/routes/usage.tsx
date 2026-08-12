@@ -43,8 +43,8 @@ function AllowanceCountdown({
 	window5h,
 	weekly,
 }: {
-	window5h: { used: number; limit: number; resetsAt?: string | null };
-	weekly: { used: number; limit: number; resetsAt?: string | null };
+	window5h: { percent: number; resetsAt?: string | null };
+	weekly: { percent: number; resetsAt?: string | null };
 }) {
 	const [now, setNow] = useState(() => Date.now());
 	useEffect(() => {
@@ -54,14 +54,8 @@ function AllowanceCountdown({
 
 	return (
 		<div className="flex flex-col gap-5">
-			<AllowanceBar
-				label="Last 5 hours"
-				used={window5h.used}
-				limit={window5h.limit}
-				resetsAt={window5h.resetsAt}
-				now={now}
-			/>
-			<AllowanceBar label="This week" used={weekly.used} limit={weekly.limit} resetsAt={weekly.resetsAt} now={now} />
+			<AllowanceBar label="Last 5 hours" percent={window5h.percent} resetsAt={window5h.resetsAt} now={now} />
+			<AllowanceBar label="This week" percent={weekly.percent} resetsAt={weekly.resetsAt} now={now} />
 		</div>
 	);
 }
@@ -92,13 +86,11 @@ function OverviewView() {
 
 				<AllowanceCountdown
 					window5h={{
-						used: subscription?.window_5h_used ?? 0,
-						limit: subscription?.window_5h_limit ?? 0,
+						percent: subscription?.window_5h_used_percent ?? 0,
 						resetsAt: subscription?.window_5h_resets_at,
 					}}
 					weekly={{
-						used: subscription?.weekly_used ?? 0,
-						limit: subscription?.weekly_limit ?? 0,
+						percent: subscription?.weekly_used_percent ?? 0,
 						resetsAt: subscription?.weekly_resets_at,
 					}}
 				/>
