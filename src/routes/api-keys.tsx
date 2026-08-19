@@ -185,7 +185,11 @@ function ApiKeys() {
 		const compare: Record<SortColumn, (a: ApiKey, b: ApiKey) => number> = {
 			name: (a, b) => a.name.localeCompare(b.name),
 			created: (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-			limit: (a, b) => (a.monthly_limit ?? 0) - (b.monthly_limit ?? 0),
+			// No limit sorts as the largest value, not as 0.
+			limit: (a, b) => {
+				const [aLimit, bLimit] = [a.monthly_limit ?? Infinity, b.monthly_limit ?? Infinity];
+				return aLimit === bLimit ? 0 : aLimit - bLimit;
+			},
 			usage: (a, b) => (usageByName.get(a.name) ?? 0) - (usageByName.get(b.name) ?? 0),
 			status: (a, b) => Number(a.is_active) - Number(b.is_active),
 		};
@@ -356,7 +360,7 @@ function ApiKeys() {
 											<TableCell className="font-mono">{key.key}</TableCell>
 											<TableCell className="text-muted-foreground">{isoDate(key.created_at)}</TableCell>
 											<TableCell className="text-muted-foreground">
-												{key.monthly_limit ? `$${key.monthly_limit}` : "None"}
+												{key.monthly_limit != null ? `$${key.monthly_limit}` : "None"}
 											</TableCell>
 											<TableCell className="text-muted-foreground">
 												{isLoadingUsage ? (

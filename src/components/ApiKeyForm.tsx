@@ -20,7 +20,7 @@ const apiKeyFormSchema = z.object({
 	monthlyLimit: z
 		.string()
 		.refine((val) => val === "" || (!isNaN(Number(val)) && Number(val) >= 0), {
-			error: "Must be a valid positive number",
+			error: "Must be a valid non-negative number",
 		})
 		.transform((val) => (val === "" ? null : Number(val))),
 	isActive: z.boolean().optional(),
@@ -37,7 +37,7 @@ export function ApiKeyForm({ mode, onSubmit, onCancel, initialData, isLoading = 
 	useEffect(() => {
 		if (initialData && isEditMode) {
 			setName(initialData.name);
-			setMonthlyLimit(initialData.monthly_limit ? initialData.monthly_limit.toString() : "");
+			setMonthlyLimit(initialData.monthly_limit != null ? initialData.monthly_limit.toString() : "");
 			setIsActive(initialData.is_active);
 		}
 	}, [initialData, isEditMode]);
