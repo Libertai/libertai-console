@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { cliCodeAuthCliCodePost } from "@libertai/inference-sdk/sdk.gen";
 import { useAccountStore, LoginPanel } from "@libertai/auth";
 import { LibertaiLogo } from "@libertai/branding";
 import { Button } from "@libertai/ui/button";
+import { CopyButton } from "@libertai/ui/copy-button";
 import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/cli")({
@@ -48,23 +50,30 @@ function CliAuthorize() {
 
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [code, setCode] = useState<string | null>(null);
 
 	const paramsValid = redirectUri !== null && state !== "" && challenge !== "";
 
+	// Full loopback URL carrying the minted code, used both by the background delivery
+	// frame and by the manual "open it yourself" link.
+	const callbackUrl = useMemo(() => {
+		if (!redirectUri || !code) return null;
+		const url = new URL(redirectUri.toString());
+		url.searchParams.set("code", code);
+		url.searchParams.set("state", state);
+		return url.toString();
+	}, [redirectUri, code, state]);
+
 	const handleApprove = async () => {
-		if (!redirectUri) return;
 		setSubmitting(true);
 		setError(null);
 		const response = await createCliCode(challenge);
+		setSubmitting(false);
 		if (!response) {
-			setSubmitting(false);
 			setError("Could not authorize the CLI. Please try again.");
 			return;
 		}
-		// Hand the one-time code back to the CLI's local loopback server.
-		redirectUri.searchParams.set("code", response);
-		redirectUri.searchParams.set("state", state);
-		window.location.href = redirectUri.toString();
+		setCode(response);
 	};
 
 	return (
@@ -84,6 +93,8 @@ function CliAuthorize() {
 						<LoginPanel onSuccess={() => {}} />
 					</div>
 				</div>
+			) : code && callbackUrl ? (
+				<CodeHandoff code={code} callbackUrl={callbackUrl} client={client} />
 			) : (
 				<div className="w-full space-y-3">
 					<p className="text-sm text-muted-foreground">Connect this device to your account.</p>
@@ -95,6 +106,41 @@ function CliAuthorize() {
 					<p className="text-xs text-muted-foreground">Only continue if you started this sign-in yourself.</p>
 				</div>
 			)}
+		</div>
+	);
+}
+
+/** Post-approval view: hands the code to the CLI's loopback server in the background while
+ * keeping it on screen, so a user whose browser can't reach the loopback can paste it instead. */
+function CodeHandoff({ code, callbackUrl, client }: { code: string; callbackUrl: string; client: string }) {
+	return (
+		<div className="w-full space-y-4">
+			{/* Best-effort delivery. A frame navigation isn't subject to CORS, unlike fetch, so the
+			    CLI server needs no extra headers — but a cross-origin frame's load event fires for
+			    error pages too, so we can't report success from here: the CLI's terminal does that. */}
+			<iframe title="CLI callback" src={callbackUrl} sandbox="" className="hidden" aria-hidden="true" />
+
+			<p className="text-sm text-muted-foreground">
+				{client} has been authorized. Go back to your terminal — it should already be signed in.
+			</p>
+
+			<div className="space-y-2 text-left">
+				<p className="text-xs text-muted-foreground">If nothing happened, paste this code into your terminal:</p>
+				<div className="flex items-center gap-2 rounded-md border bg-muted/50 p-2">
+					<pre className="flex-1 overflow-x-auto text-xs break-all whitespace-pre-wrap">{code}</pre>
+					<CopyButton value={code} label="Copy code" onCopied={() => toast.success("Code copied to clipboard")} />
+				</div>
+			</div>
+
+			{/* New tab so the code stays on screen here if the loopback server is already gone. */}
+			<a
+				href={callbackUrl}
+				target="_blank"
+				rel="noopener noreferrer"
+				className="block text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+			>
+				Or open the callback URL directly
+			</a>
 		</div>
 	);
 }
