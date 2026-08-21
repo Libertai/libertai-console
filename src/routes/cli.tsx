@@ -132,8 +132,11 @@ function CodeHandoff({ code, callbackUrl, client }: { code: string; callbackUrl:
 				</div>
 			</div>
 
+			{/* New tab so the code stays on screen here if the loopback server is already gone. */}
 			<a
 				href={callbackUrl}
+				target="_blank"
+				rel="noopener noreferrer"
 				className="block text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
 			>
 				Or open the callback URL directly
