@@ -19,7 +19,7 @@ const apiKeyFormSchema = z.object({
 	name: z.string().min(1, "Key name is required"),
 	monthlyLimit: z
 		.string()
-		.refine((val) => val === "" || (!isNaN(Number(val)) && Number(val) >= 0), {
+		.refine((val) => val === "" || (Number.isFinite(Number(val)) && Number(val) >= 0), {
 			error: "Must be a valid non-negative number",
 		})
 		.transform((val) => (val === "" ? null : Number(val))),
