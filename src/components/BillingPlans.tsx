@@ -1,5 +1,14 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { PlansSection, TransactionHistory, UsageCreditsCard, useAccountStore, useSubscription } from "@libertai/auth";
+import {
+	BillingDetailsForm,
+	InvoiceHistory,
+	PlansSection,
+	TransactionHistory,
+	UsageCreditsCard,
+	useAccountStore,
+	useIsWalletAccount,
+	useSubscription,
+} from "@libertai/auth";
 
 // Shared by the /billing and /plans routes. Signed-out visitors can browse plans;
 // any billing action bounces to login and returns here.
@@ -7,6 +16,7 @@ export function BillingPlans() {
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
 	const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
+	const isWalletAccount = useIsWalletAccount();
 	const { data: subscription } = useSubscription();
 
 	return (
@@ -28,6 +38,13 @@ export function BillingPlans() {
 							onBuyCredits={() => navigate({ to: "/top-up" })}
 						/>
 						<TransactionHistory />
+						{/* Invoices are issued for card payments only — wallet accounts never have any. */}
+						{!isWalletAccount && (
+							<>
+								<InvoiceHistory />
+								<BillingDetailsForm />
+							</>
+						)}
 					</>
 				)}
 			</div>
