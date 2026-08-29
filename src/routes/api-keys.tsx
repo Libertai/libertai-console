@@ -525,23 +525,24 @@ function ApiKeys() {
 								</p>
 
 								<div className="flex items-center p-3 bg-secondary border border-border rounded-md">
-									<pre className="text-sm font-mono overflow-x-auto flex-1">
-										{showKey ? newGeneratedKey : "••••••••••••••••••••••••••••••••••••••••"}
+									<pre className="min-w-0 flex-1 whitespace-pre-wrap break-all text-sm font-mono">
+										{showKey ? newGeneratedKey : "••••••••••••••••••••••••••••••••"}
 									</pre>
-									<Button
-										variant="ghost"
-										size="icon"
-										onClick={() => setShowKey(!showKey)}
-										className="ml-2"
-										aria-label={showKey ? "Hide key" : "Show key"}
-									>
-										{showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-									</Button>
-									<CopyButton
-										value={newGeneratedKey}
-										label="Copy API key"
-										onCopied={() => toast.success("API key copied to clipboard")}
-									/>
+									<div className="ml-2 flex shrink-0 items-center">
+										<Button
+											variant="ghost"
+											size="icon"
+											onClick={() => setShowKey(!showKey)}
+											aria-label={showKey ? "Hide key" : "Show key"}
+										>
+											{showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+										</Button>
+										<CopyButton
+											value={newGeneratedKey}
+											label="Copy API key"
+											onCopied={() => toast.success("API key copied to clipboard")}
+										/>
+									</div>
 								</div>
 							</div>
 
