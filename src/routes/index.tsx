@@ -70,7 +70,7 @@ function LandingPage() {
 					<pre className="p-4 text-sm text-zinc-100 dark:text-foreground font-mono overflow-x-auto">{`curl https://api.libertai.io/v1/chat/completions \\
   -H "Authorization: Bearer $LIBERTAI_API_KEY" \\
   -d '{
-    "model": "glm-5.2",
+    "model": "glm-5.3",
     "messages": [{"role": "user", "content": "Hello"}]
   }'`}</pre>
 				</Card>

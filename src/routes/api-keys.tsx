@@ -55,7 +55,7 @@ const DEFAULT_SORT_DIRECTION: Record<SortColumn, SortDirection> = {
 	status: "desc",
 };
 
-const DEFAULT_EXAMPLE_MODEL = "glm-5.2";
+const DEFAULT_EXAMPLE_MODEL = "glm-5.3";
 
 const CODE_LANG_LABELS: Record<CodeLang, string> = {
 	curl: "cURL",
@@ -133,7 +133,7 @@ function ApiKeys() {
 		refetch: refetchModels,
 	} = useAlephModels("text");
 
-	// Default to GLM-5.2 when available, else the first available model
+	// Default to GLM-5.3 when available, else the first available model
 	useEffect(() => {
 		if (models && models.length > 0 && !selectedModel) {
 			const preferred = models.find((model) => model.id === DEFAULT_EXAMPLE_MODEL);
