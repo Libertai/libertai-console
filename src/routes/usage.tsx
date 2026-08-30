@@ -190,13 +190,15 @@ function AdvancedView() {
 
 	const handleExportData = () => {
 		// No per-day Cost column: the API only returns an aggregate cost for the range, not
-		// per-day (daily_usage/DailyTokens has input/output tokens only) — a prorated estimate
+		// per-day (daily_usage/DailyTokens carries token counts only) — a prorated estimate
 		// would read as authoritative to spreadsheet consumers despite being inaccurate whenever
 		// the model mix varies day to day. Needs a backend field before this can be added for real.
-		const headers = ["Date", "Input Tokens", "Output Tokens", "Total Tokens"];
+		const headers = ["Date", "Input Tokens", "Cached Input Tokens", "Output Tokens", "Total Tokens"];
 		const csvRows = [
 			headers.join(","),
-			...dailyChartData.map((day) => [day.date, day.input_tokens, day.output_tokens, day.tokens].join(",")),
+			...dailyChartData.map((day) =>
+				[day.date, day.input_tokens, day.cached_tokens, day.output_tokens, day.tokens].join(","),
+			),
 		];
 		const csvContent = csvRows.join("\n");
 		const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -367,7 +369,23 @@ function AdvancedView() {
 											labelFormatter={(label) => `Date: ${label}`}
 										/>
 										<Legend align="center" verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ paddingTop: "10px" }} />
-										<Bar yAxisId="right" dataKey="input_tokens" name="Input" fill="var(--chart-1)" radius={[4, 4, 0, 0]} barSize={24} />
+										<Bar
+											yAxisId="right"
+											stackId="input"
+											dataKey="cached_tokens"
+											name="Input (cached)"
+											fill="var(--chart-1-subtle)"
+											barSize={24}
+										/>
+										<Bar
+											yAxisId="right"
+											stackId="input"
+											dataKey="uncached_input_tokens"
+											name="Input"
+											fill="var(--chart-1)"
+											radius={[4, 4, 0, 0]}
+											barSize={24}
+										/>
 										<Bar yAxisId="right" dataKey="output_tokens" name="Output" fill="var(--chart-2)" radius={[4, 4, 0, 0]} barSize={24} />
 									</BarChart>
 								</ResponsiveContainer>

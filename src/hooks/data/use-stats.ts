@@ -74,10 +74,14 @@ export function useUsageStats(startDate: string, endDate: string) {
 	});
 
 	// Transform daily_usage data for chart
+	// cached_tokens is a subset of input_tokens, so the two chart segments are cached + the
+	// remainder — stacking input_tokens itself would count the cached share twice.
 	const dailyChartData = Object.entries(usageQuery.data?.daily_usage || {})
 		.map(([date, tokens]) => ({
 			date,
 			input_tokens: tokens.input_tokens,
+			cached_tokens: tokens.cached_tokens,
+			uncached_input_tokens: tokens.input_tokens - tokens.cached_tokens,
 			output_tokens: tokens.output_tokens,
 			tokens: tokens.input_tokens + tokens.output_tokens,
 		}))
