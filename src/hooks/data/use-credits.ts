@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUserBalanceCreditsBalanceGet } from "@libertai/inference-sdk";
 import { useAccountStore } from "@libertai/auth";
 import { toast } from "sonner";
+import { formatMoney } from "@libertai/lib/utils";
 
 export function useCredits() {
 	const queryClient = useQueryClient();
@@ -47,9 +48,7 @@ export function useCredits() {
 
 	return {
 		credits: creditsQuery.data?.balance ?? 0,
-		formattedCredits: creditsQuery.data
-			? creditsQuery.data.balance.toLocaleString(undefined, { maximumFractionDigits: 4 })
-			: "0",
+		formattedCredits: formatMoney(creditsQuery.data?.balance ?? 0),
 		isLoading: creditsQuery.isLoading,
 		isError: creditsQuery.isError,
 		error: creditsQuery.error,

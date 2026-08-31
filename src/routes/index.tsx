@@ -15,6 +15,7 @@ import { useStats } from "@/hooks/data/use-stats";
 import { useApiKeys } from "@/hooks/data/use-api-keys";
 import { formatCompactNumber } from "@/lib/utils";
 import { routeHead } from "@/lib/route-titles";
+import { formatMoney } from "@libertai/lib/utils";
 
 export const Route = createFileRoute("/")({
 	head: () => routeHead("/"),
@@ -127,7 +128,7 @@ function DashboardPage() {
 						title="Credits"
 						icon={<Coins className="h-5 w-5 text-primary" />}
 						isLoading={areCreditsLoading}
-						value={isCreditsError ? <span title="Couldn't load">—</span> : `$${formattedCredits}`}
+						value={isCreditsError ? <span title="Couldn't load">—</span> : formattedCredits}
 						action={
 							<Button size="sm" onClick={() => navigate({ to: "/billing" })}>
 								Buy credits
@@ -203,7 +204,7 @@ function DashboardPage() {
 												axisLine={{ stroke: "var(--border)" }}
 												domain={[0, (dataMax: number) => Math.max(1, Math.ceil(dataMax))]}
 												allowDecimals={false}
-												tickFormatter={(value) => `$${Number(value).toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+												tickFormatter={(value) => `$${Number(value).toLocaleString()}`}
 											/>
 											<Tooltip
 												contentStyle={{
@@ -213,12 +214,7 @@ function DashboardPage() {
 													fontSize: "0.875rem",
 													boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
 												}}
-												formatter={(value) => [
-													`$${(value ?? 0).toLocaleString(undefined, {
-														maximumFractionDigits: 4,
-													})}`,
-													"Credits used",
-												]}
+												formatter={(value) => [formatMoney(Number(value ?? 0)), "Credits used"]}
 												labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ""}
 												labelStyle={{ marginBottom: "5px", fontWeight: "bold" }}
 											/>

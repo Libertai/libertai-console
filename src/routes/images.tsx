@@ -14,6 +14,7 @@ import { Label } from "@libertai/ui/label";
 import { PageSkeleton } from "@libertai/ui/page-skeleton";
 import { ToggleGroup } from "@libertai/ui/toggle-group";
 import { routeHead } from "@/lib/route-titles";
+import { formatMoney } from "@libertai/lib/utils";
 
 export const Route = createFileRoute("/images")({
 	head: () => routeHead("/images"),
@@ -305,7 +306,7 @@ function Images() {
 										{selectedModel && models.find((m) => m.id === selectedModel) && (
 											<div className="mt-3 p-3 bg-secondary/50 rounded-md">
 												<p className="text-sm font-medium">
-													Cost: {cost !== null ? `$${cost.toFixed(4)} per image` : "Unknown"}
+													Cost: {cost !== null ? `${formatMoney(cost)} per image` : "Unknown"}
 												</p>
 											</div>
 										)}

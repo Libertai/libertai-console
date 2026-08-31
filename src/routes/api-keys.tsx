@@ -40,6 +40,7 @@ import { Label } from "@libertai/ui/label";
 import dayjs from "dayjs";
 import { routeHead } from "@/lib/route-titles";
 import { isoDate } from "@/lib/time";
+import { formatMoney } from "@libertai/lib/utils";
 
 type CodeLang = "curl" | "python" | "typescript";
 
@@ -360,7 +361,7 @@ function ApiKeys() {
 											<TableCell className="font-mono">{key.key}</TableCell>
 											<TableCell className="text-muted-foreground">{isoDate(key.created_at)}</TableCell>
 											<TableCell className="text-muted-foreground">
-												{key.monthly_limit != null ? `$${key.monthly_limit}` : "None"}
+												{key.monthly_limit != null ? formatMoney(key.monthly_limit) : "None"}
 											</TableCell>
 											<TableCell className="text-muted-foreground">
 												{isLoadingUsage ? (
@@ -368,7 +369,7 @@ function ApiKeys() {
 												) : isUsageError ? (
 													<span title="Couldn't load usage">—</span>
 												) : (
-													`$${(usageByName.get(key.name) ?? 0).toFixed(2)}`
+													formatMoney(usageByName.get(key.name) ?? 0)
 												)}
 											</TableCell>
 											<TableCell>

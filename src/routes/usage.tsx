@@ -28,6 +28,7 @@ import { ErrorCard } from "@libertai/ui/error-card";
 import { PageSkeleton } from "@libertai/ui/page-skeleton";
 import { SortableTableHead, Table, TableBody, TableCell, TableHeader, TableRow } from "@libertai/ui/table";
 import { routeHead } from "@/lib/route-titles";
+import { formatMoney } from "@libertai/lib/utils";
 
 export const Route = createFileRoute("/usage")({
 	head: () => routeHead("/usage"),
@@ -108,7 +109,7 @@ function OverviewView() {
 					}
 					action={
 						<div className="flex items-center gap-4">
-							<span className="text-2xl font-bold">${(subscription?.prepaid_balance ?? 0).toFixed(2)}</span>
+							<span className="text-2xl font-bold">{formatMoney(subscription?.prepaid_balance ?? 0)}</span>
 							<Button size="sm" asChild>
 								<Link to="/billing">Buy credits</Link>
 							</Button>
@@ -227,7 +228,7 @@ function AdvancedView() {
 		{
 			title: "Cost",
 			icon: <DollarSign className="h-5 w-5 text-primary" />,
-			value: `$${totalCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+			value: formatMoney(totalCost),
 		},
 	];
 
@@ -448,7 +449,7 @@ function AdvancedView() {
 												<TableCell className="text-right">{formatCompactNumber(model.calls)}</TableCell>
 												<TableCell className="text-right">{formatCompactNumber(model.total_tokens)}</TableCell>
 												<TableCell className="text-right">
-													${model.cost.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+													{formatMoney(model.cost)}
 												</TableCell>
 											</TableRow>
 										))
