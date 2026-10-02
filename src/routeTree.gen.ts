@@ -17,6 +17,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ImagesRouteImport } from './routes/images'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CliRouteImport } from './routes/cli'
+import { Route as ClaimRouteImport } from './routes/claim'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
@@ -64,6 +65,11 @@ const CliRoute = CliRouteImport.update({
   path: '/cli',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClaimRoute = ClaimRouteImport.update({
+  id: '/claim',
+  path: '/claim',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BillingRoute = BillingRouteImport.update({
   id: '/billing',
   path: '/billing',
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/billing': typeof BillingRoute
+  '/claim': typeof ClaimRoute
   '/cli': typeof CliRoute
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/billing': typeof BillingRoute
+  '/claim': typeof ClaimRoute
   '/cli': typeof CliRoute
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/billing': typeof BillingRoute
+  '/claim': typeof ClaimRoute
   '/cli': typeof CliRoute
   '/dashboard': typeof DashboardRoute
   '/images': typeof ImagesRoute
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/billing'
+    | '/claim'
     | '/cli'
     | '/dashboard'
     | '/images'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/billing'
+    | '/claim'
     | '/cli'
     | '/dashboard'
     | '/images'
@@ -182,6 +193,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/billing'
+    | '/claim'
     | '/cli'
     | '/dashboard'
     | '/images'
@@ -199,6 +211,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiKeysRoute: typeof ApiKeysRoute
   BillingRoute: typeof BillingRoute
+  ClaimRoute: typeof ClaimRoute
   CliRoute: typeof CliRoute
   DashboardRoute: typeof DashboardRoute
   ImagesRoute: typeof ImagesRoute
@@ -270,6 +283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CliRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/claim': {
+      id: '/claim'
+      path: '/claim'
+      fullPath: '/claim'
+      preLoaderRoute: typeof ClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/billing': {
       id: '/billing'
       path: '/billing'
@@ -319,6 +339,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiKeysRoute: ApiKeysRoute,
   BillingRoute: BillingRoute,
+  ClaimRoute: ClaimRoute,
   CliRoute: CliRoute,
   DashboardRoute: DashboardRoute,
   ImagesRoute: ImagesRoute,
