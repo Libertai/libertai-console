@@ -257,11 +257,12 @@ function NextSteps({ claim }: { claim: Claim }) {
 					<p className="text-sm text-muted-foreground">
 						Works with any OpenAI-compatible SDK or agent framework. Paste your key in place of YOUR_API_KEY.
 					</p>
-					{/* Long lines scroll rather than wrap: wrapped at phone width, the three lines turn into ten. */}
+					{/* Wraps anywhere, long URLs included, so nothing scrolls sideways on a phone; the copy
+					    button copies the original three lines. */}
 					<CodeBlock
 						value={QUICKSTART}
 						copyLabel="Copy code example"
-						className="[&_pre]:text-xs [&_pre]:whitespace-pre sm:[&_pre]:text-sm"
+						className="[&_pre]:text-xs [&_pre]:wrap-anywhere sm:[&_pre]:text-sm"
 					/>
 					<a
 						href="https://docs.libertai.io/apis/text"
