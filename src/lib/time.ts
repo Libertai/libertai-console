@@ -30,3 +30,20 @@ export const shortDate = (value: Timestamp) => {
 	const date = at(value);
 	return date.format(date.isSame(dayjs(), "year") ? "MMM D" : "MMM D, YYYY");
 };
+
+// Calendar date with the year always shown, for deadlines: "Dec 13, 2026".
+export const longDate = (value: Timestamp) => (value ? at(value).format("MMM D, YYYY") : null);
+
+// Date and time in the viewer's locale and time zone, with the zone named so a time set for an
+// event elsewhere can't be misread: "Oct 14, 2026, 9:00 AM GMT+2".
+export const localDateTime = (value: Timestamp) =>
+	value
+		? new Date(at(value).valueOf()).toLocaleString(undefined, {
+				year: "numeric",
+				month: "short",
+				day: "numeric",
+				hour: "numeric",
+				minute: "2-digit",
+				timeZoneName: "short",
+			})
+		: null;
