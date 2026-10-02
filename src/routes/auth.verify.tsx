@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { ACCOUNT_SUSPENDED, useAccountStore } from "@libertai/auth";
 import { Button } from "@libertai/ui/button";
-import { usePostLoginRedirect } from "@/hooks/use-post-login-redirect";
+import { rememberPostLoginRedirect, sanitizeRedirect, usePostLoginRedirect } from "@/hooks/use-post-login-redirect";
 import { routeHead } from "@/lib/route-titles";
 
 export const Route = createFileRoute("/auth/verify")({
@@ -20,7 +20,13 @@ function AuthVerify() {
 	const suspended = failed && loginError === ACCOUNT_SUSPENDED;
 
 	useEffect(() => {
-		const token = new URLSearchParams(window.location.search).get("token");
+		const params = new URLSearchParams(window.location.search);
+		// The emailed link carries the page the sign-in started from (`next`, when the app sent a
+		// redirect_path): mail apps often open it in another browser, where sessionStorage is empty.
+		// An unsafe value is ignored rather than clearing a destination stored in this tab.
+		const next = sanitizeRedirect(params.get("next"));
+		if (next) rememberPostLoginRedirect(next);
+		const token = params.get("token");
 		if (!token) {
 			setFailed(true);
 			return;

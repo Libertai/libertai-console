@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { formatMoney } from "@libertai/lib/utils";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -21,4 +22,9 @@ export function formatCompactNumber(value: number): string {
 		}
 	}
 	return value.toLocaleString();
+}
+
+// Headline amounts drop the cents when there are none: 40 -> "$40", 12.5 -> "$12.50".
+export function formatWholeMoney(value: number): string {
+	return Number.isInteger(value) ? `$${value.toLocaleString()}` : formatMoney(value);
 }

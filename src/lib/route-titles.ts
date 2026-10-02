@@ -10,6 +10,7 @@ export const ROUTE_TITLES: Record<string, string> = {
 	"/settings": "Settings",
 	"/login": "Sign in",
 	"/cli": "Authorize CLI",
+	"/claim": "Claim credits",
 	"/auth/callback": "Signing in",
 	"/auth/verify": "Signing in",
 	"/payment/callback": "Payment",

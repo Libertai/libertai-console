@@ -17,7 +17,7 @@ const developersSidebarItems = [
 ];
 
 // Routes rendered standalone, without the app sidebar/header chrome.
-const CHROMELESS_ROUTES = ["/login", "/auth/callback", "/auth/verify", "/cli"];
+const CHROMELESS_ROUTES = ["/login", "/auth/callback", "/auth/verify", "/cli", "/claim"];
 
 function RootComponent() {
 	// Derive chrome from the *rendered* matches, not state.location: the location flips to
