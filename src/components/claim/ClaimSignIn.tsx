@@ -5,18 +5,19 @@ import { useAccountStore } from "@libertai/auth";
 import { Button } from "@libertai/ui/button";
 import { Input } from "@libertai/ui/input";
 import { rememberPostLoginRedirect } from "@/hooks/use-post-login-redirect";
+import { sendLoginEmail } from "@/lib/claim-api";
 
 /**
  * Email-code and GitHub sign-in for the claim page, laid out like the shared LoginPanel minus
  * its wallet sign-in: a claim is tied to the account's email, so a wallet-only account would
  * sign in only to be refused.
  *
- * The 6-digit code signs in right here and the page moves on by itself. GitHub (and the email's
- * magic link, when opened in this same tab) leave the site and come back through /auth/callback
- * or /auth/verify, so `returnTo` is stored as the post-login destination before they start.
+ * The 6-digit code signs in right here and the page moves on by itself. GitHub leaves the site and
+ * comes back through /auth/callback, so `returnTo` is stored as the post-login destination first.
+ * The email's magic link carries `returnTo` itself (as `next`), since a mail app often opens it in
+ * another browser, where nothing stored here exists.
  */
 export function ClaimSignIn({ returnTo }: { returnTo: string }) {
-	const loginWithEmail = useAccountStore((state) => state.loginWithEmail);
 	const verifyEmailCode = useAccountStore((state) => state.verifyEmailCode);
 	const loginWithOAuth = useAccountStore((state) => state.loginWithOAuth);
 
@@ -29,11 +30,13 @@ export function ClaimSignIn({ returnTo }: { returnTo: string }) {
 		if (!email) return;
 		rememberPostLoginRedirect(returnTo);
 		setLoading(true);
-		const ok = await loginWithEmail(email);
+		const ok = await sendLoginEmail(email, returnTo);
 		setLoading(false);
 		if (ok) {
 			setStep("code");
 			toast.success("Check your email for a 6-digit code");
+		} else {
+			toast.error("Could not send the sign-in email");
 		}
 	};
 

@@ -1,3 +1,4 @@
+import { EmailLoginRequest, loginEmailAuthLoginEmailPost } from "@libertai/inference-sdk";
 import { client } from "@libertai/inference-sdk/client.gen";
 
 // Event credit claims (QR code at a booth -> /claim?e=<code>). These endpoints aren't in the
@@ -113,6 +114,19 @@ export async function attachAlephWallet(code: string, alephAddress: string): Pro
 	});
 	if (response.error) throw toError(response);
 	return response.data;
+}
+
+/** The shared store's loginWithEmail, plus `redirect_path` (not in the generated SDK yet): the
+ * emailed magic link carries it back as `next`, so the link lands on this page even when the mail
+ * app opens it in another browser. Same redirect_base as the shared flow. */
+export async function sendLoginEmail(email: string, redirectPath: string): Promise<boolean> {
+	const body: EmailLoginRequest & { redirect_path: string } = {
+		email,
+		redirect_base: window.location.origin,
+		redirect_path: redirectPath,
+	};
+	const response = await loginEmailAuthLoginEmailPost({ body });
+	return !response.error;
 }
 
 const EVM_ADDRESS = /^0x[0-9a-fA-F]{40}$/;

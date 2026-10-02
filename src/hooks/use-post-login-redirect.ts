@@ -8,9 +8,13 @@ import { useRouter } from "@tanstack/react-router";
  */
 const REDIRECT_STORAGE_KEY = "libertai-post-login-redirect";
 
-/** Internal app paths only — full URLs and protocol-relative ("//host") values are discarded. */
-function sanitizeRedirect(path: string | null | undefined): string | null {
-	return path && path.startsWith("/") && !path.startsWith("//") ? path : null;
+/** Internal app paths only — full URLs and protocol-relative ("//host") values are discarded, as
+ * are backslashes (browsers read "/\host" as "//host") and control characters. Same rule as the
+ * backend applies to the magic link's `next` path. */
+export function sanitizeRedirect(path: string | null | undefined): string | null {
+	if (!path || path.length > 512 || !path.startsWith("/") || path.startsWith("//")) return null;
+	// eslint-disable-next-line no-control-regex
+	return /[\\\x00-\x1f\x7f]/.test(path) ? null : path;
 }
 
 /**
