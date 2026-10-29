@@ -1,3 +1,6 @@
+packages:
+  - .
+
 # The patch file lives in the shared submodule so every app consuming it carries one copy;
 # the declaration must stay here, since pnpm only honours patchedDependencies from the root
 # of the project doing the install and shared takes thirdweb as a peer dep it never installs.
